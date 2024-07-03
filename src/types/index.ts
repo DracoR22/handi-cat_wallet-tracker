@@ -1,0 +1,1 @@
+type SwapType = 'PUMP FUN' | 'RAYDIUM' | null;

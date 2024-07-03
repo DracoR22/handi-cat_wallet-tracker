@@ -1,0 +1,24 @@
+import { PublicKey } from "@solana/web3.js";
+
+export class ValidTransactions {
+    constructor(
+        private pumpFunProgramId: PublicKey,
+        private raydiumProgramId: PublicKey,
+        private programIds: any
+    ) {
+        this.pumpFunProgramId = pumpFunProgramId
+    }
+
+    public getTransaction(): { valid: boolean, swap: SwapType } {
+        const pumpFunTransaction = this.programIds.some((id: any) => id.equals(this.pumpFunProgramId));
+        const raydiumTransaction = this.programIds.some((id: any) => id.equals(this.raydiumProgramId));
+
+        if (pumpFunTransaction) {
+            return { valid: true, swap: 'PUMP FUN'};
+        } else if (raydiumTransaction) {
+            return { valid: true, swap: 'RAYDIUM' }; 
+        } else {
+           return { valid: false, swap: null }
+        }
+    }
+}
