@@ -1,9 +1,9 @@
-import { AccountInfo, PublicKey, SystemProgram } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { connection } from "../providers/solana";
 import { ValidTransactions } from "./valid-transactions";
 import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/program-ids";
 import EventEmitter from "events";
-import { Token } from "./token";
+import { ParseTransactions } from "./parse-transactions";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
@@ -41,6 +41,7 @@ export class WatchTransaction extends EventEmitter {
             const transactionDetails = await connection.getTransaction(transactionSignature, {
                 maxSupportedTransactionVersion: 0,
             });
+           
 
             if (!transactionDetails) {
                 return
@@ -53,19 +54,19 @@ export class WatchTransaction extends EventEmitter {
             const isValidTransaction = validTransactions.getTransaction()
 
             if (!isValidTransaction.valid) {
-                console.log(`Transaction ${transactionSignature} is not related to Pump Fun or Raydium program.`);
                 return
             }
-
-            if (isValidTransaction.swap === 'PUMP FUN') {
-                console.log(`Transaction ${transactionSignature} is related to Pump Fun program.`);
-            } else if (isValidTransaction.swap === 'RAYDIUM') {
-                console.log(`Transaction ${transactionSignature} is related to Raydium program.`);
+   
+            // parse transaction
+            const parseTransaction = new ParseTransactions(transactionSignature)
+            const heliusParsedTransaction = await parseTransaction.parseWithHelius()
+          
+            if (heliusParsedTransaction) {   
+            console.log('TRANSACTION:', transactionSignature)
+            console.log('TYPE:', heliusParsedTransaction?.type)
+            console.log('ACTION', heliusParsedTransaction?.message)
+            console.log('SITE:', isValidTransaction.swap)
             }
-
-            // get tokens
-            const tokens = new Token(connection, transactionDetails)
-            await tokens.getTokens()
         },
         'confirmed'
     );

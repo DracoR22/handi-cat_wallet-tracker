@@ -1,6 +1,15 @@
 import { Connection, PublicKey, VersionedTransactionResponse } from '@solana/web3.js'
 import { Metadata, deprecated } from '@metaplex-foundation/mpl-token-metadata'
 
+interface TokenSwapInfo {
+    mint: string;
+    preBalance: number;
+    postBalance: number;
+    metadata: Metadata;
+    transactionType: 'buy' | 'sell';
+}
+
+
 export class Token {
     constructor(
         private connection: Connection,

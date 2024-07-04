@@ -31,13 +31,18 @@ class Tracker {
             // console.log('Transaction signature', transactionSignature)
 
             // GET FULL TRANSACTION
-            const transactionDetails = await connection.getTransaction('3xvisicTYU1GSZHK2nsASwBzLmQpK8m5KTGH4bLY3jPyJd2avL3zny4aYF6MBfDjyCCqSw4k75gvYexVVaMDJ8Dt', {
+            const transactionDetails = await connection.getTransaction('43Ukw2oPznPDzGSSfwEeuFJfD4mNCzSe8CHDTFHaq4avwpKYPjvpeQQoZWrtRte3AEBdtcmiBD8mpLi37v4dr2NT', {
                 maxSupportedTransactionVersion: 0,
             });
 
-           
-             console.log('PRE_TOKEN_BALANCE', transactionDetails.meta.preTokenBalances)
-             console.log('POST_TOKEN_BALANCE', transactionDetails.meta.postTokenBalances)
+            const transactionParsed = await connection.getParsedTransaction('43Ukw2oPznPDzGSSfwEeuFJfD4mNCzSe8CHDTFHaq4avwpKYPjvpeQQoZWrtRte3AEBdtcmiBD8mpLi37v4dr2NT', {
+                maxSupportedTransactionVersion: 0,
+            })
+
+            console.log('Meta', transactionParsed.meta.innerInstructions[0].instructions[0].parsed)
+            console.log(transactionParsed.transaction.message.instructions)
+            //  console.log('PRE_TOKEN_BALANCE', transactionDetails.meta.innerInstructions[0].instructions)
+            //  console.log('POST_TOKEN_BALANCE', transactionDetails.meta.postTokenBalances)
 
              const preTokenBalance = transactionDetails.meta.preTokenBalances[0]
              const postTokenBalance = transactionDetails.meta.postTokenBalances[0]
