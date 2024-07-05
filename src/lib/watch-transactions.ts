@@ -4,6 +4,7 @@ import { ValidTransactions } from "./valid-transactions";
 import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/program-ids";
 import EventEmitter from "events";
 import { ParseTransactions } from "./parse-transactions";
+import { TransactionType } from "helius-sdk";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
@@ -42,7 +43,6 @@ export class WatchTransaction extends EventEmitter {
                 maxSupportedTransactionVersion: 0,
             });
            
-
             if (!transactionDetails) {
                 return
             }

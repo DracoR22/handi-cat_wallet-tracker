@@ -1,5 +1,7 @@
 import { SolanaParser } from "@debridge-finance/solana-transaction-parser";
 import { Transaction } from "../types/helius-types";
+import { Raydium } from "../idls/raydium"
+import { connection } from "../providers/solana";
 
 export class ParseTransactions {
     constructor(private transaction: string) {
@@ -40,6 +42,20 @@ export class ParseTransactions {
     }
 
     public async parseNative() {
-        const parser = new SolanaParser([{}])
+      const transactionDetails = await connection.getParsedTransactions(["4HnXcQUFnQFgU7RFuuuejdyhvWiMEWbPZxvbqMCFCGzmtTyAFBAA9zfNvC1cvtfmtpSNuTRnRVWjLRZu3yMJGBCw"], {
+        maxSupportedTransactionVersion: 0,
+    });
+      //@ts-ignore
+      const txParser = new SolanaParser([{ idl: Raydium, programId: "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8" }]);
+
+      // const parsed = await txParser.parseTransaction(connection,
+      //   "4HnXcQUFnQFgU7RFuuuejdyhvWiMEWbPZxvbqMCFCGzmtTyAFBAA9zfNvC1cvtfmtpSNuTRnRVWjLRZu3yMJGBCw",
+      //     false,
+      // );
+
+    
+      const parsed = await txParser.parseTransactionData(transactionDetails[0]!.meta?.innerInstructions)
+      
+      console.log(parsed);
     }
 }
