@@ -1,10 +1,12 @@
 import { connection } from './providers/solana';
-import { ParsedInstruction, PartiallyDecodedInstruction} from '@solana/web3.js';
+import { ParsedInnerInstruction, ParsedInstruction, ParsedTransactionMeta, PartiallyDecodedInstruction, PublicKey} from '@solana/web3.js';
 
 
 import dotenv from "dotenv"
 import { ParsedInfo } from './types/parsed-info-types';
 import { ParseTransactions } from './lib/parse-transactions';
+//@ts-expect-error
+import { getAccount  } from '@solana/spl-token';
 
 dotenv.config()
 
@@ -17,12 +19,12 @@ class Main {
         // const watch = new WatchTransaction(WALLET_ADDRESS)
         // await watch.watchSocket()
 
-        const parseTransactions = new ParseTransactions('5GsU5t5rNfmfdQz1hVQYALDWbg7FP6L6AMmWJDRgxTcqjJWy63RiQn7LAVU9fmrpdPTLXMR5XwZedMS6gDV7A5WS')
+        const parseTransactions = new ParseTransactions('5MDQdgqM8PD5WxCgxppW8TGRpiqRyHiJbtfzsAj3jYZvB7sUrmVsPsACwAP1WkB3nwRTUkQd9q6gERP9oALTpTrh')
 
         // const transaction = await parseTransactions.parseWithHelius()
         // console.log(transaction)
 
-        this.parseTransactionDetails('4HnXcQUFnQFgU7RFuuuejdyhvWiMEWbPZxvbqMCFCGzmtTyAFBAA9zfNvC1cvtfmtpSNuTRnRVWjLRZu3yMJGBCw', 'raydium')
+        this.parseTransactionDetails('2NVwmb6rdYKniiJU1SVDNWdKGmT5K2kQu29wM76mC86A7yuiqzAWJrrGxVvs2cRMy7fqM6SFvXCr7PhqNTpVXuyv', 'raydium')
 
         // await parseTransactions.parseNative()
     }
@@ -37,52 +39,78 @@ class Main {
             return;
         }
 
-       
-        // console.log('META', transactionDetails[0].meta?.innerInstructions)
-        const meta = transactionDetails[0].meta?.innerInstructions?.map((i) => {
-          const instructions =  i.instructions
-          instructions.map((r) => {
-            // @ts-ignore
-            console.log('META', r.parsed)
-          })
+        let owner = ''
+        let amountIn = ''
+        let tokenIn = ''
+        let amountOut = ''
+        let tokenOut = ''
+
+        const transactions: any = []
+
+       const preTokens = transactionDetails[0].meta?.preTokenBalances
+       const postTokens = transactionDetails[0].meta?.postTokenBalances
+
+       console.log('PRE_TOKENS:', preTokens)
+       console.log('POST_TOKENS:', postTokens)
+     
+        // Transaction Metadata
+        transactionDetails[0].meta?.innerInstructions?.forEach((i: ParsedInnerInstruction) => {
+          console.log('META:', i.instructions)
+          i.instructions.forEach((r: any) => {
+            if (program === 'raydium' && r.parsed?.type === 'transfer' && r.parsed.info.amount !== undefined) {
+              transactions.push(r.parsed);
+            }
+
            
-        })
-        
+          });
+        });
+      
+        // Log the transactions array once after all instructions are processed
+        console.log('TRANSACTIONS', transactions);
+
+        const raydiumTransfer = transactions.length > 2 ? transactions.find((t: any) => t.info.destination === transactions[0]?.info?.source) : transactions[transactions.length - 1]
+
+        // const testTokenIn = await this.getMintAddress(raydiumTransfer.info.destination)
+
+        if (program === 'raydium' && transactions.length > 1) {
+          owner = transactions[0]?.info?.authority || '';
+          amountOut = transactions[0]?.info?.amount || 0;
+          amountIn = raydiumTransfer.info.amount || '';
+          tokenOut = await this.getMintAddress(transactions[0]?.info.destination) 
+          tokenIn =  await this.getMintAddress(raydiumTransfer.info.source) 
+       
+        } else {
+          console.warn('Program is not raydium or transactions length is insufficient');
+        }
+      
+       
         const instructions = transactionDetails[0].transaction.message.instructions;
         const parsedInfos: any[] = [];
         const descriptions = instructions.map((instruction: ParsedInstruction | PartiallyDecodedInstruction) => {
             let description = '';
             const programId = instruction.programId.toString();
+            // @ts-ignore
+            console.log('PARSED iNFO', instruction.parsed)
     
         });
-    
-        console.log('Instructions', instructions)
-        console.log('Parsed Info', parsedInfos)
 
-      if (parsedInfos.length === 1) {
-        console.log('Transaction is a transfer')
-        return
+        const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`;
+        console.log(swapDescription);
+
+        return {
+          description: swapDescription
+        }
+    }
+
+   private async getMintAddress(tokenAddress: string) {
+      try {
+        const tokenPublicKey = new PublicKey(tokenAddress);
+        const accountInfo = await getAccount(connection, tokenPublicKey);
+        return accountInfo.mint.toBase58();
+      } catch (error) {
+        console.error(`Error fetching mint address for token ${tokenAddress}:`, error);
+        return null;
       }
-
-      if (program === 'pumpfun') {
-        const owner = parsedInfos[1].wallet
-        const amountIn = (parsedInfos.find(info => info.lamports)!.lamports / 1e9).toFixed(6);
-
-        const swapDescription = `${owner} swapped ${amountIn} ${''} for ${''} ${''}`;
-       console.log(swapDescription);
-      }
-
-      if (program === 'raydium') {
-        const owner = parsedInfos[0].source;
-        const amountIn = (parsedInfos.find(info => info.lamports)!.lamports / 1e9).toFixed(6); // Convert lamports to SOL and fix to 2 decimal places
-        const tokenIn = parsedInfos[0].mint ? parsedInfos[0].mint : 'Unknown Token'; // Use the mint if available, otherwise fallback
-        const amountOut = parsedInfos.find(info => info.tokenAmount)!.tokenAmount.uiAmountString;
-        const tokenOut = parsedInfos.find(info => info.tokenAmount)!.mint ? parsedInfos.find(info => info.tokenAmount)!.mint : 'Unknown Token'; // Use the mint if available, otherwise fallback
-
-       const swapDescription = `${owner} swapped ${amountIn} ${tokenIn} for ${amountOut} ${tokenOut}`;
-       console.log(swapDescription);
-      }
-        return descriptions;
     }
 }
 

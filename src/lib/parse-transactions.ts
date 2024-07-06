@@ -54,8 +54,8 @@ export class ParseTransactions {
       // );
 
     
-      const parsed = await txParser.parseTransactionData(transactionDetails[0]!.meta?.innerInstructions)
+      // const parsed = await txParser.parseTransactionData(transactionDetails[0]!.meta?.innerInstructions)
       
-      console.log(parsed);
+      // console.log(parsed);
     }
 }
