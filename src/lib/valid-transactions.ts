@@ -14,8 +14,10 @@ export class ValidTransactions {
         const raydiumTransaction = this.programIds.some((id: any) => id.equals(this.raydiumProgramId));
 
         if (pumpFunTransaction) {
+            console.log('detected pumpfun transaction')
             return { valid: true, swap: 'PUMP FUN'};
         } else if (raydiumTransaction) {
+            console.log('detected raydium transaction')
             return { valid: true, swap: 'RAYDIUM' }; 
         } else {
            return { valid: false, swap: null }

@@ -3,8 +3,8 @@ import { connection } from "../providers/solana";
 import { ValidTransactions } from "./valid-transactions";
 import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/program-ids";
 import EventEmitter from "events";
-import { ParseTransactions } from "./parse-transactions";
 import { TransactionType } from "helius-sdk";
+import { TransactionParser } from "../parsers/transaction-parser";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
@@ -39,7 +39,7 @@ export class WatchTransaction extends EventEmitter {
             // console.log(`Transaction detected: ${transactionSignature}`);
 
             // get full transaction
-            const transactionDetails = await connection.getTransaction(transactionSignature, {
+            const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
                 maxSupportedTransactionVersion: 0,
             });
            
@@ -48,7 +48,7 @@ export class WatchTransaction extends EventEmitter {
             }
 
             // find PumpFun transcations with programID
-            const programIds = transactionDetails?.transaction.message.staticAccountKeys
+            const programIds = transactionDetails[0]?.transaction.message.accountKeys.map(key => key.pubkey).filter(pubkey => pubkey !== undefined)
 
             const validTransactions = new ValidTransactions(pumpFunProgramId, raydiumProgramId, programIds)
             const isValidTransaction = validTransactions.getTransaction()
@@ -58,15 +58,10 @@ export class WatchTransaction extends EventEmitter {
             }
    
             // parse transaction
-            const parseTransaction = new ParseTransactions(transactionSignature)
-            const heliusParsedTransaction = await parseTransaction.parseWithHelius()
-          
-            if (heliusParsedTransaction) {   
-            console.log('TRANSACTION:', transactionSignature)
-            console.log('TYPE:', heliusParsedTransaction?.type)
-            console.log('ACTION', heliusParsedTransaction?.message)
-            console.log('SITE:', isValidTransaction.swap)
-            }
+            const transactionParser = new TransactionParser(transactionSignature)
+            const parsed = await transactionParser.parseNative(transactionDetails)
+            console.log(parsed)
+           
         },
         'confirmed'
     );
