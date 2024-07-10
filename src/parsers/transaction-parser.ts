@@ -1,7 +1,7 @@
 import { Transaction } from "../types/helius-types";
 import { connection } from "../providers/solana";
 import { TokenParser } from "./token-parser";
-import { Utils } from "../lib/utils";
+import { Utils } from "../lib/token-utils";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
 
 export class TransactionParser {
@@ -41,7 +41,7 @@ export class TransactionParser {
       }
     }
 
-    public async parseNative(transactionDetails: (ParsedTransactionWithMeta | null)[]) {
+    public async parseNative(transactionDetails: (ParsedTransactionWithMeta | null)[]): Promise<NativeParserInterface | undefined> {
       const tokenParser = new TokenParser(connection)
       const utils = new Utils()
 
@@ -104,7 +104,11 @@ export class TransactionParser {
         }
       }
       // TODO: fix, there should be a better way of doing this
-      const raydiumTransfer = transactions.length > 2 ? transactions.find((t: any) => t.info.destination === transactions[0]?.info?.source) : transactions[transactions.length - 1]
+      const raydiumTransfer = transactions.length > 2 ? transactions.find((t: any) => t?.info?.destination === transactions[0]?.info?.source) : transactions[transactions.length - 1]
+
+      if (!raydiumTransfer) {
+        return 
+      }
 
       // FOR RAYDIUM TRANSACTIONS
       if (transactions.length > 1) {
@@ -174,8 +178,6 @@ export class TransactionParser {
        }
       }
 
-      return {
-       
-      }
+      return 
   }
 }

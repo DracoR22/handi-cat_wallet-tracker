@@ -10,8 +10,8 @@ export class ValidTransactions {
     }
 
     public getTransaction(): { valid: boolean, swap: SwapType } {
-        const pumpFunTransaction = this.programIds.some((id: any) => id.equals(this.pumpFunProgramId));
-        const raydiumTransaction = this.programIds.some((id: any) => id.equals(this.raydiumProgramId));
+        const pumpFunTransaction = this.programIds && this.programIds.some((id: any) => id.equals(this.pumpFunProgramId));
+        const raydiumTransaction = this.programIds && this.programIds.some((id: any) => id.equals(this.raydiumProgramId));
 
         if (pumpFunTransaction) {
             console.log('detected pumpfun transaction')
