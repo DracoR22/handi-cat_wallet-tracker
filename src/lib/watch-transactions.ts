@@ -1,10 +1,11 @@
 import { PublicKey } from "@solana/web3.js";
 import { connection } from "../providers/solana";
 import { ValidTransactions } from "./valid-transactions";
-import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/program-ids";
+import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/solana/program-ids";
 import EventEmitter from "events";
-import { TransactionType } from "helius-sdk";
 import { TransactionParser } from "../parsers/transaction-parser";
+import { SendMessageHandler } from "../bot/handlers/send-message-handler";
+import { bot } from "../providers/telegram";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
@@ -52,7 +53,7 @@ export class WatchTransaction extends EventEmitter {
                     return
                 }
     
-                // find PumpFun transcations with programID
+                // find all programIds involved in the transaction
                 const programIds = transactionDetails[0]?.transaction.message.accountKeys.map(key => key.pubkey).filter(pubkey => pubkey !== undefined)
     
                 const validTransactions = new ValidTransactions(pumpFunProgramId, raydiumProgramId, programIds)
@@ -69,8 +70,12 @@ export class WatchTransaction extends EventEmitter {
                 if (!parsed) {
                     return
                 }
+                
                 console.log(parsed)
                
+                // use bot to send message of transaction
+                const sendMessageHandler = new SendMessageHandler(bot)
+                sendMessageHandler.send(parsed.description)
             },
             'confirmed'
           );

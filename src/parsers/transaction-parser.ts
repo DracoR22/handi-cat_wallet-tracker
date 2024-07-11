@@ -88,6 +88,7 @@ export class TransactionParser {
         return;
       }
     
+      // we have to do this for pumpfun transactions since swap info is not available in its instructions
       let totalSolSwapped = 0;
     
       for (let i = 0; i < preBalances.length; i++) {
@@ -96,11 +97,12 @@ export class TransactionParser {
         const solDifference = (postBalance - preBalance) / 1e9; // Convert lamports to SOL
       
         if (solDifference !== 0 && i === 2 && nativeBalance?.type === 'sell') {
-          // console.log(`Account ${i} swapped ${Math.abs(solDifference)} SOL`);
           totalSolSwapped += Math.abs(solDifference)
         } else if (solDifference !== 0 && i === 3 && nativeBalance?.type === 'buy') {
-          // console.log(`Account ${i} swapped ${Math.abs(solDifference)} SOL`);
           totalSolSwapped += Math.abs(solDifference)
+          // In case index 3 doesnt hold the amount
+        } else if (solDifference === 0 && i === 3 && nativeBalance?.type === 'buy') {
+          totalSolSwapped = Math.abs((postBalances[2] - preBalances[2]) / 1e9);
         }
       }
       // TODO: fix, there should be a better way of doing this

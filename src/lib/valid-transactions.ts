@@ -1,4 +1,5 @@
 import { PublicKey } from "@solana/web3.js";
+import { SwapType } from "../types/swap-types"
 
 export class ValidTransactions {
     constructor(
