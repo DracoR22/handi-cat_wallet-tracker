@@ -4,7 +4,7 @@ import { ValidTransactions } from "./valid-transactions";
 import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/solana/program-ids";
 import EventEmitter from "events";
 import { TransactionParser } from "../parsers/transaction-parser";
-import { SendMessageHandler } from "../bot/handlers/send-message-handler";
+import { SendTransactionMsgHandler } from "../bot/handlers/send-tx-msg-handler";
 import { bot } from "../providers/telegram";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
@@ -74,7 +74,7 @@ export class WatchTransaction extends EventEmitter {
                 console.log(parsed)
                
                 // use bot to send message of transaction
-                const sendMessageHandler = new SendMessageHandler(bot)
+                const sendMessageHandler = new SendTransactionMsgHandler(bot)
                 sendMessageHandler.send(parsed.description)
             },
             'confirmed'

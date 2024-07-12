@@ -1,5 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
-import { START_MENU } from "../../config/bot/start-menu";
+import { START_MENU } from "../../config/bot/menus";
 import { CreateWallet } from "../../lib/create-wallet";
 
 export class StartCommand {
@@ -9,7 +9,7 @@ export class StartCommand {
         this.bot = bot
     }
 
-    public async start() {
+    public start() {
         this.bot.onText(/\/start/, (msg) => {
             const chatId = msg.chat.id;
             const firstName = msg.from?.first_name;

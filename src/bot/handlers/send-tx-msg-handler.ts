@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 
-export class SendMessageHandler {
+export class SendTransactionMsgHandler {
     constructor(
         private bot: TelegramBot,
     ) {

@@ -1,5 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
-import { START_MENU } from "../../config/bot/start-menu";
+import { START_MENU } from "../../config/bot/menus";
 
 export class NewMembersHandler {
     constructor(
@@ -8,7 +8,7 @@ export class NewMembersHandler {
         this.bot = bot
     }
 
-    public async newMember() {
+    public newMember() {
         this.bot.on('new_chat_members', (msg) => {
             const chatId = msg.chat.id;
           
