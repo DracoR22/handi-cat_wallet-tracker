@@ -6,7 +6,6 @@ import { NewMembersHandler } from "./bot/handlers/new-members-handler";
 import { AddCommand } from "./bot/commands/add-command";
 import { CallbackQueryHandler } from "./bot/handlers/callback-query-handler";
 import express, { Express } from "express"
-import { WebhookQueryHandler } from "./bot/webhook/webhook-query-handler";
 
 dotenv.config()
 
@@ -37,27 +36,6 @@ class Main {
         });
         this.app.post(`*`, async (req, res) => {
             try {
-                const { message } = req.body;
-        
-                // Handle incoming message using bot.onText or directly
-                // bot.on('message', (msg) => {
-                //     // Check if the message is a command
-                //     if (msg.text?.startsWith('/start')) {
-                //         const chatId = msg.chat.id;
-                //         const firstName = msg.from?.first_name;
-        
-                //         // Example response to /start command
-                //         bot.sendMessage(chatId, `Hello, ${firstName}! Welcome to our bot.`);
-                //     } else if (msg.text?.startsWith('/add')) {
-                //         // Handle /add command or any other commands here
-                //         const chatId = msg.chat.id;
-                //         bot.sendMessage(chatId, 'Received /add command.');
-                //     }
-                //     // Add more command handling as needed
-                // });
-        
-                // Handle the incoming message from the webhook
-           
                 bot.processUpdate(req.body);
                 
                 res.status(200).send('Update received');

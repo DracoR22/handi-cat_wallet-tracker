@@ -14,9 +14,6 @@ export class StartCommand {
             const chatId = msg.chat.id;
             const firstName = msg.from?.first_name;
 
-            console.log(msg.from?.id)
-            console.log(chatId)
-
             // Create wallet
             // const createWallet = new CreateWallet()
             // createWallet.create()
