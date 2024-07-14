@@ -6,6 +6,8 @@ import { NewMembersHandler } from "./bot/handlers/new-members-handler";
 import { AddCommand } from "./bot/commands/add-command";
 import { CallbackQueryHandler } from "./bot/handlers/callback-query-handler";
 import express, { Express } from "express"
+import db from "./repositories/prisma/prisma";
+import { PrismaWalletRepository } from "./repositories/prisma/wallet";
 
 dotenv.config()
 
@@ -52,6 +54,14 @@ class Main {
         const watch = new WatchTransaction(WALLET_ADDRESSES)
 
         await watch.watchSocket()
+
+        const prismaWalletRepository = new PrismaWalletRepository()
+
+        const allWallets = await prismaWalletRepository.getAll()
+
+        console.log('ALL_WALLETS', allWallets)
+
+        await prismaWalletRepository.pulseWallet()
 
         // Bot
         const newMembersHandler = new NewMembersHandler(bot)

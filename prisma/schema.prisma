@@ -10,11 +10,34 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("SUPABASE_DATABASE_URL")
 }
 
 model User {
-  id Int @id
-  userWallet String
+  id          Int          @id
+  username    String
+  firstName   String
+  lastName    String
+
+  userWallet  String
+  userWallets UserWallet[]
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Wallet {
+  id          Int           @id @default(autoincrement())
+  userId      Int
+  address     String
   
+  userWallets UserWallet[]
+}
+
+model UserWallet {
+  userId    Int
+  walletId  Int
+  user      User    @relation(fields: [userId], references: [id])
+  wallet    Wallet @relation(fields: [walletId], references: [id])
+  @@id([userId, walletId]) 
 }

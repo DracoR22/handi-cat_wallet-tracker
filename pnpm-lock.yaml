@@ -14,6 +14,9 @@ dependencies:
   '@prisma/client':
     specifier: ^5.16.2
     version: 5.16.2(prisma@5.16.2)
+  '@prisma/extension-pulse':
+    specifier: ^1.2.0
+    version: 1.2.0(@prisma/client@5.16.2)
   '@solana/spl-token':
     specifier: ^0.3.0
     version: 0.3.0
@@ -817,6 +820,19 @@ packages:
       '@prisma/engines-version': 5.16.0-24.34ace0eb2704183d2c05b60b52fba5c43c13f303
       '@prisma/fetch-engine': 5.16.2
       '@prisma/get-platform': 5.16.2
+
+  /@prisma/extension-pulse@1.2.0(@prisma/client@5.16.2):
+    resolution: {integrity: sha512-ya8c0G9XVf1d8c+6iNczEWUVPjgXBokbjRp9M5Igqm3Ph2NRhbD/6ZyjEzDifTbwhlP9jGwur2XOqtYoQIUptA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@prisma/client': '>=4.16.1'
+    dependencies:
+      '@prisma/client': 5.16.2(prisma@5.16.2)
+      ws: 8.17.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
 
   /@prisma/fetch-engine@5.16.2:
     resolution: {integrity: sha512-sq51lfHKfH2jjYSjBtMjP+AznFqOJzXpqmq6B9auWrlTJrMgZ7lPyhWUW7VU7LsQU48/TJ+DZeIz8s9bMYvcHg==}
