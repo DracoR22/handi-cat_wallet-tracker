@@ -15,6 +15,8 @@ export class WatchTransaction extends EventEmitter {
     private rateLimitInterval: number;
     private lastProcessedTime: number;
 
+    private subscriptions: Map<string, number>;
+
     constructor(private wallets: string[], rateLimitInterval: number = 5000) {
         super()
         this.wallets = wallets;
@@ -22,6 +24,8 @@ export class WatchTransaction extends EventEmitter {
         // Rate limit
         this.rateLimitInterval = rateLimitInterval;
         this.lastProcessedTime = 0;
+
+        this.subscriptions = new Map();
     }
 
     public async watchSocket(): Promise<void> {
@@ -80,10 +84,26 @@ export class WatchTransaction extends EventEmitter {
             'confirmed'
           );
     
+           // Store subscription ID
+           this.subscriptions.set(wallet, subscriptionId);
            console.log(`Subscribed to logs with subscription ID: ${subscriptionId}`);
         }
        } catch (error) {
          console.error('Error in watchSocket:', error);
        }
+    }
+
+    public async stopWatching(): Promise<void> {
+        for (const [wallet, subscriptionId] of this.subscriptions) {
+            connection.removeOnLogsListener(subscriptionId);
+            console.log(`Stopped watching transactions for wallet: ${wallet}`);
+        }
+        this.subscriptions.clear();
+    }
+
+    public async updateWallets(newWallets: string[]): Promise<void> {
+        await this.stopWatching();
+        this.wallets = newWallets;
+        await this.watchSocket();
     }
 }

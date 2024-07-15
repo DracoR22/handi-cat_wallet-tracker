@@ -71,8 +71,10 @@ export class PrismaWalletRepository {
     public async pulseWallet() {
         const stream = await prisma.wallet.stream({ name: 'wallet-stream', create: {} })
 
-          for await (const event of stream) {
-            console.log('New event:', event)
-          }
+          // for await (const event of stream) {
+          //   console.log('New event:', event)
+          // }
+
+        return stream
     }
 }

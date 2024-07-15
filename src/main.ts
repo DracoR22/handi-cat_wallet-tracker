@@ -52,33 +52,67 @@ class Main {
     }
 
     public async init(): Promise<void> {
-        const allWallets = await this.prismaWalletRepository.getAll()
-        const walletAddresses = allWallets && allWallets.map(wallet => wallet.address);
+        // const allWallets = await this.prismaWalletRepository.getAll()
+        // const walletAddresses = allWallets && allWallets.map(wallet => wallet.address);
 
-        console.log('ALL_WALLETS', walletAddresses);
+        // console.log('ALL_WALLETS', walletAddresses);
 
-        // await prismaWalletRepository.pulseWallet()
+    //    const stream = await this.prismaWalletRepository.pulseWallet()
+
+    //    for await (const event of stream) {
+    //         console.log('New event:', event)
+    //     }
 
         // Solana
-        const watch = new WatchTransaction(walletAddresses || [])
+        // const watch = new WatchTransaction(walletAddresses || [])
 
-        await watch.watchSocket()
+        // await watch.watchSocket()
 
         // Bot
         const newMembersHandler = new NewMembersHandler(bot)
         const callbackQueryHandler = new CallbackQueryHandler(bot)
         const startCommand = new StartCommand(bot)
         const addCommand = new AddCommand(bot)
-
+ 
         newMembersHandler.newMember()
         callbackQueryHandler.call()
         startCommand.start()
         addCommand.addCommandHandler()
-
+ 
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+        await this.setupWalletWatcher();
+        await this.listenForDatabaseChanges();
     }
 
-    
+    private async setupWalletWatcher(): Promise<void> {
+        const allWallets = await this.prismaWalletRepository.getAll();
+        const walletAddresses = allWallets?.map(wallet => wallet.address) || [];
+
+        let watch = new WatchTransaction(walletAddresses || [])
+
+        console.log('ALL_WALLETS', walletAddresses);
+
+        if (watch) {
+            await watch.updateWallets(walletAddresses);
+        } else {
+            watch = new WatchTransaction(walletAddresses);
+            await watch.watchSocket();
+        }
+    }
+
+    private async listenForDatabaseChanges(): Promise<void> {
+        const stream = await this.prismaWalletRepository.pulseWallet();
+
+        for await (const event of stream) {
+            console.log('New event:', event);
+
+            if (event.action === 'create' || event.action === 'delete') {
+                // Refetch wallets and update watcher on create/delete actions
+                await this.setupWalletWatcher();
+            }
+        }
+    }
 }
 
 const main = new Main()
