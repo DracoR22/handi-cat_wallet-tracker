@@ -10,3 +10,10 @@ interface NativeParserInterface {
       tokenAmountOut: string
     }
 }
+
+interface CreateUserInterface {
+  id: string
+  username: string
+  firstName: string
+  lastName: string
+}

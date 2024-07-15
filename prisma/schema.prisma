@@ -14,12 +14,12 @@ datasource db {
 }
 
 model User {
-  id          Int          @id
+  id          String         @id
   username    String
   firstName   String
   lastName    String
 
-  userWallet  String
+  personalWallet  String
   userWallets UserWallet[]
 
   createdAt    DateTime   @default(now())
@@ -27,16 +27,16 @@ model User {
 }
 
 model Wallet {
-  id          Int           @id @default(autoincrement())
-  userId      Int
+  id            String         @id @default(cuid())
+  userId      String
   address     String
   
   userWallets UserWallet[]
 }
 
 model UserWallet {
-  userId    Int
-  walletId  Int
+  userId    String
+  walletId  String
   user      User    @relation(fields: [userId], references: [id])
   wallet    Wallet @relation(fields: [walletId], references: [id])
   @@id([userId, walletId]) 
