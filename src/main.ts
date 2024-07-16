@@ -7,6 +7,7 @@ import { AddCommand } from "./bot/commands/add-command";
 import { CallbackQueryHandler } from "./bot/handlers/callback-query-handler";
 import express, { Express } from "express"
 import { PrismaWalletRepository } from "./repositories/prisma/wallet";
+import { WatchWallets } from "./lib/watch-wallets";
 
 dotenv.config()
 
@@ -81,27 +82,29 @@ class Main {
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 
+        // const walletWatcher = new WatchWallets()
+
         await this.setupWalletWatcher();
         await this.listenForDatabaseChanges();
     }
 
-    private async setupWalletWatcher(): Promise<void> {
+    public async setupWalletWatcher(): Promise<void> {
         const allWallets = await this.prismaWalletRepository.getAll();
-        const walletAddresses = allWallets?.map(wallet => wallet.address) || [];
+        const walletAddresses = allWallets?.map(wallet => wallet.address) || [] // Ensure unique addresses
 
-        let watch = new WatchTransaction(walletAddresses || [])
+         let watch = new WatchTransaction(allWallets || [])
 
-        console.log('ALL_WALLETS', walletAddresses);
+        // console.log('ALL_WALLETS', walletAddresses);
 
         if (watch) {
-            await watch.updateWallets(walletAddresses);
+            await watch.updateWallets(allWallets || []);
         } else {
-            watch = new WatchTransaction(walletAddresses);
+            watch = new WatchTransaction(allWallets || []);
             await watch.watchSocket();
         }
     }
 
-    private async listenForDatabaseChanges(): Promise<void> {
+    public async listenForDatabaseChanges(): Promise<void> {
         const stream = await this.prismaWalletRepository.pulseWallet();
 
         for await (const event of stream) {

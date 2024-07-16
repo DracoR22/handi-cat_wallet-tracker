@@ -3,6 +3,7 @@ import { SUB_MENU } from "../../config/bot/menus";
 import { PublicKey } from "@solana/web3.js";
 import { connection } from "../../providers/solana";
 import { PrismaWalletRepository } from "../../repositories/prisma/wallet";
+import { WatchWallets } from "../../lib/watch-wallets";
 
 export class AddCommand {
     private prismaWalletRepository: PrismaWalletRepository
@@ -67,6 +68,10 @@ export class AddCommand {
           this.prismaWalletRepository.create(userId!, walletAddress!)
 
          this.bot.sendMessage(message.chat.id, `Wallet ${walletAddress} has been added.`);
+
+        //  const walletWatcher = new WatchWallets()
+
+        // await walletWatcher.setupWalletWatcher();
 
          // Remove the listener to avoid duplicate handling
          this.bot.removeListener('message', listener);

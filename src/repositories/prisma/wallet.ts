@@ -29,7 +29,9 @@ export class PrismaWalletRepository {
         try {
           const allWallets = await prisma.wallet.findMany({
             select: {
-              address: true
+              address: true,
+              userId: true,
+              id: true
             }
           })
 
@@ -69,7 +71,7 @@ export class PrismaWalletRepository {
     }
 
     public async pulseWallet() {
-        const stream = await prisma.wallet.stream({ name: 'wallet-stream', create: {} })
+        const stream = await prisma.wallet.stream({ create: {} })
 
           // for await (const event of stream) {
           //   console.log('New event:', event)

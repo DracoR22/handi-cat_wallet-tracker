@@ -6,6 +6,7 @@ import EventEmitter from "events";
 import { TransactionParser } from "../parsers/transaction-parser";
 import { SendTransactionMsgHandler } from "../bot/handlers/send-tx-msg-handler";
 import { bot } from "../providers/telegram";
+import { Wallet } from "@prisma/client";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
@@ -17,7 +18,7 @@ export class WatchTransaction extends EventEmitter {
 
     private subscriptions: Map<string, number>;
 
-    constructor(private wallets: string[], rateLimitInterval: number = 5000) {
+    constructor(private wallets: Wallet[], rateLimitInterval: number = 5000) {
         super()
         this.wallets = wallets;
 
@@ -31,7 +32,7 @@ export class WatchTransaction extends EventEmitter {
     public async watchSocket(): Promise<void> {
        try {
         for (const wallet of this.wallets) {
-            const publicKey = new PublicKey(wallet);
+            const publicKey = new PublicKey(wallet.address);
             console.log(`Watching transactions for wallet: ${publicKey.toBase58()}`);
     
             // start realtime log
@@ -79,13 +80,13 @@ export class WatchTransaction extends EventEmitter {
                
                 // use bot to send message of transaction
                 const sendMessageHandler = new SendTransactionMsgHandler(bot)
-                sendMessageHandler.send(parsed.description)
+                sendMessageHandler.send(parsed.description, wallet.userId)
             },
             'confirmed'
           );
     
            // Store subscription ID
-           this.subscriptions.set(wallet, subscriptionId);
+           this.subscriptions.set(wallet.address, subscriptionId);
            console.log(`Subscribed to logs with subscription ID: ${subscriptionId}`);
         }
        } catch (error) {
@@ -101,7 +102,7 @@ export class WatchTransaction extends EventEmitter {
         this.subscriptions.clear();
     }
 
-    public async updateWallets(newWallets: string[]): Promise<void> {
+    public async updateWallets(newWallets: Wallet[]): Promise<void> {
         await this.stopWatching();
         this.wallets = newWallets;
         await this.watchSocket();

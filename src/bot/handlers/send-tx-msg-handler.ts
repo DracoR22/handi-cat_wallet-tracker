@@ -7,8 +7,8 @@ export class SendTransactionMsgHandler {
         this.bot = bot
     }
 
-    public send(message: string) {
-        const chatId = '7323059679'; // Replace with the recipient's chat ID
+    public send(message: string, chatId: string) {
+        // const chatId = '7323059679'; // Replace with the recipient's chat ID
         this.bot.sendMessage(chatId, message);
     }
 }

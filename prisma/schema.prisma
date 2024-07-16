@@ -28,7 +28,6 @@ model User {
 
 model Wallet {
   id            String         @id @default(cuid())
-  userId      String
   address     String
   
   userWallets UserWallet[]
