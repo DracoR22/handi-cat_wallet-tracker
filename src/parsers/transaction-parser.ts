@@ -133,6 +133,7 @@ export class TransactionParser {
         const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`;
        
         return {
+          platform: 'raydium',
           description: swapDescription,
           type: nativeBalance?.type,
           balanceChange: nativeBalance?.balanceChange,
@@ -167,6 +168,7 @@ export class TransactionParser {
        const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`;
 
        return {
+         platform: 'pumpfun',
          description: swapDescription,
          type: nativeBalance?.type,
          balanceChange: nativeBalance?.balanceChange,

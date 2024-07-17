@@ -89,8 +89,8 @@ class Main {
     }
 
     public async setupWalletWatcher(): Promise<void> {
-        const allWallets = await this.prismaWalletRepository.getAll();
-        const walletAddresses = allWallets?.map(wallet => wallet.address) || [] // Ensure unique addresses
+        const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
+       
 
          let watch = new WatchTransaction(allWallets || [])
 

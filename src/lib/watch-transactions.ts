@@ -7,6 +7,7 @@ import { TransactionParser } from "../parsers/transaction-parser";
 import { SendTransactionMsgHandler } from "../bot/handlers/send-tx-msg-handler";
 import { bot } from "../providers/telegram";
 import { Wallet } from "@prisma/client";
+import { WalletWithUsers } from "../types/swap-types";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
@@ -18,7 +19,7 @@ export class WatchTransaction extends EventEmitter {
 
     private subscriptions: Map<string, number>;
 
-    constructor(private wallets: Wallet[], rateLimitInterval: number = 5000) {
+    constructor(private wallets: WalletWithUsers[], rateLimitInterval: number = 5000) {
         super()
         this.wallets = wallets;
 
@@ -80,7 +81,11 @@ export class WatchTransaction extends EventEmitter {
                
                 // use bot to send message of transaction
                 const sendMessageHandler = new SendTransactionMsgHandler(bot)
-                sendMessageHandler.send(parsed.description, wallet.userId)
+                
+                for (const user of wallet.userWallets) {
+                    console.log('Users:', user)
+                    sendMessageHandler.send(parsed, user.userId)
+                }
             },
             'confirmed'
           );
@@ -102,7 +107,7 @@ export class WatchTransaction extends EventEmitter {
         this.subscriptions.clear();
     }
 
-    public async updateWallets(newWallets: Wallet[]): Promise<void> {
+    public async updateWallets(newWallets: WalletWithUsers[]): Promise<void> {
         await this.stopWatching();
         this.wallets = newWallets;
         await this.watchSocket();

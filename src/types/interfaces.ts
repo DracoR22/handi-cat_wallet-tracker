@@ -1,4 +1,5 @@
 interface NativeParserInterface {
+    platform: 'raydium' | 'pumpfun'
     description: string,
     type: string | undefined,
     balanceChange: string | number | undefined,

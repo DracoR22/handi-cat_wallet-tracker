@@ -4,33 +4,33 @@ export class PrismaWalletRepository {
     constructor() {}
 
     public async create(userId: string, walletAddress: string) {
-        try {
-            const newWallet = await prisma.wallet.create({
-              data: {
-                userId,
-                address: walletAddress,
-                userWallets: {
-                  create: {
-                    user: {
-                      connect: { id: userId },
-                    },
-                  },
-                },
-              },
-            });
-
-            return newWallet;
-          } catch (error: any) {
-            console.log('CREATE_WALLET_ERROR', error)
-          }
-    }
+      try {
+          // Create the wallet first
+          const newWallet = await prisma.wallet.create({
+            data: {
+              address: walletAddress,
+            },
+          });
+  
+          // Connect the new wallet to the user via the UserWallet join table
+          await prisma.userWallet.create({
+            data: {
+              userId: userId,
+              walletId: newWallet.id,
+            },
+          });
+  
+          return newWallet;
+      } catch (error: any) {
+          console.log('CREATE_WALLET_ERROR', error);
+      }
+  }
 
     public async getAll() {
         try {
           const allWallets = await prisma.wallet.findMany({
             select: {
               address: true,
-              userId: true,
               id: true
             }
           })
@@ -59,7 +59,6 @@ export class PrismaWalletRepository {
     public async getWalletByAddress(userId: string, walletAddress: string) {
       const wallet = await prisma.wallet.findFirst({
         where: {
-          userId,
           address: walletAddress
         },
         select: {
@@ -69,6 +68,29 @@ export class PrismaWalletRepository {
 
       return wallet
     }
+
+    public async getAllWalletsWithUserIds() {
+      try {
+          const walletsWithUsers = await prisma.wallet.findMany({
+              include: {
+                  userWallets: {
+                      include: {
+                          user: {
+                              select: {
+                                  id: true
+                              }
+                          }
+                      }
+                  }
+              }
+          });
+  
+          return walletsWithUsers
+      } catch (error: any) {
+          console.log('GET_ALL_WALLETS_WITH_USER_IDS_ERROR', error);
+          throw error;
+      }
+  }
 
     public async pulseWallet() {
         const stream = await prisma.wallet.stream({ create: {} })
