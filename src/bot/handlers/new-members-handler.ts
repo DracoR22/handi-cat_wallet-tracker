@@ -23,7 +23,7 @@ export class NewMembersHandler {
                 },
               };
           
-              this.bot.sendMessage(chatId, welcomeMessage, commandMenu);
+              this.bot.sendMessage(chatId, welcomeMessage, { reply_markup: START_MENU });
             });
           });
     }

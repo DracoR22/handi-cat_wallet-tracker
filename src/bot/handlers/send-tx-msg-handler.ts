@@ -8,8 +8,9 @@ export class SendTransactionMsgHandler {
     }
 
     public send(message: NativeParserInterface, chatId: string) {
-        const regex = /(.+?) swapped (\d+(\.\d+)?) (\w+) for (\d+(\.\d+)?) (\w+)/;
-
+    
+// Updated regex to match formatted numbers (with commas)
+const regex = /(.+?) swapped ([\d,]+(\.\d+)?) (\w+) for ([\d,]+(\.\d+)?) (\w+)/;
       
         const match = message.description.match(regex);
 
@@ -30,7 +31,7 @@ export class SendTransactionMsgHandler {
 
             // Construct a detailed message
             const messageText = `${message.type === 'buy' ? '🟢' : '🔴'} ${message.type?.toUpperCase()} ${message.type === 'buy' ? `<a href="${solscanTokenInUrl}">${tokenIn}</a>` : `<a href="${solscanTokenOutUrl}">${tokenOut}</a>`} on ${message.platform.toUpperCase()}\n
-<b>✅ ${truncatedOwner}</b>\n
+<b>💎 ${truncatedOwner}</b>\n
 ✅ <a href="${solscanAddressUrl}">${truncatedOwner}</a> swapped ${amountOut} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for ${amountIn} <a href="${solscanTokenInUrl}">${tokenIn}</a>\n
 
 <code style="color: #39fa56">${message.type === 'buy' ? tokenInMint : tokenOutMint}</code>
@@ -38,6 +39,7 @@ export class SendTransactionMsgHandler {
 
             this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true });
         } else {
+            console.log('REGEX FAILED')
             return
         }
     }

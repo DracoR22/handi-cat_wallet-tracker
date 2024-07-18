@@ -5,6 +5,42 @@ export class PrismaWalletRepository {
 
     public async create(userId: string, walletAddress: string) {
       try {
+          const existingWallet = await prisma.wallet.findFirst({
+            where: {
+              address: walletAddress,
+            },
+            select: {
+              id: true
+            }
+          })
+
+          if (existingWallet) {
+            // Check if the user is already linked to this wallet
+            const userWalletLink = await prisma.userWallet.findFirst({
+              where: {
+                  userId,
+                  walletId: existingWallet.id,
+              },
+              select: {
+                userId: true
+              }
+           });
+
+           if (!userWalletLink) {
+            const linkUserToWallet = await prisma.userWallet.create({
+              data: {
+                userId,
+                walletId: existingWallet.id
+              }
+            })
+
+            return linkUserToWallet
+           }
+
+            // If the link already exists, return a meaningful message or the existing link
+            return userWalletLink;
+          }
+
           // Create the wallet first
           const newWallet = await prisma.wallet.create({
             data: {
@@ -56,7 +92,28 @@ export class PrismaWalletRepository {
        }
     }
 
-    public async getWalletByAddress(userId: string, walletAddress: string) {
+    public async getUserWalletById(userId: string, walletAddress: string) {
+      const userWallet = await prisma.userWallet.findFirst({
+          where: {
+              userId: userId,
+              wallet: {
+                  address: walletAddress
+              }
+          },
+          select: {
+              wallet: {
+                  select: {
+                      address: true
+                  }
+              }
+          }
+      });
+  
+      // Return the wallet if found, otherwise return null
+      return userWallet ? userWallet.wallet : null;
+  }
+
+    public async getWalletByAddress(walletAddress: string) {
       const wallet = await prisma.wallet.findFirst({
         where: {
           address: walletAddress
@@ -93,7 +150,7 @@ export class PrismaWalletRepository {
   }
 
     public async pulseWallet() {
-        const stream = await prisma.wallet.stream({ create: {} })
+        const stream = await prisma.userWallet.stream({ create: {}, delete: {} })
 
           // for await (const event of stream) {
           //   console.log('New event:', event)

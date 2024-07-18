@@ -29,8 +29,10 @@ export class StartCommand {
                 inline_keyboard: START_MENU,
               },
             };
+
+            const messageText = `😺 Handi Cat | Wallet Tracker\n\n 🆙 For more features, you can upgrade to PRO, which allows tracking 50+ wallets.`;
         
-            this.bot.sendMessage(chatId, `Hello, ${firstName}! Welcome to our bot. How can I help you today?`, commandMenu);
+            this.bot.sendMessage(chatId, messageText, { reply_markup: START_MENU });
 
              // Find existing user
             const user = await this.prismaUserRepository.getById(userId)

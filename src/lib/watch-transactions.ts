@@ -34,10 +34,17 @@ export class WatchTransaction extends EventEmitter {
        try {
         for (const wallet of this.wallets) {
             const publicKey = new PublicKey(wallet.address);
-            console.log(`Watching transactions for wallet: ${publicKey.toBase58()}`);
+            const walletAddress = publicKey.toBase58();
+
+            // Check if a subscription already exists for this wallet address
+             if (this.subscriptions.has(walletAddress)) {
+                continue; // Skip re-subscribing
+            }
+
+            console.log(`Watching transactions for wallet: ${walletAddress}`);
     
             // start realtime log
-            const subscriptionId = connection.onLogs(
+            const subscriptionId = await connection.onLogs(
               publicKey, async (logs, ctx) => {
                 // rate limit
                 const currentTime = Date.now();
@@ -48,7 +55,6 @@ export class WatchTransaction extends EventEmitter {
                 this.lastProcessedTime = currentTime; // Update the last processed time
     
                 const transactionSignature = logs.signature
-                // console.log(`Transaction detected: ${transactionSignature}`);
     
                 // get full transaction
                 const transactionDetails = await connection.getParsedTransactions([transactionSignature], {

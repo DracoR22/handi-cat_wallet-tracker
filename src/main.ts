@@ -21,6 +21,7 @@ const PORT = process.env.PORT || 3001
 
 class Main {
     private prismaWalletRepository: PrismaWalletRepository
+    private walletWatcher: WatchTransaction | null = null;
     constructor(private app: Express = express()) {
         this.app.use(express.json({ limit: '50mb' }))
 
@@ -82,25 +83,18 @@ class Main {
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 
-        // const walletWatcher = new WatchWallets()
-
         await this.setupWalletWatcher();
         await this.listenForDatabaseChanges();
     }
 
     public async setupWalletWatcher(): Promise<void> {
         const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
-       
 
-         let watch = new WatchTransaction(allWallets || [])
-
-        // console.log('ALL_WALLETS', walletAddresses);
-
-        if (watch) {
-            await watch.updateWallets(allWallets || []);
+        if (this.walletWatcher) {
+            await this.walletWatcher.updateWallets(allWallets || []);
         } else {
-            watch = new WatchTransaction(allWallets || []);
-            await watch.watchSocket();
+            this.walletWatcher = new WatchTransaction(allWallets || []);
+            await this.walletWatcher.watchSocket();
         }
     }
 

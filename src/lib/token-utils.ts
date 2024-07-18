@@ -86,4 +86,7 @@ export class Utils {
         }
       }
     
+      public formatNumber(amount: number) { // TODO: Add try catch, just return the function in case of error
+          return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(amount);
+      }
 }

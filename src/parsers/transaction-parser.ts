@@ -1,4 +1,3 @@
-import { Transaction } from "../types/helius-types";
 import { connection } from "../providers/solana";
 import { TokenParser } from "./token-parser";
 import { Utils } from "../lib/token-utils";
@@ -7,38 +6,6 @@ import { ParsedTransactionWithMeta } from "@solana/web3.js";
 export class TransactionParser {
     constructor(private transactionSignature: string) {
       this.transactionSignature = this.transactionSignature
-    }
-
-    public async parseWithHelius(): Promise<{ message: string; type: 'buy' | 'sell' } | undefined> {
-     const apiUrl = `https://api.helius.xyz/v0/transactions/?api-key=${process.env.HELIUS_API_KEY}`
-     console.log('Parsing Transaction:', this.transactionSignature);
-     
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            transactions: [this.transactionSignature],
-          }),
-        });
-  
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-  
-        const transactions = await response.json() as Transaction[]
-        console.log('Received transactions:', transactions);
-        const type: 'buy' | 'sell' = transactions[0].accountData[0].nativeBalanceChange > 0 ? 'sell' : 'buy'
-
-        return { 
-            message: transactions[0].description,
-            type
-        }
-      } catch (error) {
-        console.error('Error parsing transaction with Helius:', error);
-      }
     }
 
     public async parseNative(transactionDetails: (ParsedTransactionWithMeta | null)[]): Promise<NativeParserInterface | undefined> {
@@ -124,9 +91,13 @@ export class TransactionParser {
         const tokenInInfo = await tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
-        owner = transactions[0]?.info?.authority || '';
-        amountOut = transactions[0]?.info?.amount || 0;
-        amountIn = raydiumTransfer.info.amount || '';
+        const formattedAmountOut = utils.formatNumber(Number(transactions[0]?.info?.amount));
+        const formattedAmountIn = utils.formatNumber(Number(raydiumTransfer?.info?.amount));
+
+        // TODO: Check if SOL change works and OWNER
+        owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
+        amountOut = cleanedTokenOutSymbol === 'SOL' ? (Number(transactions[0]?.info?.amount) / 1e9).toString() : formattedAmountOut
+        amountIn = cleanedTokenInSymbol === 'SOL' ? (Number(raydiumTransfer.info.amount) / 1e9).toString() : formattedAmountIn
         tokenOut = cleanedTokenOutSymbol
         tokenIn = cleanedTokenInSymbol
      
@@ -159,9 +130,11 @@ export class TransactionParser {
         const tokenInInfo = await tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
+        const formattedAmount = utils.formatNumber(Number(transactions[0]?.info?.amount));
+
         owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
-        amountOut = nativeBalance?.type === 'sell' ? transactions[0]?.info?.amount : totalSolSwapped
-        amountIn =  nativeBalance?.type === 'sell' ? totalSolSwapped : transactions[0]?.info.amount
+        amountOut = nativeBalance?.type === 'sell' ? formattedAmount : totalSolSwapped.toFixed(2).toString()
+        amountIn =  nativeBalance?.type === 'sell' ? totalSolSwapped.toFixed(2).toString() : formattedAmount
         tokenOut = nativeBalance?.type === 'sell' ? cleanedTokenOutSymbol : 'SOL'
         tokenIn = nativeBalance?.type === 'sell' ? 'SOL' : cleanedTokenInSymbol
         
@@ -176,8 +149,8 @@ export class TransactionParser {
          tokenTransfers: {
           tokenInMint: nativeBalance?.type === 'sell' ? 'So11111111111111111111111111111111111111112' : tokenInMint,
           tokenOutMint: nativeBalance?.type === 'sell' ? tokenOutMint : 'So11111111111111111111111111111111111111112',
-          tokenAmountIn: nativeBalance?.type === 'sell' ? totalSolSwapped : transactions[0]?.info.amount,
-          tokenAmountOut: nativeBalance?.type === 'sell' ? transactions[0]?.info?.amount : totalSolSwapped
+          tokenAmountIn: amountIn,
+          tokenAmountOut: amountOut
          }
        }
       }

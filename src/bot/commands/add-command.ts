@@ -54,7 +54,7 @@ export class AddCommand {
            return;
          }
 
-         const isWalletAlready = await this.prismaWalletRepository.getWalletByAddress(userId, walletAddress!)
+         const isWalletAlready = await this.prismaWalletRepository.getUserWalletById(userId, walletAddress!)
 
          if (isWalletAlready) {
             this.bot.sendMessage(message.chat.id, `You already follow this wallet`);

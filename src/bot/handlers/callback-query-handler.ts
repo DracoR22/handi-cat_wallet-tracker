@@ -49,9 +49,9 @@ export class CallbackQueryHandler {
                 responseText = 'You clicked SELL.';
                 break;
               case 'back_to_main_menu':
-                const messageText = `🤖 Handi Cat | Wallet Tracker\n\n 🆙 For more features, you can upgrade to PRO, which allows tracking 50+ wallets.`;
+                const messageText = `🐱 Handi Cat | Wallet Tracker\n\n 🆙 For more features, you can upgrade to PRO, which allows tracking 50+ wallets.`;
 
-                this.bot.editMessageText(messageText, { chat_id: chatId, message_id: message.message_id, reply_markup: { inline_keyboard: START_MENU }})
+                this.bot.editMessageText(messageText, { chat_id: chatId, message_id: message.message_id, reply_markup: START_MENU })
                 break;
               default:
                 responseText = 'Unknown command.';
