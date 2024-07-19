@@ -14,16 +14,11 @@ export class SendTransactionMsgHandler {
     }
 
     public async send(message: NativeParserInterface, chatId: string) {
-            const solPrice = await this.tokenUtils.getSolPriceToUSD()
+            const solPrice = await this.tokenUtils.getSolPriceNative()
 
-            if (!solPrice) {
-                const messageText = this.botMessages.sendTxMessage(message)
-                this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true });
-            } else if (solPrice) {
-                const messageText = this.botMessages.sendTxMessageWithUsd(message, solPrice)
-                this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true });
-            }
-
+            const messageText = this.botMessages.sendTxMessageWithUsd(message, Number(solPrice))
+            this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true });
+        
             return
     }
 }

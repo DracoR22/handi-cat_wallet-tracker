@@ -20,6 +20,7 @@
     "@pythnetwork/client": "^2.21.1",
     "@pythnetwork/price-service-client": "^1.9.0",
     "@pythnetwork/pyth-solana-receiver": "^0.8.0",
+    "@raydium-io/raydium-sdk": "1.3.1-beta.58",
     "@solana/spl-token": "^0.3.0",
     "@solana/web3.js": "^1.94.0",
     "axios": "^1.7.2",

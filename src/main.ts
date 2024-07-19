@@ -83,6 +83,9 @@ class Main {
         callbackQueryHandler.call()
         startCommand.start()
         addCommand.addCommandHandler()
+
+        // const utils = new Utils()
+        // await utils.getTokenMktCap()
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 

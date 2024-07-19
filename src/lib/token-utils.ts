@@ -9,6 +9,7 @@ import axios from "axios";
 import { PythSolanaReceiver,  } from "@pythnetwork/pyth-solana-receiver";
 import { Wallet } from "@coral-xyz/anchor";
 import { Keypair } from "@solana/web3.js";
+import { PoolInfoLayout, SqrtPriceMath } from "@raydium-io/raydium-sdk";
 
 export class Utils {
     constructor() {}
@@ -97,7 +98,7 @@ export class Utils {
           return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(amount);
       }
 
-      public async getSolPriceToUSD(): Promise<number | undefined> {
+      public async getSolPriceGecko(): Promise<number | undefined> {
        try {
         const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd')
 
@@ -112,7 +113,34 @@ export class Utils {
        }
       }
 
+      public async getSolPriceNative() {
+        const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
+
+        const accountInfo = await connection.getAccountInfo(id)
+
+        if (accountInfo === null) {
+          console.log('get pool info error')
+          return
+        }
+
+        const poolData = PoolInfoLayout.decode(accountInfo.data)
+
+        const solPrice = SqrtPriceMath.sqrtPriceX64ToPrice(poolData.sqrtPriceX64, poolData.mintDecimalsA, poolData.mintDecimalsB).toFixed(2)
+
+        // console.log('current price -> ', solPrice)
+
+        return solPrice
+      }
+
       public async getTokenMktCap() {
-        
+        const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
+
+        const accountInfo = await connection.getAccountInfo(id)
+
+        if (accountInfo === null) throw Error(' get pool info error ')
+
+        const poolData = PoolInfoLayout.decode(accountInfo.data)
+
+        console.log('current price -> ', SqrtPriceMath.sqrtPriceX64ToPrice(poolData.sqrtPriceX64, poolData.mintDecimalsA, poolData.mintDecimalsB).toFixed(2))
       }
 }

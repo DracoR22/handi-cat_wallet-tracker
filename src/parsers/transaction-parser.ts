@@ -86,6 +86,7 @@ export class TransactionParser {
       // FOR RAYDIUM TRANSACTIONS
       if (transactions.length > 1) {
         // TOKEN OUT
+        console.log('DESTINATION', transactions[0]?.info.destination)
         const tokenOutMint = await utils.getTokenMintAddress(transactions[0]?.info.destination) 
         const tokenOutInfo = await tokenParser.getTokenInfo(tokenOutMint)
         const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '');
