@@ -19,9 +19,8 @@ export class WatchTransaction extends EventEmitter {
 
     private subscriptions: Map<string, number>;
 
-    constructor(private wallets: WalletWithUsers[], rateLimitInterval: number = 5000) {
+    constructor(rateLimitInterval: number = 5000) {
         super()
-        this.wallets = wallets;
 
         // Rate limit
         this.rateLimitInterval = rateLimitInterval;
@@ -30,9 +29,9 @@ export class WatchTransaction extends EventEmitter {
         this.subscriptions = new Map();
     }
 
-    public async watchSocket(): Promise<void> {
+    public async watchSocket(wallets: WalletWithUsers[]): Promise<void> {
        try {
-        for (const wallet of this.wallets) {
+        for (const wallet of wallets) {
             const publicKey = new PublicKey(wallet.address);
             const walletAddress = publicKey.toBase58();
 
@@ -90,7 +89,7 @@ export class WatchTransaction extends EventEmitter {
                 
                 for (const user of wallet.userWallets) {
                     console.log('Users:', user)
-                    sendMessageHandler.send(parsed, user.userId)
+                    await sendMessageHandler.send(parsed, user.userId)
                 }
             },
             'confirmed'
@@ -115,7 +114,6 @@ export class WatchTransaction extends EventEmitter {
 
     public async updateWallets(newWallets: WalletWithUsers[]): Promise<void> {
         await this.stopWatching();
-        this.wallets = newWallets;
-        await this.watchSocket();
+        await this.watchSocket(newWallets);
     }
 }

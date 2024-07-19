@@ -12,6 +12,8 @@ export class TransactionParser {
       const tokenParser = new TokenParser(connection)
       const utils = new Utils()
 
+      // await utils.getSolPrice(connection)
+
       if (!transactionDetails || !transactionDetails[0]) {
           console.log('Transaction not found or invalid.');
           return;
@@ -33,7 +35,7 @@ export class TransactionParser {
 
       // Transaction Metadata
       transactionDetails[0].meta?.innerInstructions?.forEach((i: any) => {
-        
+        // raydium
         i.instructions.forEach((r: any) => {
           if (r.parsed?.type === 'transfer' && r.parsed.info.amount !== undefined) {
             transactions.push(r.parsed);
@@ -41,6 +43,7 @@ export class TransactionParser {
         });
       });
 
+      // pumpfun
         transactionDetails[0].transaction.message.instructions.map((instruction: any) => {
           if (transactions.length <= 1 && instruction && instruction.parsed !== undefined) {  
            parsedInfos.push(instruction.parsed)
@@ -72,6 +75,7 @@ export class TransactionParser {
           totalSolSwapped = Math.abs((postBalances[2] - preBalances[2]) / 1e9);
         }
       }
+      
       // TODO: fix, there should be a better way of doing this
       const raydiumTransfer = transactions.length > 2 ? transactions.find((t: any) => t?.info?.destination === transactions[0]?.info?.source) : transactions[transactions.length - 1]
 
@@ -105,14 +109,17 @@ export class TransactionParser {
        
         return {
           platform: 'raydium',
+          owner: owner,
           description: swapDescription,
           type: nativeBalance?.type,
           balanceChange: nativeBalance?.balanceChange,
           signature: this.transactionSignature,
           tokenTransfers: {
+            tokenInSymbol: tokenIn,
             tokenInMint: tokenInMint,
-            tokenOutMint: tokenOutMint,
             tokenAmountIn: amountIn,
+            tokenOutSymbol: tokenOut,
+            tokenOutMint: tokenOutMint,
             tokenAmountOut: amountOut
           }
         }
@@ -142,14 +149,17 @@ export class TransactionParser {
 
        return {
          platform: 'pumpfun',
+         owner: owner,
          description: swapDescription,
          type: nativeBalance?.type,
          balanceChange: nativeBalance?.balanceChange,
          signature: this.transactionSignature,
          tokenTransfers: {
+          tokenInSymbol: tokenIn,
           tokenInMint: nativeBalance?.type === 'sell' ? 'So11111111111111111111111111111111111111112' : tokenInMint,
-          tokenOutMint: nativeBalance?.type === 'sell' ? tokenOutMint : 'So11111111111111111111111111111111111111112',
           tokenAmountIn: amountIn,
+          tokenOutSymbol: tokenOut,
+          tokenOutMint: nativeBalance?.type === 'sell' ? tokenOutMint : 'So11111111111111111111111111111111111111112',
           tokenAmountOut: amountOut
          }
        }

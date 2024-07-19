@@ -1,13 +1,16 @@
 interface NativeParserInterface {
     platform: 'raydium' | 'pumpfun'
-    description: string,
-    type: string | undefined,
-    balanceChange: string | number | undefined,
-    signature: string,
+    owner: string
+    description: string
+    type: string | undefined
+    balanceChange: string | number | undefined
+    signature: string
     tokenTransfers: {
-      tokenInMint: string,
-      tokenOutMint: string,
-      tokenAmountIn: string,
+      tokenInSymbol: string
+      tokenOutSymbol: string
+      tokenInMint: string
+      tokenOutMint: string
+      tokenAmountIn: string
       tokenAmountOut: string
     }
 }

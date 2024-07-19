@@ -1,7 +1,14 @@
-import { AccountInfo, ParsedTransactionWithMeta, PublicKey, SystemProgram } from "@solana/web3.js";
+import { AccountInfo, Connection, ParsedTransactionWithMeta, PublicKey, SystemProgram } from "@solana/web3.js";
 import { connection } from "../providers/solana";
 // @ts-expect-error
 import { getAccount } from "@solana/spl-token";
+
+import { PythHttpClient, getPythClusterApiUrl, getPythProgramKeyForCluster } from "@pythnetwork/client"
+import { PriceServiceConnection } from '@pythnetwork/price-service-client';
+import axios from "axios";
+import { PythSolanaReceiver,  } from "@pythnetwork/pyth-solana-receiver";
+import { Wallet } from "@coral-xyz/anchor";
+import { Keypair } from "@solana/web3.js";
 
 export class Utils {
     constructor() {}
@@ -88,5 +95,24 @@ export class Utils {
     
       public formatNumber(amount: number) { // TODO: Add try catch, just return the function in case of error
           return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(amount);
+      }
+
+      public async getSolPriceToUSD(): Promise<number | undefined> {
+       try {
+        const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd')
+
+        const data = await response.data
+
+        const solanaPrice = data.solana.usd
+
+         return solanaPrice
+       } catch (error) {
+        console.log('GET_SOL_PRICE_ERROR')
+         return 
+       }
+      }
+
+      public async getTokenMktCap() {
+        
       }
 }

@@ -28,6 +28,7 @@ export class TokenParser {
          const tokenContent =  await Metadata.fromAccountAddress(this.connection, tokenmetaPubkey);
 
          const token = tokenContent.pretty()
+        //  console.log('TOKEN', token)
 
          return token
     }

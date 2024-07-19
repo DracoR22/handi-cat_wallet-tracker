@@ -8,6 +8,8 @@ import { CallbackQueryHandler } from "./bot/handlers/callback-query-handler";
 import express, { Express } from "express"
 import { PrismaWalletRepository } from "./repositories/prisma/wallet";
 import { WatchWallets } from "./lib/watch-wallets";
+import { Utils } from "./lib/token-utils";
+import { connection } from "./providers/solana";
 
 dotenv.config()
 
@@ -21,13 +23,14 @@ const PORT = process.env.PORT || 3001
 
 class Main {
     private prismaWalletRepository: PrismaWalletRepository
-    private walletWatcher: WatchTransaction | null = null;
+    private walletWatcher: WatchTransaction
     constructor(private app: Express = express()) {
         this.app.use(express.json({ limit: '50mb' }))
 
         this.setupRoutes()
 
         this.prismaWalletRepository = new PrismaWalletRepository()
+        this.walletWatcher = new WatchTransaction()
     }
 
     setupRoutes() {
@@ -87,14 +90,13 @@ class Main {
         await this.listenForDatabaseChanges();
     }
 
-    public async setupWalletWatcher(): Promise<void> {
+    public async setupWalletWatcher(refetch?: boolean): Promise<void> {
         const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
 
-        if (this.walletWatcher) {
-            await this.walletWatcher.updateWallets(allWallets || []);
+        if (refetch) {
+            await this.walletWatcher.updateWallets(allWallets);
         } else {
-            this.walletWatcher = new WatchTransaction(allWallets || []);
-            await this.walletWatcher.watchSocket();
+            await this.walletWatcher.watchSocket(allWallets);
         }
     }
 
@@ -106,7 +108,7 @@ class Main {
 
             if (event.action === 'create' || event.action === 'delete') {
                 // Refetch wallets and update watcher on create/delete actions
-                await this.setupWalletWatcher();
+                await this.setupWalletWatcher(true);
             }
         }
     }
