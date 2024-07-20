@@ -3,12 +3,7 @@ import { connection } from "../providers/solana";
 // @ts-expect-error
 import { getAccount } from "@solana/spl-token";
 
-import { PythHttpClient, getPythClusterApiUrl, getPythProgramKeyForCluster } from "@pythnetwork/client"
-import { PriceServiceConnection } from '@pythnetwork/price-service-client';
 import axios from "axios";
-import { PythSolanaReceiver,  } from "@pythnetwork/pyth-solana-receiver";
-import { Wallet } from "@coral-xyz/anchor";
-import { Keypair } from "@solana/web3.js";
 import { PoolInfoLayout, SqrtPriceMath } from "@raydium-io/raydium-sdk";
 
 export class Utils {
@@ -133,14 +128,8 @@ export class Utils {
       }
 
       public async getTokenMktCap() {
-        const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
+       
+       }
 
-        const accountInfo = await connection.getAccountInfo(id)
-
-        if (accountInfo === null) throw Error(' get pool info error ')
-
-        const poolData = PoolInfoLayout.decode(accountInfo.data)
-
-        console.log('current price -> ', SqrtPriceMath.sqrtPriceX64ToPrice(poolData.sqrtPriceX64, poolData.mintDecimalsA, poolData.mintDecimalsB).toFixed(2))
-      }
+      
 }

@@ -16,10 +16,10 @@ export class ValidTransactions {
 
         if (pumpFunTransaction) {
             console.log('detected pumpfun transaction')
-            return { valid: true, swap: 'PUMP FUN'};
+            return { valid: true, swap: 'pumpfun'};
         } else if (raydiumTransaction) {
             console.log('detected raydium transaction')
-            return { valid: true, swap: 'RAYDIUM' }; 
+            return { valid: true, swap: 'raydium' }; 
         } else {
            return { valid: false, swap: null }
         }

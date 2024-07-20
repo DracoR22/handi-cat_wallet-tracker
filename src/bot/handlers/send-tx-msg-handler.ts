@@ -14,11 +14,11 @@ export class SendTransactionMsgHandler {
     }
 
     public async send(message: NativeParserInterface, chatId: string) {
-            const solPrice = await this.tokenUtils.getSolPriceNative()
+        const solPrice = await this.tokenUtils.getSolPriceNative()
 
-            const messageText = this.botMessages.sendTxMessageWithUsd(message, Number(solPrice))
-            this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true });
+        const messageText = this.botMessages.sendTxMessageWithUsd(message, Number(solPrice))
+        this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true });
         
-            return
+        return
     }
 }

@@ -20,7 +20,7 @@ export class BotMessages {
         const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
 
         const messageText = `
-${message.type === 'buy' ? '🟢' : '🔴'} ${message.type?.toUpperCase()} ${message.type === 'buy' ? `<a href="${solscanTokenInUrl}">${tokenIn}</a>` : `<a href="${solscanTokenOutUrl}">${tokenOut}</a>`} on ${message.platform.toUpperCase()}\n
+${message.type === 'buy' ? '🟢' : '🔴'} ${message.type?.toUpperCase()} ${message.type === 'buy' ? `<a href="${solscanTokenInUrl}">${tokenIn}</a>` : `<a href="${solscanTokenOutUrl}">${tokenOut}</a>`} on ${message.platform!.toUpperCase()}\n
 <b>💎 ${truncatedOwner}</b>\n
 ✅ <a href="${solscanAddressUrl}">${truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a>\n   
 <code style="color: #39fa56">${message.type === 'buy' ? tokenInMint : tokenOutMint}</code>   

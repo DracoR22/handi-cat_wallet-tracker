@@ -76,7 +76,7 @@ export class WatchTransaction extends EventEmitter {
        
                 // parse transaction
                 const transactionParser = new TransactionParser(transactionSignature)
-                const parsed = await transactionParser.parseNative(transactionDetails)
+                const parsed = await transactionParser.parseNative(transactionDetails, isValidTransaction.swap)
     
                 if (!parsed) {
                     return

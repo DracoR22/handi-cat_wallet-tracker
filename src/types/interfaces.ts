@@ -1,5 +1,5 @@
 interface NativeParserInterface {
-    platform: 'raydium' | 'pumpfun'
+    platform: 'raydium' | 'pumpfun' | null
     owner: string
     description: string
     type: string | undefined

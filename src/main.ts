@@ -10,6 +10,8 @@ import { PrismaWalletRepository } from "./repositories/prisma/wallet";
 import { WatchWallets } from "./lib/watch-wallets";
 import { Utils } from "./lib/token-utils";
 import { connection } from "./providers/solana";
+import { fetchAndCalculate, getTokenAccount } from "./test";
+import { TokenParser } from "./parsers/token-parser";
 
 dotenv.config()
 
@@ -84,8 +86,10 @@ class Main {
         startCommand.start()
         addCommand.addCommandHandler()
 
-        // const utils = new Utils()
-        // await utils.getTokenMktCap()
+        const utils = new Utils()
+        await utils.getTokenMktCap()
+        // const token = new TokenParser(connection)
+        // await token.getTokenInfo('Gg8cq7hYxc7bBdGAN5nNxfJPL9fhUwwebWy5bkJqpump')
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 

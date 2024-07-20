@@ -2,13 +2,14 @@ import { connection } from "../providers/solana";
 import { TokenParser } from "./token-parser";
 import { Utils } from "../lib/token-utils";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { SwapType } from "../types/swap-types";
 
 export class TransactionParser {
     constructor(private transactionSignature: string) {
       this.transactionSignature = this.transactionSignature
     }
 
-    public async parseNative(transactionDetails: (ParsedTransactionWithMeta | null)[]): Promise<NativeParserInterface | undefined> {
+    public async parseNative(transactionDetails: (ParsedTransactionWithMeta | null)[], swap: SwapType): Promise<NativeParserInterface | undefined> {
       const tokenParser = new TokenParser(connection)
       const utils = new Utils()
 
@@ -86,7 +87,8 @@ export class TransactionParser {
       // FOR RAYDIUM TRANSACTIONS
       if (transactions.length > 1) {
         // TOKEN OUT
-        console.log('DESTINATION', transactions[0]?.info.destination)
+        // console.log('DESTINATION1', transactions[0]?.info.destination)
+        // console.log('DESTINATION2', raydiumTransfer.info.source)
         const tokenOutMint = await utils.getTokenMintAddress(transactions[0]?.info.destination) 
         const tokenOutInfo = await tokenParser.getTokenInfo(tokenOutMint)
         const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '');
@@ -109,7 +111,7 @@ export class TransactionParser {
         const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`;
        
         return {
-          platform: 'raydium',
+          platform: swap,
           owner: owner,
           description: swapDescription,
           type: nativeBalance?.type,
@@ -149,7 +151,7 @@ export class TransactionParser {
        const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`;
 
        return {
-         platform: 'pumpfun',
+         platform: swap,
          owner: owner,
          description: swapDescription,
          type: nativeBalance?.type,
