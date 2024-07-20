@@ -4,7 +4,7 @@ import { Token } from "@solana/spl-token";
 import { RAYDIUM_PROGRAM_ID } from "./config/solana/program-ids";
 
 // Replace with your actual token account address
-const tokenAccountAddress = new PublicKey('5b39hnBZ24a2LzLRqmzj8eTUc8GXpnTVTBwEvPoRpump');
+const tokenAccountAddress = new PublicKey('5phQmKDhkGzCipqGrqr8bwqyEuxeSEqafM43LWTKtzxn');
 
 
 // Replace with your actual token account address
@@ -14,7 +14,6 @@ const tokenAccountAddressWrappedSol = new PublicKey('4HzSzvHe4h38oazMFSMpc4ewf27
 async function getTokenBalance(tokenAccountAddress: PublicKey) {
   try {
     const tokenBalance = await connection.getTokenAccountBalance(tokenAccountAddress);
-    console.log('TOKEN_BALANCE', tokenBalance)
     return tokenBalance.value.amount;
   } catch (error) {
     console.error('Error fetching token balance:', error);
@@ -26,7 +25,7 @@ export async function fetchAndCalculate(){
   let wrappedSol: any = await getTokenBalance(tokenAccountAddressWrappedSol);
 
   let priceOfSPLToken= (wrappedSol/1_000_000_000)/(splTokenBalance/1_000_000);
-  console.log("priceOfSPLToken: "+priceOfSPLToken);
+  console.log("priceOfSPLToken: "+priceOfSPLToken.toFixed(9));
 
 }
 

@@ -87,7 +87,9 @@ class Main {
         addCommand.addCommandHandler()
 
         const utils = new Utils()
-        await utils.getTokenMktCap()
+        await utils.getTokenMktCap('pumpfun', 'BfLzphUXVd744AKAKNGCB4Gy2QmqQXk1wTztV1h2pump')
+        // await utils.isRaydiumToken('43UKTULPFkHd9K6a8nWjjwtisEgWRWPoD6ocEmH8pump')
+        // await fetchAndCalculate()
         // const token = new TokenParser(connection)
         // await token.getTokenInfo('Gg8cq7hYxc7bBdGAN5nNxfJPL9fhUwwebWy5bkJqpump')
  
