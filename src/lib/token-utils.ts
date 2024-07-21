@@ -137,8 +137,8 @@ export class Utils {
         if (dex === 'raydium') {
           const response = await axios.get(`https://api.solana.fm/v0/cache/tokens/${tokenMint}/price-details`)
           if (response.data.status === 'success') {
-            const tokenPrice = response.data.result.tokenPriceCachedRes.price;
-            console.log('TOKENPRICE', tokenPrice)
+            const tokenPrice = response?.data?.result?.tokenPriceCachedRes?.price;
+            // console.log('TOKENPRICE', tokenPrice)
             globalTokenPrice += tokenPrice
           } else {
             return
@@ -192,7 +192,7 @@ export class Utils {
           const response = await axios.request(config);
           const priceInUSD = response.data?.data?.Solana?.DEXTradeByTokens?.[0]?.Trade?.PriceInUSD;
           if (priceInUSD !== undefined) {
-            console.log(response.data?.data?.Solana?.DEXTradeByTokens?.[0])
+            // console.log(response.data?.data?.Solana?.DEXTradeByTokens?.[0])
             globalTokenPrice += priceInUSD;
           } else {
             console.log('PriceInUSD is undefined');
@@ -200,12 +200,12 @@ export class Utils {
           }
         } catch (error) {
           console.log('Error fetching data:', error);
-          return;
+          return
         }
       }
     
-      console.log('GLOBAL TOKEN PRICE', globalTokenPrice);
-      return globalTokenPrice;
+        console.log('GLOBAL TOKEN PRICE', globalTokenPrice);
+        return globalTokenPrice;
       }
 
       public async getTokenMktCap(dex: SwapType, tokenMint: string) {

@@ -9,9 +9,8 @@ import express, { Express } from "express"
 import { PrismaWalletRepository } from "./repositories/prisma/wallet";
 import { WatchWallets } from "./lib/watch-wallets";
 import { Utils } from "./lib/token-utils";
-import { connection } from "./providers/solana";
-import { fetchAndCalculate, getTokenAccount } from "./test";
 import { TokenParser } from "./parsers/token-parser";
+import { fetchAndCalculate, getTokenMktCap, test } from "./test";
 
 dotenv.config()
 
@@ -86,12 +85,15 @@ class Main {
         startCommand.start()
         addCommand.addCommandHandler()
 
-        const utils = new Utils()
-        await utils.getTokenMktCap('pumpfun', 'BfLzphUXVd744AKAKNGCB4Gy2QmqQXk1wTztV1h2pump')
+        // const utils = new Utils()
+        // await utils.getTokenMktCap('raydium', 'E2dT9axcJuaQ8NM6JcFaSjYCPhidgJTSqpGS8LQbCsVm')
         // await utils.isRaydiumToken('43UKTULPFkHd9K6a8nWjjwtisEgWRWPoD6ocEmH8pump')
         // await fetchAndCalculate()
+        // await getTokenMktCap('26hYxfqDaDtd4iykEyb9vav9YbeuV5PhDNQLNbAbpump', 0.01442674864824286)
         // const token = new TokenParser(connection)
         // await token.getTokenInfo('Gg8cq7hYxc7bBdGAN5nNxfJPL9fhUwwebWy5bkJqpump')
+        // await test()
+
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 

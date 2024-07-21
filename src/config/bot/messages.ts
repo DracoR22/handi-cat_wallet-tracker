@@ -1,7 +1,7 @@
 export class BotMessages {
     constructor() {}
 
-    public sendTxMessageWithUsd(message: NativeParserInterface, solPrice: number): string {
+    public sendTxMessageWithUsd(message: NativeParserInterface, solPrice: number, tokenMarketCap?: string | undefined): string {
         const owner = message.owner;
         const amountOut = message.tokenTransfers.tokenAmountOut;
         const tokenOut = message.tokenTransfers.tokenOutSymbol;
@@ -19,11 +19,23 @@ export class BotMessages {
         const amountInUsd = message.type === 'buy' ? Number(amountOut) * solPrice : Number(amountIn) * solPrice
         const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
 
+        const tokenMintToTrack = message.type === 'buy' ? tokenInMint : tokenOutMint
+
+        const beLink = `<a href="https://birdeye.so/token/${tokenMintToTrack}?chain=solana">BE</a>`
+        const dsLink = `<a href="https://dexscreener.com/solana/${tokenMintToTrack}">DS</a>`
+        const phLink = `<a href="https://photon-sol.tinyastro.io/en/lp/${tokenMintToTrack}">PH</a>`
+
+        const marketCapText = tokenMarketCap ? 
+`<b>💣${message.type === 'buy' ? tokenIn : tokenOut}</b> | <b>MC: $${tokenMarketCap}</b> | ${beLink} | ${dsLink} | ${phLink}` : 
+"";
+
         const messageText = `
 ${message.type === 'buy' ? '🟢' : '🔴'} ${message.type?.toUpperCase()} ${message.type === 'buy' ? `<a href="${solscanTokenInUrl}">${tokenIn}</a>` : `<a href="${solscanTokenOutUrl}">${tokenOut}</a>`} on ${message.platform!.toUpperCase()}\n
 <b>💎 ${truncatedOwner}</b>\n
-✅ <a href="${solscanAddressUrl}">${truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a>\n   
-<code style="color: #39fa56">${message.type === 'buy' ? tokenInMint : tokenOutMint}</code>   
+✅ <a href="${solscanAddressUrl}">${truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a> 
+
+${marketCapText}
+<code>${tokenMintToTrack}</code>   
 `
         return messageText
     }
