@@ -3,6 +3,7 @@ import { Utils } from "../../lib/token-utils";
 import { BotMessages } from "../../config/bot/messages";
 import { TokenPrices } from "../../lib/token-prices";
 import { FormatNumbers } from "../../lib/format-numbers";
+import { createTxSubMenu } from "../../config/bot/menus";
 
 export class SendTransactionMsgHandler {
     private tokenUtils: Utils
@@ -23,17 +24,33 @@ export class SendTransactionMsgHandler {
         const solPrice = await this.tokenUtils.getSolPriceNative()
 
         const tokenToMc = message.type === 'buy' ? message.tokenTransfers.tokenInMint : message.tokenTransfers.tokenOutMint
+        const tokenToMcSymbol = message.type === 'buy' ? message.tokenTransfers.tokenInSymbol : message.tokenTransfers.tokenOutSymbol
 
-        // const tokenMarketCap = await this.tokenUtils.getTokenMktCap(message.platform, tokenToMc)
-        const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
+        const TX_SUB_MENU = createTxSubMenu(tokenToMcSymbol, tokenToMc)
 
-        const tokenMarketCap = tokenInfo?.market_cap
+        if (message.platform === 'raydium') {
+            let tokenMarketCap = message.swappedTokenMc
 
-        const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
+             // Check if the market cap is below 1000 and adjust if necessary
+            if (tokenMarketCap && tokenMarketCap < 1000) {
+              console.log('MC ADJUSTED')
+              tokenMarketCap *= 1000;
+            }
+    
+            const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
+    
+            const messageText = this.botMessages.sendTxMessageWithUsd(message, Number(solPrice), formattedMarketCap)
+            return this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: TX_SUB_MENU });
 
-        const messageText = this.botMessages.sendTxMessageWithUsd(message, Number(solPrice), formattedMarketCap?.toString())
+        } else if (message.platform === 'pumpfun') {
+            const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
+            let tokenMarketCap = tokenInfo?.market_cap
 
-        this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true });
+            const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
+    
+            const messageText = this.botMessages.sendTxMessageWithUsd(message, Number(solPrice), formattedMarketCap)
+            return this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: TX_SUB_MENU });
+        }
         
         return
     }

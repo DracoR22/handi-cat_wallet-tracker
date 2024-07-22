@@ -93,10 +93,6 @@ export class Utils {
         }
       }
     
-      public formatNumber(amount: number) { // TODO: Add try catch, just return the function in case of error
-          return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(amount);
-      }
-    
       public async getSolPriceGecko(): Promise<number | undefined> {
        try {
         const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd')
@@ -131,105 +127,66 @@ export class Utils {
         return solPrice
       }
 
-      public async getTokenPrice(dex: SwapType, tokenMint: string): Promise<number | undefined> {
-        let globalTokenPrice = 0
-
-        if (dex === 'raydium') {
-          const response = await axios.get(`https://api.solana.fm/v0/cache/tokens/${tokenMint}/price-details`)
-          if (response.data.status === 'success') {
-            const tokenPrice = response?.data?.result?.tokenPriceCachedRes?.price;
-            // console.log('TOKENPRICE', tokenPrice)
-            globalTokenPrice += tokenPrice
-          } else {
-            return
-          }
-        } else if (dex === 'pumpfun') {
-          let data = JSON.stringify({
-            query: `
-              query MyQuery($mintAddress: String!) {
-                Solana {
-                  DEXTradeByTokens(
-                    where: {Trade: {Currency: {MintAddress: {is: $mintAddress}}, Dex: {ProtocolName: {is: "pump"}}}, Block: {Time: {since: "2024-06-27T06:46:00Z"}}}
-                    limit: {count: 1}
-                  ) {
-                    Trade {
-                      Currency {
-                        Name
-                        Symbol
-                        MintAddress
-                      }
-                      PriceInUSD
-                      Price
-                      PriceAsymmetry
-                      Dex {
-                        ProtocolName
-                        ProtocolFamily
-                      }
-                    }
-                    TradeVolume: sum(of: Trade_Amount)
-                  }
-                }
-              }
-            `,
-            variables: {
-              mintAddress: tokenMint
-            }
-          });
-         
-         let config = {
-            method: 'post',
-            maxBodyLength: Infinity,
-            url: 'https://streaming.bitquery.io/eap',
-            headers: { 
-               'Content-Type': 'application/json', 
-               'X-API-KEY': process.env.BITQUERY_API_KEY, 
-               'Authorization': 'Bearer ory_at_EONibepioHzk6eP6ldlUURLqnuOp6tFMFOL-FyIRI7Y.U8iNP1I4ekNMQCfgki1yPpLND99ZtwxPj2wAR6d5uFw'
-            },
-            data : data
-         };
-         
-         try {
-          const response = await axios.request(config);
-          const priceInUSD = response.data?.data?.Solana?.DEXTradeByTokens?.[0]?.Trade?.PriceInUSD;
-          if (priceInUSD !== undefined) {
-            // console.log(response.data?.data?.Solana?.DEXTradeByTokens?.[0])
-            globalTokenPrice += priceInUSD;
-          } else {
-            console.log('PriceInUSD is undefined');
-            return
-          }
+      public async getTokenBalance(tokenAccountAddress: PublicKey) {
+        try {
+          const tokenBalance = await connection.getTokenAccountBalance(tokenAccountAddress);
+          return tokenBalance.value.amount;
         } catch (error) {
-          console.log('Error fetching data:', error);
+          console.error('Error fetching token balance:', error);
           return
         }
       }
-    
-        console.log('GLOBAL TOKEN PRICE', globalTokenPrice);
-        return globalTokenPrice;
+
+      public async getTokenPrice(txInstructions: ParsedTxInfo[], type: 'buy' | 'sell'): Promise<number | undefined> {
+         if (type === 'buy') {
+          const tokenAccountAddress = new PublicKey(txInstructions[1].info.source);
+          const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[0].info.destination);
+
+          const splTokenBalance: any = await this.getTokenBalance(tokenAccountAddress);
+          const wrappedSolBalance: any = await this.getTokenBalance(tokenAccountAddressWrappedSol);
+          const solPriceInUsd: any = await this.getSolPriceNative();
+      
+          const priceOfSPLTokenInSOL = (wrappedSolBalance / 1_000_000_000) / (splTokenBalance / 1_000_000);
+          const priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd;
+
+          console.log('PRICE IN USD NORMAL', priceOfSPLTokenInUSD)
+          console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
+          console.log('SOL PRICE IN USD', solPriceInUsd)
+
+          return priceOfSPLTokenInUSD
+         } else if (type === 'sell') {
+          const tokenAccountAddress = new PublicKey(txInstructions[0].info.destination);
+          const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[1].info.source);
+
+          const splTokenBalance: any = await this.getTokenBalance(tokenAccountAddress);
+          const wrappedSolBalance: any = await this.getTokenBalance(tokenAccountAddressWrappedSol);
+          const solPriceInUsd: any = await this.getSolPriceNative();
+      
+          const priceOfSPLTokenInSOL = (wrappedSolBalance / 1_000_000_000) / (splTokenBalance / 1_000_000);
+          const priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd;
+
+          console.log('PRICE IN USD NORMAL', priceOfSPLTokenInUSD)
+          console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
+          console.log('SOL PRICE IN USD', solPriceInUsd)
+          
+          return priceOfSPLTokenInUSD
+         }
+
+         return
       }
 
-      public async getTokenMktCap(dex: SwapType, tokenMint: string) {
+      public async getTokenMktCap(tokenPrice: number, tokenMint: string) {
          const mintPublicKey = new PublicKey(tokenMint);
          const tokenSupply = await connection.getTokenSupply(mintPublicKey);
-         const supplyValue = tokenSupply.value.uiAmount;
-         console.log('SUPPLY VALUE', supplyValue)
+         const supplyValue = tokenSupply.value.uiAmount
 
          if (!supplyValue) {
            return
          }
 
-         const tokenPrice = await this.getTokenPrice(dex, tokenMint)
-
-         if (!tokenPrice || tokenPrice === undefined || tokenPrice === null) {
-          console.log('NO TOKEN PRICE')
-           return
-         }
-
          const tokenMarketCap = supplyValue * tokenPrice
 
-         const formattedMarketCap = this.formatNumber(tokenMarketCap)
-
-         console.log('TOKEN_MARKET_CAP', formattedMarketCap)
-         return formattedMarketCap
+         console.log('TOKEN_MARKET_CAP', tokenMarketCap)
+         return tokenMarketCap
       }
 }

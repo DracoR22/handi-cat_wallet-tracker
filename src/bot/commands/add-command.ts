@@ -67,7 +67,7 @@ export class AddCommand {
          console.log('USERID', userId)
           this.prismaWalletRepository.create(userId!, walletAddress!)
 
-         this.bot.sendMessage(message.chat.id, `Wallet ${walletAddress} has been added.`);
+         this.bot.sendMessage(message.chat.id, `🎉 Wallet ${walletAddress} has been added.`);
 
         //  const walletWatcher = new WatchWallets()
 

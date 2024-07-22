@@ -3,10 +3,15 @@ import { TokenParser } from "./token-parser";
 import { Utils } from "../lib/token-utils";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
 import { SwapType } from "../types/swap-types";
+import { FormatNumbers } from "../lib/format-numbers";
 
 export class TransactionParser {
-    constructor(private transactionSignature: string) {
+     private formatNumbers: FormatNumbers
+    constructor(
+      private transactionSignature: string,
+    ) {
       this.transactionSignature = this.transactionSignature
+      this.formatNumbers = new FormatNumbers()
     }
 
     public async parseNative(transactionDetails: (ParsedTransactionWithMeta | null)[], swap: SwapType): Promise<NativeParserInterface | undefined> {
@@ -87,8 +92,6 @@ export class TransactionParser {
       // FOR RAYDIUM TRANSACTIONS
       if (transactions.length > 1) {
         // TOKEN OUT
-        // console.log('DESTINATION1', transactions[0]?.info.destination)
-        // console.log('DESTINATION2', raydiumTransfer.info.source)
         const tokenOutMint = await utils.getTokenMintAddress(transactions[0]?.info.destination) 
         const tokenOutInfo = await tokenParser.getTokenInfo(tokenOutMint)
         const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '');
@@ -98,8 +101,8 @@ export class TransactionParser {
         const tokenInInfo = await tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
-        const formattedAmountOut = utils.formatNumber(Number(transactions[0]?.info?.amount));
-        const formattedAmountIn = utils.formatNumber(Number(raydiumTransfer?.info?.amount));
+        const formattedAmountOut = this.formatNumbers.formatNumber(Number(transactions[0]?.info?.amount));
+        const formattedAmountIn = this.formatNumbers.formatNumber(Number(raydiumTransfer?.info?.amount));
 
         // TODO: Check if SOL change works and OWNER
         owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
@@ -107,8 +110,22 @@ export class TransactionParser {
         amountIn = cleanedTokenInSymbol === 'SOL' ? (Number(raydiumTransfer.info.amount) / 1e9).toString() : formattedAmountIn
         tokenOut = cleanedTokenOutSymbol
         tokenIn = cleanedTokenInSymbol
+
+        let tokenMc: number | null | undefined = null
      
         const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`;
+
+      // get the token price and market cap for raydium
+       if(transactions.length[0]?.info?.amount !== transactions[1]?.info?.amount) {
+        const tokenPrice = await utils.getTokenPrice(transactions, nativeBalance?.type as 'buy' | 'sell')
+
+        const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
+
+        if (tokenPrice) {
+           const tokenMarketCap = await utils.getTokenMktCap(tokenPrice, tokenToMc)
+           tokenMc = tokenMarketCap
+        }
+      }
        
         return {
           platform: swap,
@@ -117,6 +134,7 @@ export class TransactionParser {
           type: nativeBalance?.type,
           balanceChange: nativeBalance?.balanceChange,
           signature: this.transactionSignature,
+          swappedTokenMc: tokenMc,
           tokenTransfers: {
             tokenInSymbol: tokenIn,
             tokenInMint: tokenInMint,
@@ -140,7 +158,7 @@ export class TransactionParser {
         const tokenInInfo = await tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
-        const formattedAmount = utils.formatNumber(Number(transactions[0]?.info?.amount));
+        const formattedAmount = this.formatNumbers.formatNumber(Number(transactions[0]?.info?.amount));
 
         owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
         amountOut = nativeBalance?.type === 'sell' ? formattedAmount : totalSolSwapped.toFixed(2).toString()
@@ -157,6 +175,7 @@ export class TransactionParser {
          type: nativeBalance?.type,
          balanceChange: nativeBalance?.balanceChange,
          signature: this.transactionSignature,
+         swappedTokenMc: null,
          tokenTransfers: {
           tokenInSymbol: tokenIn,
           tokenInMint: nativeBalance?.type === 'sell' ? 'So11111111111111111111111111111111111111112' : tokenInMint,

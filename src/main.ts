@@ -11,6 +11,7 @@ import { WatchWallets } from "./lib/watch-wallets";
 import { Utils } from "./lib/token-utils";
 import { TokenParser } from "./parsers/token-parser";
 import { fetchAndCalculate, getTokenMktCap, test } from "./test";
+import { FormatNumbers } from "./lib/format-numbers";
 
 dotenv.config()
 
@@ -93,6 +94,9 @@ class Main {
         // const token = new TokenParser(connection)
         // await token.getTokenInfo('Gg8cq7hYxc7bBdGAN5nNxfJPL9fhUwwebWy5bkJqpump')
         // await test()
+        // const numbers = new FormatNumbers()
+        // const f = 1.0308055978875173e-10.toFixed(10)
+        // console.log('FORMATTED', f)
 
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
