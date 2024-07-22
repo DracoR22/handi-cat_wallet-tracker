@@ -147,11 +147,21 @@ export class Utils {
           const solPriceInUsd: any = await this.getSolPriceNative();
       
           const priceOfSPLTokenInSOL = (wrappedSolBalance / 1_000_000_000) / (splTokenBalance / 1_000_000);
-          const priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd;
+          let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd;
 
           console.log('PRICE IN USD NORMAL', priceOfSPLTokenInUSD)
           console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
-          console.log('SOL PRICE IN USD', solPriceInUsd)
+          console.log('SOL PRICE TOKEN', priceOfSPLTokenInSOL)
+
+          if (priceOfSPLTokenInUSD.toString().includes('e')) {
+            // Convert the scientific notation number to a fixed decimal number string
+            const formattedPrice = priceOfSPLTokenInUSD.toFixed(10);
+        
+            // Remove the first three leading zeros after the decimal point
+            const [integerPart, decimalPart] = formattedPrice.split('.');
+            const newDecimalPart = decimalPart.replace(/^0{3}/, '');
+            priceOfSPLTokenInUSD = parseFloat(`${integerPart}.${newDecimalPart}`);
+        }
 
           return priceOfSPLTokenInUSD
          } else if (type === 'sell') {
@@ -163,11 +173,21 @@ export class Utils {
           const solPriceInUsd: any = await this.getSolPriceNative();
       
           const priceOfSPLTokenInSOL = (wrappedSolBalance / 1_000_000_000) / (splTokenBalance / 1_000_000);
-          const priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd;
+          let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd;
 
           console.log('PRICE IN USD NORMAL', priceOfSPLTokenInUSD)
           console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
-          console.log('SOL PRICE IN USD', solPriceInUsd)
+          console.log('SOL PRICE TOKEN', priceOfSPLTokenInSOL)
+
+          if (priceOfSPLTokenInUSD.toString().includes('e')) {
+            // Convert the scientific notation number to a fixed decimal number string
+            const formattedPrice = priceOfSPLTokenInUSD.toFixed(10);
+        
+            // Remove the first three leading zeros after the decimal point
+            const [integerPart, decimalPart] = formattedPrice.split('.');
+            const newDecimalPart = decimalPart.replace(/^0{3}/, '');
+            priceOfSPLTokenInUSD = parseFloat(`${integerPart}.${newDecimalPart}`);
+        }
           
           return priceOfSPLTokenInUSD
          }

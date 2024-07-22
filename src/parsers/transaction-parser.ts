@@ -93,11 +93,17 @@ export class TransactionParser {
       if (transactions.length > 1) {
         // TOKEN OUT
         const tokenOutMint = await utils.getTokenMintAddress(transactions[0]?.info.destination) 
+        if (tokenOutMint === null) {
+          return
+        }
         const tokenOutInfo = await tokenParser.getTokenInfo(tokenOutMint)
         const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '');
 
         // TOKEN IN
         const tokenInMint = await utils.getTokenMintAddress(raydiumTransfer.info.source)
+        if (tokenInMint === null) {
+          return
+        }
         const tokenInInfo = await tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
@@ -150,11 +156,17 @@ export class TransactionParser {
       if (transactions.length === 1 || transactions.length[0]?.info?.amount === transactions[1]?.info?.amount) {
         // TOKEN OUT
         const tokenOutMint = await utils.getTokenMintAddressWithFallback(transactions)
+        if (tokenOutMint === null) {
+          return
+        }
         const tokenOutInfo = await tokenParser.getTokenInfo(tokenOutMint)
         const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '');
 
         // TOKEN IN
         const tokenInMint = await utils.getTokenMintAddressWithFallback(transactions)
+        if (tokenInMint === null) {
+          return
+        }
         const tokenInInfo = await tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 

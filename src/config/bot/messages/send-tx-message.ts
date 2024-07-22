@@ -1,7 +1,7 @@
-export class BotMessages {
+export class TxMessages {
     constructor() {}
 
-    public sendTxMessageWithUsd(message: NativeParserInterface, solPrice: number, tokenMarketCap?: string | undefined): string {
+    public sendTxMessage(message: NativeParserInterface, solPrice: number, tokenMarketCap?: string | undefined): string {
         const owner = message.owner;
         const amountOut = message.tokenTransfers.tokenAmountOut;
         const tokenOut = message.tokenTransfers.tokenOutSymbol;

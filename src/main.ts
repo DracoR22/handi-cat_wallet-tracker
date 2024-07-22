@@ -12,6 +12,7 @@ import { Utils } from "./lib/token-utils";
 import { TokenParser } from "./parsers/token-parser";
 import { fetchAndCalculate, getTokenMktCap, test } from "./test";
 import { FormatNumbers } from "./lib/format-numbers";
+import { ManageCommand } from "./bot/commands/manage-command";
 
 dotenv.config()
 
@@ -55,36 +56,21 @@ class Main {
                 res.status(500).send('Error processing update');
             }
         });
-        
     }
 
     public async init(): Promise<void> {
-        // const allWallets = await this.prismaWalletRepository.getAll()
-        // const walletAddresses = allWallets && allWallets.map(wallet => wallet.address);
-
-        // console.log('ALL_WALLETS', walletAddresses);
-
-    //    const stream = await this.prismaWalletRepository.pulseWallet()
-
-    //    for await (const event of stream) {
-    //         console.log('New event:', event)
-    //     }
-
-        // Solana
-        // const watch = new WatchTransaction(walletAddresses || [])
-
-        // await watch.watchSocket()
-
         // Bot
         const newMembersHandler = new NewMembersHandler(bot)
         const callbackQueryHandler = new CallbackQueryHandler(bot)
         const startCommand = new StartCommand(bot)
         const addCommand = new AddCommand(bot)
+        const manageCommand = new ManageCommand(bot)
  
         newMembersHandler.newMember()
         callbackQueryHandler.call()
         startCommand.start()
         addCommand.addCommandHandler()
+        manageCommand.manageCommandHandler()
 
         // const utils = new Utils()
         // await utils.getTokenMktCap('raydium', 'E2dT9axcJuaQ8NM6JcFaSjYCPhidgJTSqpGS8LQbCsVm')

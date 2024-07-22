@@ -1,13 +1,13 @@
 import TelegramBot from "node-telegram-bot-api";
 import { Utils } from "../../lib/token-utils";
-import { BotMessages } from "../../config/bot/messages";
 import { TokenPrices } from "../../lib/token-prices";
 import { FormatNumbers } from "../../lib/format-numbers";
 import { createTxSubMenu } from "../../config/bot/menus";
+import { TxMessages } from "../../config/bot/messages/send-tx-message";
 
 export class SendTransactionMsgHandler {
     private tokenUtils: Utils
-    private botMessages: BotMessages
+    private txMessages: TxMessages
     private tokenPrices: TokenPrices
     private formatNumbers: FormatNumbers
     constructor(
@@ -15,7 +15,7 @@ export class SendTransactionMsgHandler {
     ) {
         this.bot = bot
         this.tokenUtils = new Utils()
-        this.botMessages = new BotMessages()
+        this.txMessages = new TxMessages()
         this.tokenPrices = new TokenPrices()
         this.formatNumbers = new FormatNumbers()
     }
@@ -39,7 +39,7 @@ export class SendTransactionMsgHandler {
     
             const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
     
-            const messageText = this.botMessages.sendTxMessageWithUsd(message, Number(solPrice), formattedMarketCap)
+            const messageText = this.txMessages.sendTxMessage(message, Number(solPrice), formattedMarketCap)
             return this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: TX_SUB_MENU });
 
         } else if (message.platform === 'pumpfun') {
@@ -48,7 +48,7 @@ export class SendTransactionMsgHandler {
 
             const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
     
-            const messageText = this.botMessages.sendTxMessageWithUsd(message, Number(solPrice), formattedMarketCap)
+            const messageText = this.txMessages.sendTxMessage(message, Number(solPrice), formattedMarketCap)
             return this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: TX_SUB_MENU });
         }
         

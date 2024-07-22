@@ -30,3 +30,9 @@ export const createTxSubMenu = (tokenSymbol: string, tokenMint: string) => {
 
   return txSubMenu
 }
+
+export const MANAGE_SUB_MENU: InlineKeyboardMarkup = {
+  inline_keyboard: [
+    [{ text: '🔮 Add', callback_data: 'add' }, { text: '🗑️ Delete', callback_data: 'delete' }]
+  ]
+}
