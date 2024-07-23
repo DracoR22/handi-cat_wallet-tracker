@@ -3,7 +3,7 @@ import { Utils } from "../../lib/token-utils";
 import { TokenPrices } from "../../lib/token-prices";
 import { FormatNumbers } from "../../lib/format-numbers";
 import { createTxSubMenu } from "../../config/bot/menus";
-import { TxMessages } from "../../config/bot/messages/send-tx-message";
+import { TxMessages } from "../messages/send-tx-message";
 
 export class SendTransactionMsgHandler {
     private tokenUtils: Utils

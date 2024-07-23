@@ -15,7 +15,7 @@ export class CallbackQueryHandler {
     }
 
     public call() {
-        this.bot.on('callback_query', (callbackQuery) => {
+        this.bot.on('callback_query', async (callbackQuery) => {
             const message = callbackQuery.message;
             const chatId = message?.chat.id;
             const data = callbackQuery.data;
@@ -31,7 +31,7 @@ export class CallbackQueryHandler {
                  this.addCommand.addButtonHandler(message)
                 break;
               case 'manage':
-                this.manageCommand.manageButtonHandler(message)
+                 await this.manageCommand.manageButtonHandler(message)
                 break;
               case 'settings':
                 responseText = 'You clicked Settings.';

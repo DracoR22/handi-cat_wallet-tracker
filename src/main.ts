@@ -70,7 +70,7 @@ class Main {
         callbackQueryHandler.call()
         startCommand.start()
         addCommand.addCommandHandler()
-        manageCommand.manageCommandHandler()
+        await manageCommand.manageCommandHandler()
 
         // const utils = new Utils()
         // await utils.getTokenMktCap('raydium', 'E2dT9axcJuaQ8NM6JcFaSjYCPhidgJTSqpGS8LQbCsVm')
