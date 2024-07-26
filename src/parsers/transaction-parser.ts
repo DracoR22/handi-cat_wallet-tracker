@@ -1,26 +1,26 @@
 import { connection } from "../providers/solana";
 import { TokenParser } from "./token-parser";
-import { Utils } from "../lib/token-utils";
+import { TokenUtils } from "../lib/token-utils";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
 import { SwapType } from "../types/swap-types";
 import { FormatNumbers } from "../lib/format-numbers";
 
 export class TransactionParser {
      private formatNumbers: FormatNumbers
+     private tokenUtils: TokenUtils
+     private tokenParser: TokenParser
     constructor(
       private transactionSignature: string,
     ) {
       this.transactionSignature = this.transactionSignature
       this.formatNumbers = new FormatNumbers()
+      this.tokenUtils = new TokenUtils()
+      this.tokenParser = new TokenParser(connection)
     }
 
     public async parseNative(transactionDetails: (ParsedTransactionWithMeta | null)[], swap: SwapType): Promise<NativeParserInterface | undefined> {
-      const tokenParser = new TokenParser(connection)
-      const utils = new Utils()
 
-      // await utils.getSolPrice(connection)
-
-      if (!transactionDetails || !transactionDetails[0]) {
+     if (!transactionDetails || !transactionDetails[0]) {
           console.log('Transaction not found or invalid.');
           return;
       }
@@ -57,7 +57,7 @@ export class TransactionParser {
           }
       });
 
-      const nativeBalance = utils.calculateNativeBalanceChanges(transactionDetails)
+      const nativeBalance = this.tokenUtils.calculateNativeBalanceChanges(transactionDetails)
       
       if (!preBalances || !postBalances) {
         console.log('No balance information available');
@@ -92,19 +92,19 @@ export class TransactionParser {
       // FOR RAYDIUM TRANSACTIONS
       if (transactions.length > 1) {
         // TOKEN OUT
-        const tokenOutMint = await utils.getTokenMintAddress(transactions[0]?.info.destination) 
+        const tokenOutMint = await this.tokenUtils.getTokenMintAddress(transactions[0]?.info.destination) 
         if (tokenOutMint === null) {
           return
         }
-        const tokenOutInfo = await tokenParser.getTokenInfo(tokenOutMint)
+        const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
         const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '');
 
         // TOKEN IN
-        const tokenInMint = await utils.getTokenMintAddress(raydiumTransfer.info.source)
+        const tokenInMint = await this.tokenUtils.getTokenMintAddress(raydiumTransfer.info.source)
         if (tokenInMint === null) {
           return
         }
-        const tokenInInfo = await tokenParser.getTokenInfo(tokenInMint)
+        const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
         const formattedAmountOut = this.formatNumbers.formatNumber(Number(transactions[0]?.info?.amount));
@@ -123,12 +123,12 @@ export class TransactionParser {
 
       // get the token price and market cap for raydium
        if(transactions.length[0]?.info?.amount !== transactions[1]?.info?.amount) {
-        const tokenPrice = await utils.getTokenPrice(transactions, nativeBalance?.type as 'buy' | 'sell')
+        const tokenPrice = await this.tokenUtils.getTokenPrice(transactions, nativeBalance?.type as 'buy' | 'sell')
 
         const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
 
         if (tokenPrice) {
-           const tokenMarketCap = await utils.getTokenMktCap(tokenPrice, tokenToMc)
+           const tokenMarketCap = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc)
            tokenMc = tokenMarketCap
         }
       }
@@ -155,19 +155,19 @@ export class TransactionParser {
       // FOR PUMP FUN TRANSACTIONS
       if (transactions.length === 1 || transactions.length[0]?.info?.amount === transactions[1]?.info?.amount) {
         // TOKEN OUT
-        const tokenOutMint = await utils.getTokenMintAddressWithFallback(transactions)
+        const tokenOutMint = await this.tokenUtils.getTokenMintAddressWithFallback(transactions)
         if (tokenOutMint === null) {
           return
         }
-        const tokenOutInfo = await tokenParser.getTokenInfo(tokenOutMint)
+        const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
         const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '');
 
         // TOKEN IN
-        const tokenInMint = await utils.getTokenMintAddressWithFallback(transactions)
+        const tokenInMint = await this.tokenUtils.getTokenMintAddressWithFallback(transactions)
         if (tokenInMint === null) {
           return
         }
-        const tokenInInfo = await tokenParser.getTokenInfo(tokenInMint)
+        const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
         const formattedAmount = this.formatNumbers.formatNumber(Number(transactions[0]?.info?.amount));

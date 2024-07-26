@@ -10,7 +10,7 @@ import { SwapType } from "../types/swap-types";
 import dotenv from "dotenv"
 dotenv.config()
 
-export class Utils {
+export class TokenUtils {
     constructor() {}
     public async getTokenMintAddress(tokenAddress: string) {
         try {

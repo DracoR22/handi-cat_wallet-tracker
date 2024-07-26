@@ -7,11 +7,6 @@ import { AddCommand } from "./bot/commands/add-command";
 import { CallbackQueryHandler } from "./bot/handlers/callback-query-handler";
 import express, { Express } from "express"
 import { PrismaWalletRepository } from "./repositories/prisma/wallet";
-import { WatchWallets } from "./lib/watch-wallets";
-import { Utils } from "./lib/token-utils";
-import { TokenParser } from "./parsers/token-parser";
-import { fetchAndCalculate, getTokenMktCap, test } from "./test";
-import { FormatNumbers } from "./lib/format-numbers";
 import { ManageCommand } from "./bot/commands/manage-command";
 
 dotenv.config()

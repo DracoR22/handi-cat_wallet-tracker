@@ -20,6 +20,9 @@ export class AddCommand {
       
             if (!userId) return;
 
+            // Set the flag to true to indicate that the user is expected to enter a wallet address
+            this.userExpectingWalletAddress[userId] = true;
+
             this.add({ message: msg, isButton: false })
         })
     }
@@ -42,6 +45,8 @@ export class AddCommand {
         const userId = message.chat.id.toString()
 
         const listener = async (responseMsg: TelegramBot.Message) => {
+         // Check if the user is expected to enter a wallet address
+        //  if (!this.userExpectingWalletAddress[Number(userId)]) return;
          const walletAddress = responseMsg.text;
 
          // validate the wallet before pushing to database
@@ -75,6 +80,9 @@ export class AddCommand {
 
          // Remove the listener to avoid duplicate handling
          this.bot.removeListener('message', listener);
+
+        // Reset the flag
+        //  this.userExpectingWalletAddress[Number(userId)] = false;
         }
 
 
@@ -109,4 +117,6 @@ export class AddCommand {
 
     console.log(`Total transactions excluded due to rate limiting: ${excludedCount}`);
     }
+
+    private userExpectingWalletAddress: { [key: number]: boolean } = {};
 }

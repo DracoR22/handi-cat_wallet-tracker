@@ -2,7 +2,7 @@ import { PublicKey } from "@solana/web3.js";
 import { RAYDIUM_PROGRAM_ID } from "./config/solana/program-ids";
 import { connection } from "./providers/solana";
 import { Liquidity, PoolInfoLayout, SqrtPriceMath, } from "@raydium-io/raydium-sdk";
-import { Utils } from "./lib/token-utils";
+import { TokenUtils } from "./lib/token-utils";
 import { FormatNumbers } from "./lib/format-numbers";
 
 // POOL ADDRESS MUST BE AUTHORITY OF RAYDIUM V4

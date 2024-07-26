@@ -1,12 +1,12 @@
 import TelegramBot from "node-telegram-bot-api";
-import { Utils } from "../../lib/token-utils";
+import { TokenUtils } from "../../lib/token-utils";
 import { TokenPrices } from "../../lib/token-prices";
 import { FormatNumbers } from "../../lib/format-numbers";
 import { createTxSubMenu } from "../../config/bot/menus";
 import { TxMessages } from "../messages/send-tx-message";
 
 export class SendTransactionMsgHandler {
-    private tokenUtils: Utils
+    private tokenUtils: TokenUtils
     private txMessages: TxMessages
     private tokenPrices: TokenPrices
     private formatNumbers: FormatNumbers
@@ -14,7 +14,7 @@ export class SendTransactionMsgHandler {
         private bot: TelegramBot,
     ) {
         this.bot = bot
-        this.tokenUtils = new Utils()
+        this.tokenUtils = new TokenUtils()
         this.txMessages = new TxMessages()
         this.tokenPrices = new TokenPrices()
         this.formatNumbers = new FormatNumbers()
