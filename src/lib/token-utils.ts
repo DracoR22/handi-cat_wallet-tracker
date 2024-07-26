@@ -18,7 +18,7 @@ export class TokenUtils {
           const accountInfo = await getAccount(connection, tokenPublicKey);
           return accountInfo.mint.toBase58();
         } catch (error) {
-          console.error(`Error fetching mint address for token ${tokenAddress}:`, error);
+          console.log(`Error fetching mint address for token ${tokenAddress}:`, error);
           return null;
         }
       }

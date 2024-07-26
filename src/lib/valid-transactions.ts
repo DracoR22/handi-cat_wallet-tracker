@@ -8,6 +8,7 @@ export class ValidTransactions {
         private programIds: any
     ) {
         this.pumpFunProgramId = pumpFunProgramId
+        this.raydiumProgramId = raydiumProgramId
     }
 
     public getTransaction(): { valid: boolean, swap: SwapType } {

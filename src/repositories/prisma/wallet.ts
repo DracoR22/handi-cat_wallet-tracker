@@ -62,6 +62,53 @@ export class PrismaWalletRepository {
       }
   }
 
+    public async deleteWallet(userId: string, walletAddress: string) {
+      if (!walletAddress) {
+        console.log('NO WALLET ADDRESS PROVIDED')
+        return
+      }
+      try {
+        const wallet = await prisma.wallet.findFirst({
+          where: {
+            address: walletAddress,
+            userWallets: {
+              some: {
+                userId: userId
+              }
+            }
+          },
+          select: {
+            id: true
+          }
+        });
+    
+        if (!wallet) {
+          console.log('WALLET NOT FOUND')
+          return
+        }
+
+        const deletedWallet = await prisma.userWallet.delete({
+          where: {
+            userId_walletId: {
+              userId: userId,
+              walletId: wallet.id
+            }
+          },
+          select: {
+            walletId: true
+          }
+        })
+
+        if (!deletedWallet) {
+          return
+        }
+
+        return deletedWallet
+      } catch (error) {
+        console.log('DELETE_WALLET_ERROR', error)
+      }
+    }
+
     public async getAll() {
         try {
           const allWallets = await prisma.wallet.findMany({
@@ -129,6 +176,11 @@ export class PrismaWalletRepository {
     public async getAllWalletsWithUserIds() {
       try {
           const walletsWithUsers = await prisma.wallet.findMany({
+            where: {
+              userWallets: {
+                some: {} // This will filter wallets that have at least one related UserWallet
+              }
+            },
               include: {
                   userWallets: {
                       include: {

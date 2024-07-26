@@ -32,7 +32,7 @@ export class TxMessages {
 "";
 
         const messageText = `
-${message.type === 'buy' ? '🟢' : '🔴'} <a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a> on ${message.platform!.toUpperCase()}\n
+${message.type === 'buy' ? '🟢' : '🔴'} <a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a> on ${message.platform!.toUpperCase()}
 <b>💎 ${truncatedOwner}</b>\n
 ✅ <a href="${solscanAddressUrl}">${truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a> 
 

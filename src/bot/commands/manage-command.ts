@@ -34,6 +34,7 @@ export class ManageCommand {
         const userWallets = await this.prismaWalletRepository.getUserWallets(userId)
 
         const messageText = this.manageMessages.sendManageMessage(userWallets || [])
+        
         if (isButton) {
            this.bot.editMessageText(messageText, { 
               chat_id: message.chat.id,

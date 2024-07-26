@@ -2,16 +2,19 @@ import TelegramBot, { InlineKeyboardMarkup } from "node-telegram-bot-api";
 import { AddCommand } from "../commands/add-command";
 import { START_MENU, SUB_MENU } from "../../config/bot/menus";
 import { ManageCommand } from "../commands/manage-command";
+import { DeleteCommand } from "../commands/delete-command";
 
 export class CallbackQueryHandler {
         private addCommand: AddCommand
         private manageCommand: ManageCommand
+        private deleteCommand: DeleteCommand
     constructor(
         private bot: TelegramBot
     ) {
         this.bot = bot
         this.addCommand = new AddCommand(this.bot)
         this.manageCommand = new ManageCommand(this.bot)
+        this.deleteCommand = new DeleteCommand(this.bot)
     }
 
     public call() {
@@ -33,6 +36,9 @@ export class CallbackQueryHandler {
               case 'manage':
                  await this.manageCommand.manageButtonHandler(message)
                 break;
+              case 'delete':
+                 this.deleteCommand.deleteButtonHandler(message)
+                 break;
               case 'settings':
                 responseText = 'You clicked Settings.';
                 break;

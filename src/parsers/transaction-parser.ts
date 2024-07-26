@@ -53,7 +53,6 @@ export class TransactionParser {
         transactionDetails[0].transaction.message.instructions.map((instruction: any) => {
           if (transactions.length <= 1 && instruction && instruction.parsed !== undefined) {  
            parsedInfos.push(instruction.parsed)
-       
           }
       });
 

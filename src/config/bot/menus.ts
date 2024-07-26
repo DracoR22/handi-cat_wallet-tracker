@@ -24,7 +24,8 @@ export const TX_SUB_MENU: InlineKeyboardMarkup = {
 export const createTxSubMenu = (tokenSymbol: string, tokenMint: string) => {
   const txSubMenu: InlineKeyboardMarkup = {
     inline_keyboard: [
-      [{ text: `🐸 Buy on PepeBoost: ${tokenSymbol}`, url: `https://t.me/pepeboost_sol_bot?start=${tokenMint}`}]
+      [{ text: `🐸 Buy on PepeBoost: ${tokenSymbol}`, url: `https://t.me/pepeboost_sol_bot?start=ref_03pbvu_ca_${tokenMint}`}],
+      [{ text: `🐶 BonkBot: ${tokenSymbol}`, url: `https://t.me/bonkbot_bot?start=ref_3au54_ca_${tokenMint}`}, { text: `🥷🏻 Shuriken: ${tokenSymbol}`, url: `https://t.me/ShurikenTradeBot?start=qt-handi_cat-${tokenMint}`}]
     ]
   }
 

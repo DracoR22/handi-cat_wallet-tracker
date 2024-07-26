@@ -8,6 +8,7 @@ import { CallbackQueryHandler } from "./bot/handlers/callback-query-handler";
 import express, { Express } from "express"
 import { PrismaWalletRepository } from "./repositories/prisma/wallet";
 import { ManageCommand } from "./bot/commands/manage-command";
+import { DeleteCommand } from "./bot/commands/delete-command";
 
 dotenv.config()
 
@@ -60,12 +61,14 @@ class Main {
         const startCommand = new StartCommand(bot)
         const addCommand = new AddCommand(bot)
         const manageCommand = new ManageCommand(bot)
+        const deleteCommand = new DeleteCommand(bot)
  
         newMembersHandler.newMember()
         callbackQueryHandler.call()
         startCommand.start()
         addCommand.addCommandHandler()
         await manageCommand.manageCommandHandler()
+        deleteCommand.deleteCommandHandler()
 
         // const utils = new Utils()
         // await utils.getTokenMktCap('raydium', 'E2dT9axcJuaQ8NM6JcFaSjYCPhidgJTSqpGS8LQbCsVm')

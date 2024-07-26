@@ -55,7 +55,7 @@ export class AddCommand {
          const isValid = base58Regex.test(walletAddress as string) && PublicKey.isOnCurve(new PublicKey(walletAddress as string).toBytes());
 
          if (!isValid) {
-           this.bot.sendMessage(message.chat.id, 'Please add a valid Solana address');
+           this.bot.sendMessage(message.chat.id, 'Address provided is not a valid Solana wallet');
            return;
          }
 
@@ -66,7 +66,7 @@ export class AddCommand {
             return
          }
 
-        //   await this.checkBot(walletAddress as string)
+         // await this.checkBot(walletAddress as string)
 
          // add wallet to database
          console.log('USERID', userId)
