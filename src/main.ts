@@ -93,9 +93,9 @@ class Main {
         const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
 
         if (refetch) {
-            await this.walletWatcher.updateWallets(allWallets);
+            await this.walletWatcher.updateWallets(allWallets!);
         } else {
-            await this.walletWatcher.watchSocket(allWallets);
+            await this.walletWatcher.watchSocket(allWallets!);
         }
     }
 

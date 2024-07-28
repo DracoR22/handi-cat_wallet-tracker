@@ -22,7 +22,7 @@ model User {
 
 model Wallet {
   id            String         @id @default(cuid())
-  address     String
+  address       String
   
   userWallets UserWallet[]
 }
@@ -30,6 +30,7 @@ model Wallet {
 model UserWallet {
   userId    String
   walletId  String
+  name      String
   user      User    @relation(fields: [userId], references: [id])
   wallet    Wallet @relation(fields: [walletId], references: [id])
   @@id([userId, walletId]) 

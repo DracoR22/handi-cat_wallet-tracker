@@ -3,7 +3,7 @@ import prisma from "./prisma";
 export class PrismaWalletRepository {
     constructor() {}
 
-    public async create(userId: string, walletAddress: string) {
+    public async create(userId: string, walletAddress: string, walletName?: string) {
       try {
           const existingWallet = await prisma.wallet.findFirst({
             where: {
@@ -30,7 +30,8 @@ export class PrismaWalletRepository {
             const linkUserToWallet = await prisma.userWallet.create({
               data: {
                 userId,
-                walletId: existingWallet.id
+                walletId: existingWallet.id,
+                name: walletName ? walletName : ''
               }
             })
 
@@ -53,6 +54,7 @@ export class PrismaWalletRepository {
             data: {
               userId: userId,
               walletId: newWallet.id,
+              name: walletName ? walletName : ''
             },
           });
   
@@ -197,9 +199,25 @@ export class PrismaWalletRepository {
           return walletsWithUsers
       } catch (error: any) {
           console.log('GET_ALL_WALLETS_WITH_USER_IDS_ERROR', error);
-          throw error;
+          return
       }
   }
+
+    public async getUserWalletNameById(userId: string, walletAddress: string) {
+      const userWallet = await prisma.userWallet.findFirst({
+        where: {
+          userId: userId,
+          wallet: {
+            address: walletAddress,
+          },
+        },
+        select: {
+          name: true
+        }
+      });
+
+      return userWallet
+    }   
 
     public async pulseWallet() {
         const stream = await prisma.userWallet.stream({ create: {}, delete: {} })

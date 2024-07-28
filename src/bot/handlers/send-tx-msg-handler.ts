@@ -4,12 +4,14 @@ import { TokenPrices } from "../../lib/token-prices";
 import { FormatNumbers } from "../../lib/format-numbers";
 import { createTxSubMenu } from "../../config/bot/menus";
 import { TxMessages } from "../messages/send-tx-message";
+import { PrismaWalletRepository } from "../../repositories/prisma/wallet";
 
 export class SendTransactionMsgHandler {
     private tokenUtils: TokenUtils
     private txMessages: TxMessages
     private tokenPrices: TokenPrices
     private formatNumbers: FormatNumbers
+    private prismaWalletRepository: PrismaWalletRepository
     constructor(
         private bot: TelegramBot,
     ) {
@@ -18,6 +20,7 @@ export class SendTransactionMsgHandler {
         this.txMessages = new TxMessages()
         this.tokenPrices = new TokenPrices()
         this.formatNumbers = new FormatNumbers()
+        this.prismaWalletRepository = new PrismaWalletRepository()
     }
 
     public async send(message: NativeParserInterface, chatId: string) {
@@ -27,6 +30,8 @@ export class SendTransactionMsgHandler {
         const tokenToMcSymbol = message.type === 'buy' ? message.tokenTransfers.tokenInSymbol : message.tokenTransfers.tokenOutSymbol
 
         const TX_SUB_MENU = createTxSubMenu(tokenToMcSymbol, tokenToMc)
+
+        const walletName = await this.prismaWalletRepository.getUserWalletNameById(chatId, message.owner)
 
         if (message.platform === 'raydium') {
             let tokenMarketCap = message.swappedTokenMc
@@ -39,7 +44,7 @@ export class SendTransactionMsgHandler {
     
             const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
     
-            const messageText = this.txMessages.sendTxMessage(message, Number(solPrice), formattedMarketCap)
+            const messageText = this.txMessages.sendTxMessage(message, Number(solPrice), formattedMarketCap, walletName?.name)
             return this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: TX_SUB_MENU });
 
         } else if (message.platform === 'pumpfun') {
@@ -48,7 +53,7 @@ export class SendTransactionMsgHandler {
 
             const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
     
-            const messageText = this.txMessages.sendTxMessage(message, Number(solPrice), formattedMarketCap)
+            const messageText = this.txMessages.sendTxMessage(message, Number(solPrice), formattedMarketCap, walletName?.name)
             return this.bot.sendMessage(chatId, messageText, { parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: TX_SUB_MENU });
         }
         

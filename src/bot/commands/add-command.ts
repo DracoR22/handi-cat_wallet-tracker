@@ -47,8 +47,11 @@ export class AddCommand {
         const listener = async (responseMsg: TelegramBot.Message) => {
          // Check if the user is expected to enter a wallet address
         //  if (!this.userExpectingWalletAddress[Number(userId)]) return;
-         const walletAddress = responseMsg.text;
+         const text = responseMsg.text;
 
+         const [walletAddress, walletName] = text!.split(' ');
+         console.log('WALLET ADDRESS', walletAddress)
+         console.log('WALLET NAME', walletName)
          // validate the wallet before pushing to database
          const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
@@ -70,7 +73,7 @@ export class AddCommand {
 
          // add wallet to database
          console.log('USERID', userId)
-          this.prismaWalletRepository.create(userId!, walletAddress!)
+          this.prismaWalletRepository.create(userId!, walletAddress!, walletName)
 
          this.bot.sendMessage(message.chat.id, `🎉 Wallet ${walletAddress} has been added.`);
 

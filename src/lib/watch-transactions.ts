@@ -8,25 +8,24 @@ import { SendTransactionMsgHandler } from "../bot/handlers/send-tx-msg-handler";
 import { bot } from "../providers/telegram";
 import { Wallet } from "@prisma/client";
 import { WalletWithUsers } from "../types/swap-types";
+import pLimit from "p-limit";
+import Bottleneck from "bottleneck";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
 
 export class WatchTransaction extends EventEmitter {
-    // Rate limit
-    private rateLimitInterval: number;
-    private lastProcessedTime: number;
-
     private subscriptions: Map<string, number>;
+    private limiter: Bottleneck
 
-    constructor(rateLimitInterval: number = 5000) {
+    constructor() {
         super()
 
-        // Rate limit
-        this.rateLimitInterval = rateLimitInterval;
-        this.lastProcessedTime = 0;
-
         this.subscriptions = new Map();
+        this.limiter = new Bottleneck({
+            maxConcurrent: 1,
+            minTime: 100
+        })
     }
 
     public async watchSocket(wallets: WalletWithUsers[]): Promise<void> {
@@ -43,56 +42,49 @@ export class WatchTransaction extends EventEmitter {
             console.log(`Watching transactions for wallet: ${walletAddress}`);
     
             // start realtime log
-            const subscriptionId = await connection.onLogs(
+            const subscriptionId = connection.onLogs(
               publicKey, async (logs, ctx) => {
-                // rate limit
-                const currentTime = Date.now();
-                if (currentTime - this.lastProcessedTime < this.rateLimitInterval) {
-                    return; // Skip processing if within rate limit interval
-                }
+                await this.limiter.schedule(async () => {
+                 const transactionSignature = logs.signature
     
-                this.lastProcessedTime = currentTime; // Update the last processed time
-    
-                const transactionSignature = logs.signature
-    
-                // get full transaction
-                const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
-                    maxSupportedTransactionVersion: 0,
-                });
-               
-                if (!transactionDetails) {
+                 const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
+                     maxSupportedTransactionVersion: 0,
+                   })
+                 
+                 if (!transactionDetails) {
                     return
-                }
+                 }
     
-                // find all programIds involved in the transaction
-                const programIds = transactionDetails[0]?.transaction.message.accountKeys.map(key => key.pubkey).filter(pubkey => pubkey !== undefined)
+                 // find all programIds involved in the transaction
+                 const programIds = transactionDetails[0]?.transaction.message.accountKeys.map(key => key.pubkey).filter(pubkey => pubkey !== undefined)
     
-                const validTransactions = new ValidTransactions(pumpFunProgramId, raydiumProgramId, programIds)
-                const isValidTransaction = validTransactions.getTransaction()
+                 const validTransactions = new ValidTransactions(pumpFunProgramId, raydiumProgramId, programIds)
+                 const isValidTransaction = validTransactions.getTransaction()
     
-                if (!isValidTransaction.valid) {
+                 if (!isValidTransaction.valid) {
                     return
-                }
+                 }
        
-                // parse transaction
-                const transactionParser = new TransactionParser(transactionSignature)
-                const parsed = await transactionParser.parseNative(transactionDetails, isValidTransaction.swap)
+                 // parse transaction
+                 const transactionParser = new TransactionParser(transactionSignature)
+                 const parsed = await transactionParser.parseNative(transactionDetails, isValidTransaction.swap)
     
-                if (!parsed) {
+                 if (!parsed) {
                     return
-                }
+                 }
                 
-                console.log(parsed)
+                 console.log(parsed)
                
-                // use bot to send message of transaction
-                const sendMessageHandler = new SendTransactionMsgHandler(bot)
+                 // use bot to send message of transaction
+                 const sendMessageHandler = new SendTransactionMsgHandler(bot)
                 
-                for (const user of wallet.userWallets) {
+                 for (const user of wallet.userWallets) {
                     console.log('Users:', user)
                     await sendMessageHandler.send(parsed, user.userId)
-                }
-            },
-            'confirmed'
+                  }
+                 })
+             },
+             'confirmed'
           );
     
            // Store subscription ID

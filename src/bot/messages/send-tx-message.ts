@@ -1,7 +1,7 @@
 export class TxMessages {
     constructor() {}
 
-    public sendTxMessage(message: NativeParserInterface, solPrice: number, tokenMarketCap?: string | undefined): string {
+    public sendTxMessage(message: NativeParserInterface, solPrice: number, tokenMarketCap?: string | undefined, walletName?: string): string {
         const owner = message.owner;
         const amountOut = message.tokenTransfers.tokenAmountOut;
         const tokenOut = message.tokenTransfers.tokenOutSymbol;
@@ -33,8 +33,8 @@ export class TxMessages {
 
         const messageText = `
 ${message.type === 'buy' ? '🟢' : '🔴'} <a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a> on ${message.platform!.toUpperCase()}
-<b>💎 ${truncatedOwner}</b>\n
-✅ <a href="${solscanAddressUrl}">${truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a> 
+<b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
+✅ <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a> 
 
 ${marketCapText}
 <code>${tokenMintToTrack}</code>   
