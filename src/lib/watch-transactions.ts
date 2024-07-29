@@ -23,8 +23,8 @@ export class WatchTransaction extends EventEmitter {
 
         this.subscriptions = new Map();
         this.limiter = new Bottleneck({
-            maxConcurrent: 1,
-            minTime: 100
+            maxConcurrent: 2,
+            minTime: 1000
         })
     }
 

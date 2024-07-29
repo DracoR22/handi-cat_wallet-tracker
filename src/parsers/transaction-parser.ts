@@ -111,8 +111,8 @@ export class TransactionParser {
 
         // TODO: Check if SOL change works and OWNER
         owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
-        amountOut = cleanedTokenOutSymbol === 'SOL' ? (Number(transactions[0]?.info?.amount) / 1e9).toString() : formattedAmountOut
-        amountIn = cleanedTokenInSymbol === 'SOL' ? (Number(raydiumTransfer.info.amount) / 1e9).toString() : formattedAmountIn
+        amountOut = cleanedTokenOutSymbol === 'SOL' ? (Number(transactions[0]?.info?.amount) / 1e9).toFixed(2).toString() : formattedAmountOut
+        amountIn = cleanedTokenInSymbol === 'SOL' ? (Number(raydiumTransfer.info.amount) / 1e9).toFixed(2).toString() : formattedAmountIn
         tokenOut = cleanedTokenOutSymbol
         tokenIn = cleanedTokenInSymbol
 
