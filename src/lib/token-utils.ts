@@ -108,7 +108,8 @@ export class TokenUtils {
        }
       }
 
-      public async getSolPriceNative() {
+      public async getSolPriceNative(): Promise<string | undefined> {
+       try {
         const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
 
         const accountInfo = await connection.getAccountInfo(id)
@@ -125,6 +126,10 @@ export class TokenUtils {
         // console.log('current price -> ', solPrice)
 
         return solPrice
+       } catch (error) {
+        console.log('FETCH_SOL_PRICE_ERROR')
+        return
+       }
       }
 
       public async getTokenBalance(tokenAccountAddress: PublicKey) {

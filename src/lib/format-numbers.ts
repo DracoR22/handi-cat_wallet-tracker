@@ -2,7 +2,8 @@ export class FormatNumbers {
     constructor() {}
 
     public formatNumber(amount: number) { // TODO: Add try catch, just return the function in case of error
-      return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(amount);
+      let scaledAmount = amount / 1e9;
+      return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(scaledAmount);
     }
 
     public formatMarketCap(value: number): string {
@@ -14,4 +15,10 @@ export class FormatNumbers {
           return value.toFixed(2);
         }
       }
+
+    public formatAmount(amount: number): string {
+      const formattedAmount = (amount / 1e6).toFixed(2);
+
+      return formattedAmount
+    }
 }

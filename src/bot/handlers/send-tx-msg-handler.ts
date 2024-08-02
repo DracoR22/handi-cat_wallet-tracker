@@ -26,6 +26,10 @@ export class SendTransactionMsgHandler {
     public async send(message: NativeParserInterface, chatId: string) {
         const solPrice = await this.tokenUtils.getSolPriceNative()
 
+        if (!solPrice) {
+            return
+        }
+
         const tokenToMc = message.type === 'buy' ? message.tokenTransfers.tokenInMint : message.tokenTransfers.tokenOutMint
         const tokenToMcSymbol = message.type === 'buy' ? message.tokenTransfers.tokenInSymbol : message.tokenTransfers.tokenOutSymbol
 
