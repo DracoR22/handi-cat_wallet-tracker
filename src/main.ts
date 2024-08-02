@@ -69,19 +69,6 @@ class Main {
         addCommand.addCommandHandler()
         await manageCommand.manageCommandHandler()
         deleteCommand.deleteCommandHandler()
-
-        // const utils = new Utils()
-        // await utils.getTokenMktCap('raydium', 'E2dT9axcJuaQ8NM6JcFaSjYCPhidgJTSqpGS8LQbCsVm')
-        // await utils.isRaydiumToken('43UKTULPFkHd9K6a8nWjjwtisEgWRWPoD6ocEmH8pump')
-        // await fetchAndCalculate()
-        // await getTokenMktCap('26hYxfqDaDtd4iykEyb9vav9YbeuV5PhDNQLNbAbpump', 0.01442674864824286)
-        // const token = new TokenParser(connection)
-        // await token.getTokenInfo('Gg8cq7hYxc7bBdGAN5nNxfJPL9fhUwwebWy5bkJqpump')
-        // await test()
-        // const numbers = new FormatNumbers()
-        // const f = 1.0308055978875173e-10.toFixed(10)
-        // console.log('FORMATTED', f)
-
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 

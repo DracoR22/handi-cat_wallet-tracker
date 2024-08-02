@@ -13,6 +13,7 @@ export const bot = new TelegramBot(BOT_TOKEN ?? '', { polling: true })
 
 // webhook
 // export const bot = new TelegramBot(BOT_TOKEN ?? '')
+
 // // Set the webhook
 // bot.setWebHook(WEBHOOK_URL).then(() => {
 //     console.log(`Webhook set to ${WEBHOOK_URL}`);

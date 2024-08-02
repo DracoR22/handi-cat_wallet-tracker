@@ -5,4 +5,5 @@ export type UserWallet = {
     }
     userId: string;
     walletId: string;
+    name: string
 };

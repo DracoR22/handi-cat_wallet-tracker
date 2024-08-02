@@ -1,8 +1,21 @@
 export class FormatNumbers {
     constructor() {}
 
-    public formatNumber(amount: number) { // TODO: Add try catch, just return the function in case of error
-      let scaledAmount = amount / 1e9;
+    public formatNumber(amount: number) { 
+      console.log('AMOUNT', amount)
+      let scaledAmount: number;
+
+      if (amount.toString().length > 10) {
+        scaledAmount = amount / 1e9
+      } else if (amount.toString().length === 10) {
+        scaledAmount = amount / 1e8
+      } else if (amount.toString().length <= 9) {
+        scaledAmount = amount / 1e6
+      } else {
+        scaledAmount = amount
+      }
+
+      // Format the scaled amount with maximum two fraction digits
       return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(scaledAmount);
     }
 

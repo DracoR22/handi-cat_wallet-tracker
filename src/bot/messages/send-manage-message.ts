@@ -14,7 +14,7 @@ export class ManageMessages {
 🛑 - Renew PRO to continue tracking this wallet
 
 ${userWallets.map((wallet, i) => (
-    `${i + 1}. <code>${wallet.wallet.address}</code>`
+    `${i + 1}. <code>${wallet.wallet.address}</code> (${wallet.name ? wallet.name : ''})`
 )).join('\n\n')}
 `
 
