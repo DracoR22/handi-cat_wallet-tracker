@@ -21,12 +21,26 @@ const PORT = process.env.PORT || 3001
 
 class Main {
     private trackWallets: TrackWallets
+
+    private newMembersHandler: NewMembersHandler
+    private callbackQueryHandler: CallbackQueryHandler
+    private startCommand: StartCommand
+    private addCommand: AddCommand
+    private manageCommand: ManageCommand
+    private deleteCommand: DeleteCommand
     constructor(private app: Express = express()) {
         this.app.use(express.json({ limit: '50mb' }))
 
         this.setupRoutes()
 
         this.trackWallets = new TrackWallets()
+
+        this.newMembersHandler = new NewMembersHandler(bot)
+        this.callbackQueryHandler = new CallbackQueryHandler(bot)
+        this.startCommand = new StartCommand(bot)
+        this.addCommand = new AddCommand(bot)
+        this.manageCommand = new ManageCommand(bot)
+        this.deleteCommand = new DeleteCommand(bot)
     }
 
     setupRoutes() {
@@ -53,19 +67,12 @@ class Main {
 
     public async init(): Promise<void> {
         // Bot
-        const newMembersHandler = new NewMembersHandler(bot)
-        const callbackQueryHandler = new CallbackQueryHandler(bot)
-        const startCommand = new StartCommand(bot)
-        const addCommand = new AddCommand(bot)
-        const manageCommand = new ManageCommand(bot)
-        const deleteCommand = new DeleteCommand(bot)
- 
-        newMembersHandler.newMember()
-        callbackQueryHandler.call()
-        startCommand.start()
-        addCommand.addCommandHandler()
-        await manageCommand.manageCommandHandler()
-        deleteCommand.deleteCommandHandler()
+        this.newMembersHandler.newMember()
+        this.callbackQueryHandler.call()
+        this.startCommand.start()
+        this.addCommand.addCommandHandler()
+        await this.manageCommand.manageCommandHandler()
+        this.deleteCommand.deleteCommandHandler()
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 

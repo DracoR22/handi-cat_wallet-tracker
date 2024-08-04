@@ -10,6 +10,7 @@ import { Wallet } from "@prisma/client";
 import { WalletWithUsers } from "../types/swap-types";
 import pLimit from "p-limit";
 import Bottleneck from "bottleneck";
+import { RateLimitMessages } from "../bot/messages/rate-limit-messages";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
@@ -17,6 +18,9 @@ const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
 export class WatchTransaction extends EventEmitter {
     private subscriptions: Map<string, number>;
     private walletTransactions: Map<string, { count: number, startTime: number }>;
+    private excludedWallets: Map<string, boolean>;
+
+    private rateLimitMessages: RateLimitMessages
 
     private limiter: Bottleneck
 
@@ -25,6 +29,9 @@ export class WatchTransaction extends EventEmitter {
 
         this.subscriptions = new Map();
         this.walletTransactions = new Map();
+        this.excludedWallets = new Map();
+
+        this.rateLimitMessages = new RateLimitMessages()
 
         this.limiter = new Bottleneck({
             maxConcurrent: 2,
@@ -51,6 +58,11 @@ export class WatchTransaction extends EventEmitter {
             // start realtime log
             const subscriptionId = connection.onLogs(
               publicKey, async (logs, ctx) => {
+                // exclude wallets that have reached the limit
+                if (this.excludedWallets.has(walletAddress)) {
+                  console.log(`Wallet ${walletAddress} is excluded from logging.`);
+                  return;
+                }
                 await this.limiter.schedule(async () => {
                  const transactionSignature = logs.signature
     
@@ -99,6 +111,30 @@ export class WatchTransaction extends EventEmitter {
                 if (elapsedTime >= 1) {
                   const tps = walletData.count / elapsedTime;
                   console.log(`TPS for wallet ${walletAddress}: ${tps.toFixed(2)}`);
+
+                  // Exclude spamming wallet
+                  if (tps >= 0.07) {
+                    this.excludedWallets.set(walletAddress, true);
+                    console.log(`Wallet ${walletAddress} excluded for 20 minutes due to high TPS.`);
+
+                    for (const user of wallet.userWallets) {
+                      bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(walletAddress))
+                    }
+
+                    setTimeout(() => {
+                      this.excludedWallets.delete(walletAddress);
+
+                      for (const user of wallet.userWallets) {
+                        bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(walletAddress))
+                      }
+
+                      console.log(`Wallet ${walletAddress} re-included after 20 minutes.`);
+                    }, 20 * 60 * 1000); // 20 minutes
+
+                    // Stop processing for this wallet
+                    return;
+                  }
+
                   // Reset for next interval
                   walletData.count = 0;
                   walletData.startTime = Date.now();
