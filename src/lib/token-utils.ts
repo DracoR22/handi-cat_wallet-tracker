@@ -137,7 +137,7 @@ export class TokenUtils {
           const tokenBalance = await connection.getTokenAccountBalance(tokenAccountAddress);
           return tokenBalance.value.amount;
         } catch (error) {
-          console.error('Error fetching token balance:', error);
+          console.log('Error fetching token balance:', error);
           return
         }
       }
@@ -201,7 +201,8 @@ export class TokenUtils {
       }
 
       public async getTokenMktCap(tokenPrice: number, tokenMint: string) {
-         const mintPublicKey = new PublicKey(tokenMint);
+         try {
+          const mintPublicKey = new PublicKey(tokenMint);
          const tokenSupply = await connection.getTokenSupply(mintPublicKey);
          const supplyValue = tokenSupply.value.uiAmount
 
@@ -213,5 +214,9 @@ export class TokenUtils {
 
          console.log('TOKEN_MARKET_CAP', tokenMarketCap)
          return tokenMarketCap
+         } catch (error) {
+          console.log('GET_TOKEN_MKC_ERROR')
+          return
+         }
       }
 }

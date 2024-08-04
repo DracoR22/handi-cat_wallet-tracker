@@ -16,12 +16,16 @@ const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
 
 export class WatchTransaction extends EventEmitter {
     private subscriptions: Map<string, number>;
+    private walletTransactions: Map<string, { count: number, startTime: number }>;
+
     private limiter: Bottleneck
 
     constructor() {
         super()
 
         this.subscriptions = new Map();
+        this.walletTransactions = new Map();
+
         this.limiter = new Bottleneck({
             maxConcurrent: 2,
             minTime: 1000
@@ -40,6 +44,9 @@ export class WatchTransaction extends EventEmitter {
             }
 
             console.log(`Watching transactions for wallet: ${walletAddress}`);
+
+             // Initialize transaction count and timestamp
+            this.walletTransactions.set(walletAddress, { count: 0, startTime: Date.now() });
     
             // start realtime log
             const subscriptionId = connection.onLogs(
@@ -82,6 +89,21 @@ export class WatchTransaction extends EventEmitter {
                     console.log('Users:', user)
                     await sendMessageHandler.send(parsed, user.userId)
                   }
+
+                 // Update transaction count and calculate TPS
+              const walletData = this.walletTransactions.get(walletAddress);
+              if (walletData) {
+                walletData.count++;
+                const elapsedTime = (Date.now() - walletData.startTime) / 1000; // seconds
+
+                if (elapsedTime >= 1) {
+                  const tps = walletData.count / elapsedTime;
+                  console.log(`TPS for wallet ${walletAddress}: ${tps.toFixed(2)}`);
+                  // Reset for next interval
+                  walletData.count = 0;
+                  walletData.startTime = Date.now();
+                }
+              }
                  })
              },
              'confirmed'
