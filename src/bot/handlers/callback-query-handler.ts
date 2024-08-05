@@ -3,6 +3,7 @@ import { AddCommand } from "../commands/add-command";
 import { START_MENU, SUB_MENU } from "../../config/bot/menus";
 import { ManageCommand } from "../commands/manage-command";
 import { DeleteCommand } from "../commands/delete-command";
+import { userExpectingWalletAddress } from "../../constants/flags";
 
 export class CallbackQueryHandler {
         private addCommand: AddCommand
@@ -59,6 +60,9 @@ export class CallbackQueryHandler {
                 break;
               case 'back_to_main_menu':
                 const messageText = `🐱 Handi Cat | Wallet Tracker\n\n 🆙 For more features, you can upgrade to PRO, which allows tracking 50+ wallets.`;
+
+                // reset any flags
+                userExpectingWalletAddress[Number(chatId)] = false;
 
                 this.bot.editMessageText(messageText, { chat_id: chatId, message_id: message.message_id, reply_markup: START_MENU })
                 break;

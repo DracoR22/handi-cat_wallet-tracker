@@ -203,17 +203,17 @@ export class TokenUtils {
       public async getTokenMktCap(tokenPrice: number, tokenMint: string) {
          try {
           const mintPublicKey = new PublicKey(tokenMint);
-         const tokenSupply = await connection.getTokenSupply(mintPublicKey);
-         const supplyValue = tokenSupply.value.uiAmount
+          const tokenSupply = await connection.getTokenSupply(mintPublicKey);
+          const supplyValue = tokenSupply.value.uiAmount
 
-         if (!supplyValue) {
-           return
-         }
+          if (!supplyValue) {
+            return
+          }
 
-         const tokenMarketCap = supplyValue * tokenPrice
+          const tokenMarketCap = supplyValue * tokenPrice
 
-         console.log('TOKEN_MARKET_CAP', tokenMarketCap)
-         return tokenMarketCap
+          console.log('TOKEN_MARKET_CAP', tokenMarketCap)
+          return tokenMarketCap
          } catch (error) {
           console.log('GET_TOKEN_MKC_ERROR')
           return

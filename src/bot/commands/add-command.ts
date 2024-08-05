@@ -3,6 +3,7 @@ import { SUB_MENU } from "../../config/bot/menus";
 import { PublicKey } from "@solana/web3.js";
 import { connection } from "../../providers/solana";
 import { PrismaWalletRepository } from "../../repositories/prisma/wallet";
+import { userExpectingWalletAddress } from "../../constants/flags";
 
 export class AddCommand {
     private prismaWalletRepository: PrismaWalletRepository
@@ -19,9 +20,6 @@ export class AddCommand {
       
             if (!userId) return;
 
-            // Set the flag to true to indicate that the user is expected to enter a wallet address
-            this.userExpectingWalletAddress[userId] = true;
-
             this.add({ message: msg, isButton: false })
         })
     }
@@ -32,20 +30,34 @@ export class AddCommand {
 
     private add({ message, isButton }: { message: TelegramBot.Message, isButton: boolean }) {
         if (isButton) {
-            this.bot.editMessageText('Please enter a wallet address to track:', {
+            this.bot.editMessageText(`
+🐱 Ok, just send me a wallet address to track:
+
+You can also give that wallet a name by following the address with the desired name, for example: 
+
+walletAddress walletName
+`, {
                 chat_id: message.chat.id,
                 message_id: message.message_id,
-                reply_markup: SUB_MENU
+                reply_markup: SUB_MENU,
+                parse_mode: 'HTML'
            })
         } else if (!isButton) {
-            this.bot.sendMessage(message.chat.id, 'Please enter a wallet address to track:', { reply_markup: SUB_MENU })
+            this.bot.sendMessage(message.chat.id, `
+🐱 Ok, just send me a wallet address to track:
+
+You can also give that wallet a name by following the address with the desired name, for example: 
+
+walletAddress walletName
+`, { reply_markup: SUB_MENU, parse_mode: 'HTML' })
         }
 
         const userId = message.chat.id.toString()
 
+        userExpectingWalletAddress[Number(userId)] = true;
         const listener = async (responseMsg: TelegramBot.Message) => {
          // Check if the user is expected to enter a wallet address
-        //  if (!this.userExpectingWalletAddress[Number(userId)]) return;
+         if (!userExpectingWalletAddress[Number(userId)]) return;
          const text = responseMsg.text;
 
          const [walletAddress, walletName] = text!.split(' ');
@@ -57,14 +69,14 @@ export class AddCommand {
          const isValid = base58Regex.test(walletAddress as string) && PublicKey.isOnCurve(new PublicKey(walletAddress as string).toBytes());
 
          if (!isValid) {
-           this.bot.sendMessage(message.chat.id, 'Address provided is not a valid Solana wallet');
+           this.bot.sendMessage(message.chat.id, '😾 Address provided is not a valid Solana wallet ');
            return;
          }
 
          const isWalletAlready = await this.prismaWalletRepository.getUserWalletById(userId, walletAddress!)
 
          if (isWalletAlready) {
-            this.bot.sendMessage(message.chat.id, `You already follow this wallet`);
+            this.bot.sendMessage(message.chat.id, `🙀 You already follow this wallet`);
             return
          }
 
@@ -84,7 +96,7 @@ export class AddCommand {
          this.bot.removeListener('message', listener);
 
         // Reset the flag
-        //  this.userExpectingWalletAddress[Number(userId)] = false;
+         userExpectingWalletAddress[Number(userId)] = false;
         }
 
 
@@ -119,6 +131,4 @@ export class AddCommand {
 
     console.log(`Total transactions excluded due to rate limiting: ${excludedCount}`);
     }
-
-    private userExpectingWalletAddress: { [key: number]: boolean } = {};
 }

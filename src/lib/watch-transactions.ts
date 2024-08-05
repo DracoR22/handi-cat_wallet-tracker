@@ -1,4 +1,4 @@
-import { PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { connection } from "../providers/solana";
 import { ValidTransactions } from "./valid-transactions";
 import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/solana/program-ids";
@@ -63,12 +63,10 @@ export class WatchTransaction extends EventEmitter {
                   console.log(`Wallet ${walletAddress} is excluded from logging.`);
                   return;
                 }
-                await this.limiter.schedule(async () => {
+                // await this.limiter.schedule(async () => {
                  const transactionSignature = logs.signature
     
-                 const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
-                     maxSupportedTransactionVersion: 0,
-                   })
+                 const transactionDetails = await this.getParsedTransaction(transactionSignature)
                  
                  if (!transactionDetails) {
                     return
@@ -113,23 +111,23 @@ export class WatchTransaction extends EventEmitter {
                   console.log(`TPS for wallet ${walletAddress}: ${tps.toFixed(2)}`);
 
                   // Exclude spamming wallet
-                  if (tps >= 0.07) {
+                  if (tps >= 0.2) {
                     this.excludedWallets.set(walletAddress, true);
                     console.log(`Wallet ${walletAddress} excluded for 20 minutes due to high TPS.`);
 
                     for (const user of wallet.userWallets) {
-                      bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(walletAddress))
+                      bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(walletAddress), { parse_mode: 'HTML' })
                     }
 
                     setTimeout(() => {
                       this.excludedWallets.delete(walletAddress);
 
                       for (const user of wallet.userWallets) {
-                        bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(walletAddress))
+                        bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(walletAddress), { parse_mode: 'HTML' })
                       }
 
                       console.log(`Wallet ${walletAddress} re-included after 20 minutes.`);
-                    }, 20 * 60 * 1000); // 20 minutes
+                    }, 60 * 1000); // TODO: change back to 20 minutes
 
                     // Stop processing for this wallet
                     return;
@@ -140,7 +138,7 @@ export class WatchTransaction extends EventEmitter {
                   walletData.startTime = Date.now();
                 }
               }
-                 })
+                //  })
              },
              'confirmed'
           );
@@ -166,4 +164,17 @@ export class WatchTransaction extends EventEmitter {
         await this.stopWatching();
         await this.watchSocket(newWallets);
     }
+
+    private async getParsedTransaction(transactionSignature: string) {
+      try {
+       const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
+           maxSupportedTransactionVersion: 0,
+      })
+
+      return transactionDetails
+      } catch (error) {
+       console.log('GET_PARSED_TRANSACTIONS_ERROR', error)
+       return
+      }
+   }
 }
