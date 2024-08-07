@@ -1,4 +1,4 @@
-interface NativeParserInterface {
+export interface NativeParserInterface {
     platform: 'raydium' | 'pumpfun' | null
     owner: string
     description: string
@@ -16,14 +16,14 @@ interface NativeParserInterface {
     }
 }
 
-interface CreateUserInterface {
+export interface CreateUserInterface {
   id: string
   username: string
   firstName: string
   lastName: string
 }
 
-interface ParsedTxInfo {
+export interface ParsedTxInfo {
   info: {
     amount: string
     authority: string

@@ -1,3 +1,5 @@
+import { NativeParserInterface } from "../../types/interfaces";
+
 export class TxMessages {
     constructor() {}
 

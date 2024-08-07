@@ -2,10 +2,10 @@
   "name": "handi-cat_wallet-tracker",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && node ./dist/main.js"
+    "start": "tsc && node ./dist/src/main.js"
   },
   "keywords": [],
   "author": "",

@@ -1,4 +1,5 @@
 import { CreateWallet } from "../../lib/create-wallet";
+import { CreateUserInterface } from "../../types/interfaces";
 import prisma from "./prisma";
 
 export class PrismaUserRepository {
@@ -33,5 +34,18 @@ export class PrismaUserRepository {
         })
 
         return user
+    }
+
+    public async getPersonalWallet(userId: string) {
+      const walletBalance = await prisma.user.findUnique({
+        where: {
+          id: userId
+        },
+        select: {
+          personalWallet: true
+        }
+      })
+
+      return walletBalance
     }
 }

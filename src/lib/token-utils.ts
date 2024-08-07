@@ -8,6 +8,7 @@ import axios from "axios";
 import { PoolInfoLayout, SqrtPriceMath } from "@raydium-io/raydium-sdk";
 import { SwapType } from "../types/swap-types";
 import dotenv from "dotenv"
+import { ParsedTxInfo } from "../types/interfaces";
 dotenv.config()
 
 export class TokenUtils {
@@ -59,13 +60,13 @@ export class TokenUtils {
         for (let i = 0; i < preBalances.length; i++) {
           const preBalance = preBalances[i];
           const postBalance = postBalances[i];
-          const solDifference = (postBalance - preBalance) / 1e9; // Convert lamports to SOL
+          const solDifference = (postBalance! - preBalance!) / 1e9; // Convert lamports to SOL
           
           if (solDifference !== 0) {
             balanceChanges.push({
               accountIndex: i,
-              preBalance: preBalance / 1e9, // Convert to SOL
-              postBalance: postBalance / 1e9, // Convert to SOL
+              preBalance: preBalance! / 1e9, // Convert to SOL
+              postBalance: postBalance! / 1e9, // Convert to SOL
               change: solDifference
             });
           }
@@ -79,10 +80,10 @@ export class TokenUtils {
           // console.log(`Post Balance: ${firstChange.postBalance} SOL`);
           // console.log(`Change: ${firstChange.change} SOL`);
           // console.log('-----------------------------------');
-          const type = firstChange.change > 0 ? 'sell' : 'buy'
+          const type = firstChange!.change > 0 ? 'sell' : 'buy'
           return {
             type,
-            balanceChange: firstChange.change
+            balanceChange: firstChange!.change
           }
         } else {
           console.log('No balance changes found');
@@ -143,9 +144,10 @@ export class TokenUtils {
       }
 
       public async getTokenPrice(txInstructions: ParsedTxInfo[], type: 'buy' | 'sell'): Promise<number | undefined> {
+      
          if (type === 'buy') {
-          const tokenAccountAddress = new PublicKey(txInstructions[1].info.source);
-          const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[0].info.destination);
+          const tokenAccountAddress = new PublicKey(txInstructions[1]!.info.source);
+          const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[0]!.info.destination);
 
           const splTokenBalance: any = await this.getTokenBalance(tokenAccountAddress);
           const wrappedSolBalance: any = await this.getTokenBalance(tokenAccountAddressWrappedSol);
@@ -164,14 +166,14 @@ export class TokenUtils {
         
             // Remove the first three leading zeros after the decimal point
             const [integerPart, decimalPart] = formattedPrice.split('.');
-            const newDecimalPart = decimalPart.replace(/^0{3}/, '');
+            const newDecimalPart = decimalPart!.replace(/^0{3}/, '');
             priceOfSPLTokenInUSD = parseFloat(`${integerPart}.${newDecimalPart}`);
         }
 
           return priceOfSPLTokenInUSD
          } else if (type === 'sell') {
-          const tokenAccountAddress = new PublicKey(txInstructions[0].info.destination);
-          const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[1].info.source);
+          const tokenAccountAddress = new PublicKey(txInstructions[0]!.info.destination);
+          const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[1]!.info.source);
 
           const splTokenBalance: any = await this.getTokenBalance(tokenAccountAddress);
           const wrappedSolBalance: any = await this.getTokenBalance(tokenAccountAddressWrappedSol);
@@ -190,7 +192,7 @@ export class TokenUtils {
         
             // Remove the first three leading zeros after the decimal point
             const [integerPart, decimalPart] = formattedPrice.split('.');
-            const newDecimalPart = decimalPart.replace(/^0{3}/, '');
+            const newDecimalPart = decimalPart!.replace(/^0{3}/, '');
             priceOfSPLTokenInUSD = parseFloat(`${integerPart}.${newDecimalPart}`);
         }
           

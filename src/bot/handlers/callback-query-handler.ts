@@ -4,18 +4,22 @@ import { START_MENU, SUB_MENU } from "../../config/bot/menus";
 import { ManageCommand } from "../commands/manage-command";
 import { DeleteCommand } from "../commands/delete-command";
 import { userExpectingWalletAddress } from "../../constants/flags";
+import { MyWalletCommand } from "../commands/mywallet-command";
 
 export class CallbackQueryHandler {
         private addCommand: AddCommand
         private manageCommand: ManageCommand
         private deleteCommand: DeleteCommand
+        private myWalletCommand: MyWalletCommand
     constructor(
         private bot: TelegramBot
     ) {
         this.bot = bot
+
         this.addCommand = new AddCommand(this.bot)
         this.manageCommand = new ManageCommand(this.bot)
         this.deleteCommand = new DeleteCommand(this.bot)
+        this.myWalletCommand = new MyWalletCommand(this.bot)
     }
 
     public call() {
@@ -50,7 +54,7 @@ export class CallbackQueryHandler {
                 responseText = 'You clicked PRO.';
                 break;
               case 'my_wallet':
-                responseText = 'You clicked My Wallet.';
+                 this.myWalletCommand.myWalletCommandHandler(message)
                 break;
               case 'links':
                 responseText = 'You clicked Links.';

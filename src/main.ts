@@ -8,6 +8,7 @@ import express, { Express } from "express"
 import { ManageCommand } from "./bot/commands/manage-command";
 import { DeleteCommand } from "./bot/commands/delete-command";
 import { TrackWallets } from "./lib/track-wallets";
+import { getUserBalance } from "./test";
 
 dotenv.config()
 
@@ -59,7 +60,7 @@ class Main {
                 
                 res.status(200).send('Update received');
             } catch (error) {
-                console.error('Error processing update:', error);
+                console.log('Error processing update:', error);
                 res.status(500).send('Error processing update');
             }
         });
@@ -73,6 +74,8 @@ class Main {
         this.addCommand.addCommandHandler()
         await this.manageCommand.manageCommandHandler()
         this.deleteCommand.deleteCommandHandler()
+
+        // await getUserBalance('EoX6KsGUn82xmcVpJYGKAQnxyiUG7raogtb68yfdCr3E')
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 

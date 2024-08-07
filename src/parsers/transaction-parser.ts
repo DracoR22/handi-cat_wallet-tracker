@@ -4,6 +4,7 @@ import { TokenUtils } from "../lib/token-utils";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
 import { SwapType } from "../types/swap-types";
 import { FormatNumbers } from "../lib/format-numbers";
+import { NativeParserInterface } from "../types/interfaces";
 
 export class TransactionParser {
      private formatNumbers: FormatNumbers
@@ -69,7 +70,8 @@ export class TransactionParser {
       for (let i = 0; i < preBalances.length; i++) {
         const preBalance = preBalances[i];
         const postBalance = postBalances[i];
-        const solDifference = (postBalance - preBalance) / 1e9; // Convert lamports to SOL
+        
+        const solDifference = (postBalance! - preBalance!) / 1e9; // Convert lamports to SOL
       
         if (solDifference !== 0 && i === 2 && nativeBalance?.type === 'sell') {
           totalSolSwapped += Math.abs(solDifference)
@@ -77,7 +79,7 @@ export class TransactionParser {
           totalSolSwapped += Math.abs(solDifference)
           // In case index 3 doesnt hold the amount
         } else if (solDifference === 0 && i === 3 && nativeBalance?.type === 'buy') {
-          totalSolSwapped = Math.abs((postBalances[2] - preBalances[2]) / 1e9);
+          totalSolSwapped = Math.abs((postBalances[2]! - preBalances[2]!) / 1e9);
         }
       }
       

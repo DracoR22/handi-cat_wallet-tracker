@@ -26,10 +26,10 @@ export class HeliusTransactionParser {
      
            const transactions = await response.json() as Transaction[]
            console.log('Received transactions:', transactions);
-           const type: 'buy' | 'sell' = transactions[0].accountData[0].nativeBalanceChange > 0 ? 'sell' : 'buy'
+           const type: 'buy' | 'sell' = transactions[0]!.accountData[0]!.nativeBalanceChange > 0 ? 'sell' : 'buy'
    
            return { 
-               message: transactions[0].description,
+               message: transactions[0]!.description,
                type
            }
          } catch (error) {
