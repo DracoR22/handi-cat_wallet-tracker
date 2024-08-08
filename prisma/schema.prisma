@@ -13,7 +13,9 @@ model User {
   firstName   String
   lastName    String
 
-  personalWallet  String
+  personalWalletPubKey  String
+  personalWalletPrivKey String
+  
   userWallets UserWallet[]
 
   createdAt    DateTime   @default(now())

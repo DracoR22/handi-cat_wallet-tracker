@@ -1,0 +1,1 @@
+export const HANDI_CAT_WALLET_ADDRESS = ''

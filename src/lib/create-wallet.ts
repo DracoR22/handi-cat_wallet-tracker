@@ -14,6 +14,6 @@ export class CreateWallet {
         console.log('Public Key (wallet Address):', publicKey);
         console.log('Private Key:', privateKey);
 
-        return publicKey
+        return { publicKey, privateKey } 
      } 
    }   

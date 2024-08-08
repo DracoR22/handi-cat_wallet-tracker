@@ -10,8 +10,8 @@ export class MyWalletMessages {
         this.tokenUtils = new TokenUtils()
     }
 
-    public async sendMyWalletMessage(wallet: Pick<User, 'personalWallet'>): Promise<string> {
-        const solBalance = await this.userBalances.userPersonalSolBalance(wallet.personalWallet)
+    public async sendMyWalletMessage(wallet: Pick<User, 'personalWalletPrivKey' | 'personalWalletPubKey'>): Promise<string> {
+        const solBalance = await this.userBalances.userPersonalSolBalance(wallet.personalWalletPubKey)
      
         // const solPrice = await this.tokenUtils.getSolPriceNative()
 
@@ -19,7 +19,7 @@ export class MyWalletMessages {
 
         const responseText = `
 <b>Your wallet address:</b> 
-<code>${wallet && wallet.personalWallet}</code>
+<code>${wallet && wallet.personalWalletPubKey}</code>
 
 <b>SOL:</b> ${solBalance ? solBalance : 0}
 

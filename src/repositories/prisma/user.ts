@@ -9,7 +9,7 @@ export class PrismaUserRepository {
     }
 
     public async create({ firstName, id, lastName, username }: CreateUserInterface) {
-      const newWallet = this.createWallet.create()
+      const  { publicKey, privateKey }  = this.createWallet.create()
 
       const newUser = await prisma.user.create({
         data: {
@@ -17,7 +17,8 @@ export class PrismaUserRepository {
           id, 
           lastName,
           username,
-          personalWallet: newWallet
+          personalWalletPubKey: publicKey,
+          personalWalletPrivKey: privateKey
         }
       })
 
@@ -42,7 +43,8 @@ export class PrismaUserRepository {
           id: userId
         },
         select: {
-          personalWallet: true
+            personalWalletPubKey: true,
+            personalWalletPrivKey: true
         }
       })
 
