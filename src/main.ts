@@ -8,7 +8,7 @@ import express, { Express } from "express"
 import { ManageCommand } from "./bot/commands/manage-command";
 import { DeleteCommand } from "./bot/commands/delete-command";
 import { TrackWallets } from "./lib/track-wallets";
-import { getUserBalance } from "./test";
+import { getRecentTransactionsCount } from "./test";
 
 dotenv.config()
 
@@ -75,7 +75,8 @@ class Main {
         await this.manageCommand.manageCommandHandler()
         this.deleteCommand.deleteCommandHandler()
 
-        // await getUserBalance('EoX6KsGUn82xmcVpJYGKAQnxyiUG7raogtb68yfdCr3E')
+    //    const recentTxs = await getRecentTransactionsCount('Bgsj219ChxyqSHnWqjbKYBcRCUFRDSvwFyRZ2xuRkY7J')
+    //     console.log('TRANSACTIONS DONE:', recentTxs)
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 

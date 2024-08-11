@@ -3,16 +3,19 @@ import { PrismaWalletRepository } from "../../repositories/prisma/wallet";
 import { DeleteWalletMessage } from "../messages/delete-wallet-message";
 import { SUB_MENU } from "../../config/bot/menus";
 import { PublicKey } from "@solana/web3.js";
+import { TrackWallets } from "../../lib/track-wallets";
 
 export class DeleteCommand {
     private prismaWalletRepository: PrismaWalletRepository
     private deleteWalletMessage: DeleteWalletMessage
+    private trackWallets: TrackWallets
     constructor(
         private bot: TelegramBot
     ) {
         this.bot = bot
         this.prismaWalletRepository = new PrismaWalletRepository()
         this.deleteWalletMessage = new DeleteWalletMessage()
+        this.trackWallets = new TrackWallets()
     }
 
     public deleteCommandHandler() {

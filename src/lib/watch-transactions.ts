@@ -11,6 +11,7 @@ import { WalletWithUsers } from "../types/swap-types";
 import pLimit from "p-limit";
 import Bottleneck from "bottleneck";
 import { RateLimitMessages } from "../bot/messages/rate-limit-messages";
+import { PrismaWalletRepository } from "../repositories/prisma/wallet";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
@@ -19,6 +20,8 @@ export class WatchTransaction extends EventEmitter {
     private subscriptions: Map<string, number>;
     private walletTransactions: Map<string, { count: number, startTime: number }>;
     private excludedWallets: Map<string, boolean>;
+
+    private prismaWalletRepository: PrismaWalletRepository
 
     private rateLimitMessages: RateLimitMessages
 
@@ -30,6 +33,8 @@ export class WatchTransaction extends EventEmitter {
         this.subscriptions = new Map();
         this.walletTransactions = new Map();
         this.excludedWallets = new Map();
+
+        this.prismaWalletRepository = new PrismaWalletRepository()
 
         this.rateLimitMessages = new RateLimitMessages()
 
@@ -47,6 +52,7 @@ export class WatchTransaction extends EventEmitter {
 
             // Check if a subscription already exists for this wallet address
              if (this.subscriptions.has(walletAddress)) {
+                console.log(`Already watching for: ${walletAddress}`)
                 continue; // Skip re-subscribing
             }
 
@@ -161,8 +167,21 @@ export class WatchTransaction extends EventEmitter {
     }
 
     public async updateWallets(newWallets: WalletWithUsers[]): Promise<void> {
-        await this.stopWatching();
+        // await this.stopWatching();
+        console.log('REFETCHING WALLETS')
         await this.watchSocket(newWallets);
+    }
+
+    public async stopWatchingWallet(walletId: string): Promise<void> {
+      const walletAddress = await this.prismaWalletRepository.getWalletById(walletId)
+      const subscriptionId = this.subscriptions.get(walletAddress!.address);
+      if (subscriptionId) {
+        connection.removeOnLogsListener(subscriptionId);
+        console.log(`Stopped watching transactions for wallet: ${walletAddress!.address}`);
+        this.subscriptions.delete(walletAddress!.address);
+      } else {
+        console.log(`No active subscription found for wallet: ${walletAddress}`);
+      }
     }
 
     private async getParsedTransaction(transactionSignature: string) {

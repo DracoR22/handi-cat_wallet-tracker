@@ -4,14 +4,22 @@ import { PublicKey } from "@solana/web3.js";
 import { connection } from "../../providers/solana";
 import { PrismaWalletRepository } from "../../repositories/prisma/wallet";
 import { userExpectingWalletAddress } from "../../constants/flags";
+import { TrackWallets } from "../../lib/track-wallets";
+import { RateLimit } from "../../lib/rate-limit";
+import { MAX_5_MIN_TXS_ALLOWED } from "../../constants/handi-cat";
 
 export class AddCommand {
     private prismaWalletRepository: PrismaWalletRepository
+    private trackWallets: TrackWallets
+    private rateLimit: RateLimit
     constructor(
-        private bot: TelegramBot,
+        private bot: TelegramBot
     ) {
         this.bot = bot
+
         this.prismaWalletRepository = new PrismaWalletRepository()
+        this.trackWallets = new TrackWallets()
+        this.rateLimit = new RateLimit()
     }
 
     public addCommandHandler() {
@@ -71,6 +79,13 @@ walletAddress walletName
          if (!isValid) {
            this.bot.sendMessage(message.chat.id, '😾 Address provided is not a valid Solana wallet ');
            return;
+         }
+
+         const latestWalletTxs = await this.rateLimit.last5MinutesTxs(walletAddress)
+
+         if (latestWalletTxs && latestWalletTxs > MAX_5_MIN_TXS_ALLOWED) {
+            this.bot.sendMessage(message.chat.id, '😾 This wallet is spamming to many txs, try another wallet or try again later');
+            return
          }
 
          const isWalletAlready = await this.prismaWalletRepository.getUserWalletById(userId, walletAddress!)

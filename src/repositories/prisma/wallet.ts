@@ -219,6 +219,29 @@ export class PrismaWalletRepository {
       return userWallet
     }   
 
+    public async getWalletById(walletId: string) {
+      try {
+        const wallet = await prisma.wallet.findUnique({
+          where: {
+            id: walletId,
+          },
+           select: {
+            address: true
+           }
+        });
+  
+        if (!wallet) {
+          console.log(`No wallet found with ID: ${walletId}`);
+          return null;
+        }
+  
+        return wallet;
+      } catch (error) {
+        console.error(`Error fetching wallet with ID ${walletId}:`, error);
+        return null;
+      }
+    }
+
     public async pulseWallet() {
         const stream = await prisma.userWallet.stream({ create: {}, delete: {} })
 
