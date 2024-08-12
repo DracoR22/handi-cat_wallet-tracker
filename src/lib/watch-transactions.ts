@@ -17,7 +17,7 @@ const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
 
 export class WatchTransaction extends EventEmitter {
-    private subscriptions: Map<string, number>;
+    public subscriptions: Map<string, number>;
     private walletTransactions: Map<string, { count: number, startTime: number }>;
     private excludedWallets: Map<string, boolean>;
 
@@ -156,32 +156,6 @@ export class WatchTransaction extends EventEmitter {
        } catch (error) {
          console.error('Error in watchSocket:', error);
        }
-    }
-
-    public async stopWatching(): Promise<void> {
-        for (const [wallet, subscriptionId] of this.subscriptions) {
-            connection.removeOnLogsListener(subscriptionId);
-            console.log(`Stopped watching transactions for wallet: ${wallet}`);
-        }
-        this.subscriptions.clear();
-    }
-
-    public async updateWallets(newWallets: WalletWithUsers[]): Promise<void> {
-        // await this.stopWatching();
-        console.log('REFETCHING WALLETS')
-        await this.watchSocket(newWallets);
-    }
-
-    public async stopWatchingWallet(walletId: string): Promise<void> {
-      const walletAddress = await this.prismaWalletRepository.getWalletById(walletId)
-      const subscriptionId = this.subscriptions.get(walletAddress!.address);
-      if (subscriptionId) {
-        connection.removeOnLogsListener(subscriptionId);
-        console.log(`Stopped watching transactions for wallet: ${walletAddress!.address}`);
-        this.subscriptions.delete(walletAddress!.address);
-      } else {
-        console.log(`No active subscription found for wallet: ${walletAddress}`);
-      }
     }
 
     private async getParsedTransaction(transactionSignature: string) {
