@@ -108,8 +108,8 @@ export class TransactionParser {
         const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
-        const formattedAmountOut = this.formatNumbers.formatNumber(Number(transactions[0]?.info?.amount));
-        const formattedAmountIn = this.formatNumbers.formatNumber(Number(raydiumTransfer?.info?.amount));
+        const formattedAmountOut = this.formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount));
+        const formattedAmountIn = this.formatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount));
 
         // TODO: Check if SOL change works and OWNER
         owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
@@ -171,7 +171,7 @@ export class TransactionParser {
         const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
         const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '');
 
-        const formattedAmount = this.formatNumbers.formatNumber(Number(transactions[0]?.info?.amount));
+        const formattedAmount = this.formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount));
 
         owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
         amountOut = nativeBalance?.type === 'sell' ? formattedAmount : totalSolSwapped.toFixed(2).toString()

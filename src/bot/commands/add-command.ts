@@ -117,33 +117,4 @@ walletAddress walletName
 
         this.bot.once('message', listener);
     }
-
-    private async checkBot(walletAddress: string) {
-        let signatures: Set<string> = new Set();
-        let before = undefined;
-
-        const publicKey = new PublicKey(walletAddress);
-
-           // Fetch the transaction signatures for the given wallet address
-    const transactions = await connection.getSignaturesForAddress(publicKey, { limit: 1000 });
-
-    // Object to keep track of transactions processed per second
-    const processedSeconds: Set<string> = new Set();
-    let excludedCount = 0; // Counter for excluded transactions
-
-    transactions.forEach(tx => {
-        const timestamp = new Date(tx.blockTime! * 1000); // Convert blockTime to milliseconds
-        const secondKey = timestamp.toISOString().slice(0, 19); // Group by second (yyyy-mm-ddThh:mm:ss)
-
-        if (!processedSeconds.has(secondKey)) {
-            processedSeconds.add(secondKey);
-            // console.log(`Transaction allowed at ${timestamp.toISOString()}:`, tx);
-        } else {
-            excludedCount++;
-            // console.log(`Transaction excluded at ${timestamp.toISOString()} due to rate limiting.`);
-        }
-    });
-
-    console.log(`Total transactions excluded due to rate limiting: ${excludedCount}`);
-    }
 }

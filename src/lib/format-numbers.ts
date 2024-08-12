@@ -1,7 +1,7 @@
 export class FormatNumbers {
     constructor() {}
 
-    public formatNumber(amount: number) { 
+    public formatTokenAmount(amount: number) { 
       console.log('AMOUNT', amount)
       let scaledAmount: number;
 
@@ -28,10 +28,4 @@ export class FormatNumbers {
           return value.toFixed(2);
         }
       }
-
-    public formatAmount(amount: number): string {
-      const formattedAmount = (amount / 1e6).toFixed(2);
-
-      return formattedAmount
-    }
 }
