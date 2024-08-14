@@ -1,7 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
-import { SUB_MENU } from "../../config/bot/menus";
+import { SUB_MENU } from "../../config/bot-menus";
 import { PublicKey } from "@solana/web3.js";
-import { connection } from "../../providers/solana";
 import { PrismaWalletRepository } from "../../repositories/prisma/wallet";
 import { userExpectingWalletAddress } from "../../constants/flags";
 import { TrackWallets } from "../../lib/track-wallets";

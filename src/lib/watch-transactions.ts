@@ -1,7 +1,7 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { connection } from "../providers/solana";
 import { ValidTransactions } from "./valid-transactions";
-import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/solana/program-ids";
+import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from "../config/program-ids";
 import EventEmitter from "events";
 import { TransactionParser } from "../parsers/transaction-parser";
 import { SendTransactionMsgHandler } from "../bot/handlers/send-tx-msg-handler";
@@ -133,7 +133,7 @@ export class WatchTransaction extends EventEmitter {
                       }
 
                       console.log(`Wallet ${walletAddress} re-included after 20 minutes.`);
-                    }, 60 * 1000); // TODO: change back to 20 minutes
+                    }, 20 * 60 * 1000);
 
                     // Stop processing for this wallet
                     return;

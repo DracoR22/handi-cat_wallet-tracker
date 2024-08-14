@@ -1,7 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { PrismaUserRepository } from "../../repositories/prisma/user";
 import { MyWalletMessages } from "../messages/send-mywallet-message";
-import { SUB_MENU } from "../../config/bot/menus";
+import { SUB_MENU } from "../../config/bot-menus";
 
 export class MyWalletCommand {
     private prismaUserRepository: PrismaUserRepository

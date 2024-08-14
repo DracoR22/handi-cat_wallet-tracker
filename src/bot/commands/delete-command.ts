@@ -1,7 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { PrismaWalletRepository } from "../../repositories/prisma/wallet";
 import { DeleteWalletMessage } from "../messages/delete-wallet-message";
-import { SUB_MENU } from "../../config/bot/menus";
+import { SUB_MENU } from "../../config/bot-menus";
 import { PublicKey } from "@solana/web3.js";
 import { TrackWallets } from "../../lib/track-wallets";
 

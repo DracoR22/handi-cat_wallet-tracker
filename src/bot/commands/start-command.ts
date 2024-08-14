@@ -1,5 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
-import { START_MENU } from "../../config/bot/menus";
+import { START_MENU } from "../../config/bot-menus";
 import { PrismaUserRepository } from "../../repositories/prisma/user";
 
 export class StartCommand {

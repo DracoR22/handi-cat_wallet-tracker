@@ -1,6 +1,6 @@
 import TelegramBot, { InlineKeyboardMarkup } from "node-telegram-bot-api";
 import { AddCommand } from "../commands/add-command";
-import { START_MENU, SUB_MENU } from "../../config/bot/menus";
+import { START_MENU, SUB_MENU } from "../../config/bot-menus";
 import { ManageCommand } from "../commands/manage-command";
 import { DeleteCommand } from "../commands/delete-command";
 import { userExpectingWalletAddress } from "../../constants/flags";

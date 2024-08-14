@@ -2,7 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import { TokenUtils } from "../../lib/token-utils";
 import { TokenPrices } from "../../lib/token-prices";
 import { FormatNumbers } from "../../lib/format-numbers";
-import { createTxSubMenu } from "../../config/bot/menus";
+import { createTxSubMenu } from "../../config/bot-menus";
 import { TxMessages } from "../messages/send-tx-message";
 import { PrismaWalletRepository } from "../../repositories/prisma/wallet";
 import { NativeParserInterface } from "../../types/interfaces";
