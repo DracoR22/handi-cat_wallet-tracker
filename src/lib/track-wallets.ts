@@ -29,22 +29,32 @@ export class TrackWallets {
     }
 
     public async listenForDatabaseChanges(): Promise<void> {
-        const stream = await this.prismaWalletRepository.pulseWallet();
-
-        for await (const event of stream) {
-            console.log('New event:', event);
-
-            if (event.action === 'create') {
-                // Refetch wallets and update watcher on create/delete actions
-                await this.setupWalletWatcher(true);
-            } else if (event.action === 'delete') {
-                await this.stopWatchingWallet(event.deleted.walletId)
-
-                // Refetch wallets and update watcher on create/delete actions
-                await this.setupWalletWatcher(true);
+        while (true) { // Infinite loop to keep the process running
+          try {
+            const stream = await this.prismaWalletRepository.pulseWallet();
+      
+            for await (const event of stream!) {
+              try {
+                console.log('New event:', event);
+      
+                if (event.action === 'create') {
+                  await this.setupWalletWatcher(true);
+                } else if (event.action === 'delete') {
+                  await this.stopWatchingWallet(event.deleted.walletId);
+                  await this.setupWalletWatcher(true);
+                }
+              } catch (eventError: any) {
+                console.error('Error processing event:', eventError.message);
+                throw eventError; // This will exit the loop and trigger a reconnect
+              }
             }
+          } catch (error: any) {
+            console.error('Connection lost. Attempting to reconnect...', error.message);
+            // Wait before retrying (e.g., 5 seconds)
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+          }
         }
-    }
+      }
 
     public async triggerDatabaseChange(event: 'create' | 'delete', walletAddress: string) {
        if (event === 'create') {

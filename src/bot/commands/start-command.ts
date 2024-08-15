@@ -44,7 +44,7 @@ export class StartCommand {
 
             // const subscriptions = new Subscriptions()
 
-            // await subscriptions.chargeSubscription(user!.personalWalletPubKey, user!.personalWalletPubKey)
+            // await subscriptions.chargeSubscription(user!, 'HOBBY')
           });
     }
 }

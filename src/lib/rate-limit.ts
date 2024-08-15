@@ -1,5 +1,7 @@
 import { PublicKey } from "@solana/web3.js";
 import { connection } from "../providers/solana";
+import { SubscriptionPlan } from "@prisma/client";
+import { MAX_FREE_DAILY_MESSAGES } from "../constants/pricing";
 
 export class RateLimit {
     constructor() {}
@@ -21,5 +23,11 @@ export class RateLimit {
       
         // Return the number of transactions in the last 5 minutes
         return recentTransactions.length;
+    }
+
+    public async dailyMessageLimit(messagesToday: number, userPlan: SubscriptionPlan) {
+      if (userPlan === 'FREE' && messagesToday >= MAX_FREE_DAILY_MESSAGES) {
+        return { dailyLimitReached: true }
+      }
     }
 }

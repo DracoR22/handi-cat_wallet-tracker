@@ -1,3 +1,4 @@
+import { SubscriptionPlan } from "@prisma/client";
 import { CreateWallet } from "../../lib/create-wallet";
 import { CreateUserInterface } from "../../types/interfaces";
 import prisma from "./prisma";

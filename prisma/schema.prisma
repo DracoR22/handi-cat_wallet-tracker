@@ -15,19 +15,19 @@ enum SubscriptionPlan {
 }
 
 model User {
-  id                      String         @id
+  id                      String             @id
   username                String
   firstName               String
   lastName                String
 
-  plan                    SubscriptionPlan @default(FREE)
   personalWalletPubKey    String
   personalWalletPrivKey   String
   
+  userSubscription        UserSubscription?
   userWallets             UserWallet[]
 
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
 }
 
 model Wallet {
@@ -42,6 +42,23 @@ model UserWallet {
   walletId  String
   name      String
   user      User    @relation(fields: [userId], references: [id])
-  wallet    Wallet @relation(fields: [walletId], references: [id])
+  wallet    Wallet  @relation(fields: [walletId], references: [id])
+
   @@id([userId, walletId]) 
+}
+
+model UserSubscription {
+  id                             String            @id @default(cuid())
+  plan                           SubscriptionPlan  @default(FREE)
+
+  isCanceled                     Boolean           @default(false)
+  subscriptionCurrentPeriodEnd   DateTime?
+
+  createdAt                      DateTime          @default(now())
+  updatedAt                      DateTime          @updatedAt
+
+  userId                         String            @unique
+  user                           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

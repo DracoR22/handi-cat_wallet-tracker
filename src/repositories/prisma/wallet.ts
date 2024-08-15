@@ -243,12 +243,18 @@ export class PrismaWalletRepository {
     }
 
     public async pulseWallet() {
-        const stream = await prisma.userWallet.stream({ create: {}, delete: {} })
-
-          // for await (const event of stream) {
-          //   console.log('New event:', event)
-          // }
-
-        return stream
+      try {
+        const stream = await prisma.userWallet.stream({ create: {}, delete: {} });
+        return stream;
+      } catch (error: any) {
+        if (error.code === 'ECONNREFUSED') {
+          console.error('Database connection failed:', error.message);
+          return
+        } else {
+          console.error('An unexpected error occurred:', error.message);
+          return
+        }
+      }
     }
+    
 }
