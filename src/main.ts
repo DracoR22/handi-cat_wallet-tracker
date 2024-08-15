@@ -9,6 +9,7 @@ import { ManageCommand } from "./bot/commands/manage-command";
 import { DeleteCommand } from "./bot/commands/delete-command";
 import { TrackWallets } from "./lib/track-wallets";
 import { getRecentTransactionsCount } from "./test";
+import { Subscriptions } from "./lib/subscriptions";
 
 dotenv.config()
 
@@ -54,7 +55,7 @@ class Main {
                 res.status(500).send('Error processing update');
             }
         });
-        this.app.post(`*`, async (req, res) => {
+        this.app.post(`/webhook/telegram`, async (req, res) => {
             try {
                 bot.processUpdate(req.body);
                 
@@ -74,9 +75,6 @@ class Main {
         this.addCommand.addCommandHandler()
         await this.manageCommand.manageCommandHandler()
         this.deleteCommand.deleteCommandHandler()
-
-    //    const recentTxs = await getRecentTransactionsCount('Bgsj219ChxyqSHnWqjbKYBcRCUFRDSvwFyRZ2xuRkY7J')
-    //     console.log('TRANSACTIONS DONE:', recentTxs)
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 

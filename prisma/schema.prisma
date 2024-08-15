@@ -7,16 +7,24 @@ datasource db {
   url      = env("SUPABASE_DATABASE_URL")
 }
 
-model User {
-  id          String         @id
-  username    String
-  firstName   String
-  lastName    String
+enum SubscriptionPlan {
+  FREE
+  HOBBY
+  PRO
+  WHALE
+}
 
-  personalWalletPubKey  String
-  personalWalletPrivKey String
+model User {
+  id                      String         @id
+  username                String
+  firstName               String
+  lastName                String
+
+  plan                    SubscriptionPlan @default(FREE)
+  personalWalletPubKey    String
+  personalWalletPrivKey   String
   
-  userWallets UserWallet[]
+  userWallets             UserWallet[]
 
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -26,7 +34,7 @@ model Wallet {
   id            String         @id @default(cuid())
   address       String
   
-  userWallets UserWallet[]
+  userWallets   UserWallet[]
 }
 
 model UserWallet {

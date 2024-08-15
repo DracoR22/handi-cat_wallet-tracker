@@ -11,7 +11,7 @@ export class RateLimit {
         const fiveMinutesAgo = currentTime - (5 * 60 * 1000);
       
         // Fetch recent transaction signatures for the given wallet
-        const signatures = await connection.getSignaturesForAddress(new PublicKey(walletAddress));
+        const signatures = await connection.getSignaturesForAddress(new PublicKey(walletAddress), { limit: 60 });
       
         // Filter the transactions that occurred in the last 5 minutes
         const recentTransactions = signatures.filter(signatureInfo => {

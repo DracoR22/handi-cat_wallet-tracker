@@ -1,6 +1,7 @@
 import TelegramBot from "node-telegram-bot-api";
 import { START_MENU } from "../../config/bot-menus";
 import { PrismaUserRepository } from "../../repositories/prisma/user";
+import { Subscriptions } from "../../lib/subscriptions";
 
 export class StartCommand {
     private prismaUserRepository: PrismaUserRepository
@@ -40,6 +41,10 @@ export class StartCommand {
             if (!user) {
               await this.prismaUserRepository.create({ firstName, id: userId, lastName, username })
             }
+
+            // const subscriptions = new Subscriptions()
+
+            // await subscriptions.chargeSubscription(user!.personalWalletPubKey, user!.personalWalletPubKey)
           });
     }
 }

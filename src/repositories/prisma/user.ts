@@ -28,9 +28,11 @@ export class PrismaUserRepository {
     public async getById(userId: string) {
         const user = await prisma.user.findUnique({
             where: {
-                id: userId
+                id: userId,
             }, select: {
-                id: true
+                id: true,
+                personalWalletPrivKey: true,
+                personalWalletPubKey: true
             }
         })
 
