@@ -82,7 +82,7 @@ walletAddress walletName
 
          const latestWalletTxs = await this.rateLimit.last5MinutesTxs(walletAddress)
 
-         if (latestWalletTxs && latestWalletTxs > MAX_5_MIN_TXS_ALLOWED) {
+         if (latestWalletTxs && latestWalletTxs >= MAX_5_MIN_TXS_ALLOWED) {
             this.bot.sendMessage(message.chat.id, '😾 This wallet is spamming to many txs, try another wallet or try again later');
             return
          }

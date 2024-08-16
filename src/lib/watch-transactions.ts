@@ -45,119 +45,115 @@ export class WatchTransaction extends EventEmitter {
     }
 
     public async watchSocket(wallets: WalletWithUsers[]): Promise<void> {
-       try {
-        for (const wallet of wallets) {
-            const publicKey = new PublicKey(wallet.address);
-            const walletAddress = publicKey.toBase58();
-
-            // Check if a subscription already exists for this wallet address
-             if (this.subscriptions.has(walletAddress)) {
-                console.log(`Already watching for: ${walletAddress}`)
-                continue; // Skip re-subscribing
-            }
-
-            console.log(`Watching transactions for wallet: ${walletAddress}`);
-
-             // Initialize transaction count and timestamp
-            this.walletTransactions.set(walletAddress, { count: 0, startTime: Date.now() });
-    
-            // start realtime log
-            const subscriptionId = connection.onLogs(
-              publicKey, async (logs, ctx) => {
-                // exclude wallets that have reached the limit
-                if (this.excludedWallets.has(walletAddress)) {
-                  console.log(`Wallet ${walletAddress} is excluded from logging.`);
-                  return;
-                }
-                // await this.limiter.schedule(async () => {
-                 const transactionSignature = logs.signature
-    
-                 const transactionDetails = await this.getParsedTransaction(transactionSignature)
-                 
-                 if (!transactionDetails) {
-                    return
-                 }
-    
-                 // find all programIds involved in the transaction
-                 const programIds = transactionDetails[0]?.transaction.message.accountKeys.map(key => key.pubkey).filter(pubkey => pubkey !== undefined)
-    
-                 const validTransactions = new ValidTransactions(pumpFunProgramId, raydiumProgramId, programIds)
-                 const isValidTransaction = validTransactions.getTransaction()
-    
-                 if (!isValidTransaction.valid) {
-                    return
-                 }
-       
-                 // parse transaction
-                 const transactionParser = new TransactionParser(transactionSignature)
-                 const parsed = await transactionParser.parseNative(transactionDetails, isValidTransaction.swap)
-    
-                 if (!parsed) {
-                    return
-                 }
-                
-                 console.log(parsed)
-               
-                 // use bot to send message of transaction
-                 const sendMessageHandler = new SendTransactionMsgHandler(bot)
-                
-                 for (const user of wallet.userWallets) {
-                    console.log('Users:', user)
-                    await sendMessageHandler.send(parsed, user.userId)
-                  }
-
-                 // Update transaction count and calculate TPS
-              const walletData = this.walletTransactions.get(walletAddress);
-              if (walletData) {
-                walletData.count++;
-                const elapsedTime = (Date.now() - walletData.startTime) / 1000; // seconds
-
-                if (elapsedTime >= 1) {
-                  const tps = walletData.count / elapsedTime;
-                  console.log(`TPS for wallet ${walletAddress}: ${tps.toFixed(2)}`);
-
-                  // Exclude spamming wallet
-                  if (tps >= 0.2) {
-                    this.excludedWallets.set(walletAddress, true);
-                    console.log(`Wallet ${walletAddress} excluded for 20 minutes due to high TPS.`);
-
-                    for (const user of wallet.userWallets) {
-                      bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(walletAddress), { parse_mode: 'HTML' })
-                    }
-
-                    setTimeout(() => {
-                      this.excludedWallets.delete(walletAddress);
-
-                      for (const user of wallet.userWallets) {
-                        bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(walletAddress), { parse_mode: 'HTML' })
-                      }
-
-                      console.log(`Wallet ${walletAddress} re-included after 20 minutes.`);
-                    }, 20 * 60 * 1000);
-
-                    // Stop processing for this wallet
-                    return;
-                  }
-
-                  // Reset for next interval
-                  walletData.count = 0;
-                  walletData.startTime = Date.now();
-                }
+      try {
+          for (const wallet of wallets) {
+              const publicKey = new PublicKey(wallet.address);
+              const walletAddress = publicKey.toBase58();
+  
+              // Check if a subscription already exists for this wallet address
+              if (this.subscriptions.has(walletAddress)) {
+                  console.log(`Already watching for: ${walletAddress}`);
+                  continue; // Skip re-subscribing
               }
-                //  })
-             },
-             'confirmed'
-          );
-    
-           // Store subscription ID
-           this.subscriptions.set(wallet.address, subscriptionId);
-           console.log(`Subscribed to logs with subscription ID: ${subscriptionId}`);
-        }
-       } catch (error) {
-         console.error('Error in watchSocket:', error);
-       }
-    }
-
+  
+              console.log(`Watching transactions for wallet: ${walletAddress}`);
+  
+              // Initialize transaction count and timestamp
+              this.walletTransactions.set(walletAddress, { count: 0, startTime: Date.now() });
+  
+              // Start real-time log
+              const subscriptionId = connection.onLogs(publicKey, async (logs, ctx) => {
+                  // Exclude wallets that have reached the limit
+                  if (this.excludedWallets.has(walletAddress)) {
+                      console.log(`Wallet ${walletAddress} is excluded from logging.`);
+                      return;
+                  }
+  
+                  const walletData = this.walletTransactions.get(walletAddress);
+                  if (!walletData) {
+                      return;
+                  }
+  
+                  // Increment the transaction count
+                  walletData.count++;
+                  const elapsedTime = (Date.now() - walletData.startTime) / 1000; // seconds
+  
+                  if (elapsedTime >= 1) {
+                      const tps = walletData.count / elapsedTime;
+                      console.log(`TPS for wallet ${walletAddress}: ${tps.toFixed(2)}`);
+  
+                      if (tps >= 0.2) {
+                          // Immediately exclude spamming wallet
+                          this.excludedWallets.set(walletAddress, true);
+                          console.log(`Wallet ${walletAddress} excluded for 20 minutes due to high TPS.`);
+  
+                          for (const user of wallet.userWallets) {
+                              bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(walletAddress), { parse_mode: 'HTML' });
+                          }
+  
+                          setTimeout(() => {
+                              this.excludedWallets.delete(walletAddress);
+  
+                              for (const user of wallet.userWallets) {
+                                  bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(walletAddress), { parse_mode: 'HTML' });
+                              }
+  
+                              console.log(`Wallet ${walletAddress} re-included after 20 minutes.`);
+                          }, 20 * 60 * 1000);
+  
+                          // Stop processing for this wallet
+                          return;
+                      }
+  
+                      // Reset for next interval
+                      walletData.count = 0;
+                      walletData.startTime = Date.now();
+                  }
+  
+                  const transactionSignature = logs.signature;
+                  const transactionDetails = await this.getParsedTransaction(transactionSignature);
+  
+                  if (!transactionDetails) {
+                      return;
+                  }
+  
+                  // Find all programIds involved in the transaction
+                  const programIds = transactionDetails[0]?.transaction.message.accountKeys.map(key => key.pubkey).filter(pubkey => pubkey !== undefined);
+                  const validTransactions = new ValidTransactions(pumpFunProgramId, raydiumProgramId, programIds);
+                  const isValidTransaction = validTransactions.getTransaction();
+  
+                  if (!isValidTransaction.valid) {
+                      return;
+                  }
+  
+                  // Parse transaction
+                  const transactionParser = new TransactionParser(transactionSignature);
+                  const parsed = await transactionParser.parseNative(transactionDetails, isValidTransaction.swap);
+  
+                  if (!parsed) {
+                      return;
+                  }
+  
+                  console.log(parsed);
+  
+                  // Use bot to send message of transaction
+                  const sendMessageHandler = new SendTransactionMsgHandler(bot);
+  
+                  for (const user of wallet.userWallets) {
+                      console.log('Users:', user);
+                      await sendMessageHandler.send(parsed, user.userId);
+                  }
+              }, 'confirmed');
+  
+              // Store subscription ID
+              this.subscriptions.set(wallet.address, subscriptionId);
+              console.log(`Subscribed to logs with subscription ID: ${subscriptionId}`);
+          }
+      } catch (error) {
+          console.error('Error in watchSocket:', error);
+      }
+  }
+  
     private async getParsedTransaction(transactionSignature: string) {
       try {
        const transactionDetails = await connection.getParsedTransactions([transactionSignature], {

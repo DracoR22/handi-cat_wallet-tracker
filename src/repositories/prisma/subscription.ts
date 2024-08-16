@@ -31,7 +31,7 @@ export class PrismaSubscriptionRepository {
             data: {
                 userId,
                 plan,
-                subscriptionCurrentPeriodEnd: oneMonthFromNow.toISOString()
+                subscriptionCurrentPeriodEnd: oneMonthFromNow
             },
             select: {
                 subscriptionCurrentPeriodEnd: true

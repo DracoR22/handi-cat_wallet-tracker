@@ -8,7 +8,7 @@ import express, { Express } from "express"
 import { ManageCommand } from "./bot/commands/manage-command";
 import { DeleteCommand } from "./bot/commands/delete-command";
 import { TrackWallets } from "./lib/track-wallets";
-import { getRecentTransactionsCount } from "./test";
+import { getRecentTransactionsCount, test } from "./test";
 import { Subscriptions } from "./lib/subscriptions";
 
 dotenv.config()
@@ -77,6 +77,8 @@ class Main {
         this.deleteCommand.deleteCommandHandler()
  
         this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
+        // await test('CwiiPtoSZTeiPXXa2U95NUFX8kVhKAqTNwqfDkXAqgRj')
 
         await this.trackWallets.setupWalletWatcher();
         await this.trackWallets.listenForDatabaseChanges();

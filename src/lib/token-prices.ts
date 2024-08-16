@@ -5,6 +5,7 @@ export class TokenPrices {
     constructor() {}
 
     public async gmgnTokenInfo(addr: string): Promise<PumpDetail | undefined> {
+       try {
         const res = await fetch(`https://gmgn.ai/defi/quotation/v1/tokens/sol/${addr}`)
         const data = await res.json()
 
@@ -13,5 +14,9 @@ export class TokenPrices {
         }
 
         return
+       } catch (error) {
+        console.log('GMGN_API_ERROR', error)
+        return
+       }
     }
 }
