@@ -1,17 +1,17 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client'
 
-export type SwapType = 'pumpfun' | 'raydium' | null;
+export type SwapType = 'pumpfun' | 'raydium' | null
 
 export type WalletWithUsers = Prisma.WalletGetPayload<{
-    include: {
-      userWallets: {
-        include: {
-          user: {
-            select: {
-              id: true
-            }
+  include: {
+    userWallets: {
+      include: {
+        user: {
+          select: {
+            id: true
           }
         }
       }
     }
-  }>;
+  }
+}>

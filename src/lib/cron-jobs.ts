@@ -1,7 +1,5 @@
 export class CronJobs {
-    constructor() {}
+  constructor() {}
 
-    public async scheduleSubscriptionFee() {
-        
-    }
+  public async scheduleSubscriptionFee() {}
 }

@@ -1,47 +1,47 @@
 interface CreateIdempotentInfo {
-    owner: string;
-    token: string;
+  owner: string
+  token: string
 }
 
 interface TransferInfo {
-    source: string;
-    destination: string;
-    lamports: number;
+  source: string
+  destination: string
+  lamports: number
 }
 
 interface SyncNativeInfo {
-    // Add fields relevant to syncNative if any
+  // Add fields relevant to syncNative if any
 }
 
 interface TransferCheckedInfo {
-    source: string;
-    destination: string;
-    amount: number;
-    // Add other relevant fields
+  source: string
+  destination: string
+  amount: number
+  // Add other relevant fields
 }
 
 interface CloseAccountInfo {
-    source: string;
-    account: string;
+  source: string
+  account: string
 }
 
 interface SwapInfo {
-    source: string;
-    amountIn: number;
-    tokenIn: string;
-    amountOut: number;
-    tokenOut: string;
+  source: string
+  amountIn: number
+  tokenIn: string
+  amountOut: number
+  tokenOut: string
 }
 
 interface UnknownInfo {
-    // This can be used as a fallback for unknown instruction types
+  // This can be used as a fallback for unknown instruction types
 }
 
-export type ParsedInfo = 
-    | CreateIdempotentInfo
-    | TransferInfo
-    | SyncNativeInfo
-    | TransferCheckedInfo
-    | CloseAccountInfo
-    | SwapInfo
-    | UnknownInfo;
+export type ParsedInfo =
+  | CreateIdempotentInfo
+  | TransferInfo
+  | SyncNativeInfo
+  | TransferCheckedInfo
+  | CloseAccountInfo
+  | SwapInfo
+  | UnknownInfo

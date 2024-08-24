@@ -1,5 +1,3 @@
 export class SettingsCommand {
-    constructor() {}
-
-    
+  constructor() {}
 }

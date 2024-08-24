@@ -1,19 +1,19 @@
-import SolanaWeb3 from "@solana/web3.js"
+import SolanaWeb3 from '@solana/web3.js'
 
 export class CreateWallet {
-    constructor() {}
+  constructor() {}
 
-    public create() {
-        const keypair = SolanaWeb3.Keypair.generate()
- 
-        // Get the public and private keys
-        const publicKey = keypair.publicKey.toString();
-        const privateKey = Buffer.from(keypair.secretKey).toString('base64');
+  public create() {
+    const keypair = SolanaWeb3.Keypair.generate()
 
-        // Output the keys
-        console.log('Public Key (wallet Address):', publicKey);
-        console.log('Private Key:', privateKey);
+    // Get the public and private keys
+    const publicKey = keypair.publicKey.toString()
+    const privateKey = Buffer.from(keypair.secretKey).toString('base64')
 
-        return { publicKey, privateKey } 
-     } 
-   }   
+    // Output the keys
+    console.log('Public Key (wallet Address):', publicKey)
+    console.log('Private Key:', privateKey)
+
+    return { publicKey, privateKey }
+  }
+}

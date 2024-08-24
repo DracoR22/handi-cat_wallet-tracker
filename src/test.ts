@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js'
 import { connection } from './providers/solana'
+import { formatDistanceToNow } from 'date-fns'
 
 export async function getRecentTransactionsCount(walletAddress: any) {
   // Get the current time
@@ -67,6 +68,8 @@ export async function getLastWalletTransaction(walletAddress: string) {
 
   // Convert the Unix timestamp to a JavaScript Date object
   const date = new Date(transaction!.blockTime! * 1000)
-  console.log('LAST TX DATE:', date.toString())
-  return date
+
+  const timeAgo = formatDistanceToNow(date, { addSuffix: true })
+  console.log('LAST TX DATE:', timeAgo)
+  return timeAgo
 }

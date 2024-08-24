@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc && node ./dist/src/main.js",
+    "postinstall": "tsc",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"  --ignore-path .gitignore",
     "format:check": "pnpm format --check",
     "format:write": "pnpm format --write"
@@ -26,6 +29,7 @@
     "axios": "^1.7.2",
     "bottleneck": "^2.19.5",
     "bs58": "^6.0.0",
+    "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "helius-sdk": "^1.3.4",
