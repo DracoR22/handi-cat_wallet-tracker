@@ -8,7 +8,7 @@ import express, { Express } from "express"
 import { ManageCommand } from "./bot/commands/manage-command";
 import { DeleteCommand } from "./bot/commands/delete-command";
 import { TrackWallets } from "./lib/track-wallets";
-import { getRecentTransactionsCount, test } from "./test";
+import { getLastWalletTransaction, getRecentTransactionsCount, test } from "./test";
 import { Subscriptions } from "./lib/subscriptions";
 
 dotenv.config()
@@ -43,6 +43,8 @@ class Main {
         this.addCommand = new AddCommand(bot)
         this.manageCommand = new ManageCommand(bot)
         this.deleteCommand = new DeleteCommand(bot)
+
+        this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
     }
 
     setupRoutes() {
@@ -75,11 +77,9 @@ class Main {
         this.addCommand.addCommandHandler()
         await this.manageCommand.manageCommandHandler()
         this.deleteCommand.deleteCommandHandler()
- 
-        this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 
         // await test('CwiiPtoSZTeiPXXa2U95NUFX8kVhKAqTNwqfDkXAqgRj')
-
+        await getLastWalletTransaction('BpstLhxF8jLhdUauF4n8ivckANJUmh8gsoMQTmxNBprM')
         await this.trackWallets.setupWalletWatcher();
         await this.trackWallets.listenForDatabaseChanges();
     }
