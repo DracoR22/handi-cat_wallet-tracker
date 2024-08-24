@@ -1,3 +1,6 @@
+import TelegramBot from "node-telegram-bot-api"
+import { WalletWithUsers } from "./swap-types"
+
 export interface NativeParserInterface {
     platform: 'raydium' | 'pumpfun' | null
     owner: string
@@ -31,4 +34,11 @@ export interface ParsedTxInfo {
     source: string
   }
   type: string
+}
+
+export interface TxPerSecondCapInterface {
+  wallet: WalletWithUsers
+  bot: TelegramBot
+  walletData: { count: number; startTime: number; }
+  excludedWallets: Map<string, boolean>
 }

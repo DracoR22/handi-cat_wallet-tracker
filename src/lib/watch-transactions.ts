@@ -12,18 +12,18 @@ import pLimit from "p-limit";
 import Bottleneck from "bottleneck";
 import { RateLimitMessages } from "../bot/messages/rate-limit-messages";
 import { PrismaWalletRepository } from "../repositories/prisma/wallet";
+import { RateLimit } from "./rate-limit";
 
 const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
 const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
 
 export class WatchTransaction extends EventEmitter {
     public subscriptions: Map<string, number>;
+    
     private walletTransactions: Map<string, { count: number, startTime: number }>;
     private excludedWallets: Map<string, boolean>;
 
-    private prismaWalletRepository: PrismaWalletRepository
-
-    private rateLimitMessages: RateLimitMessages
+    private rateLimit: RateLimit
 
     private limiter: Bottleneck
 
@@ -34,9 +34,7 @@ export class WatchTransaction extends EventEmitter {
         this.walletTransactions = new Map();
         this.excludedWallets = new Map();
 
-        this.prismaWalletRepository = new PrismaWalletRepository()
-
-        this.rateLimitMessages = new RateLimitMessages()
+        this.rateLimit = new RateLimit()
 
         this.limiter = new Bottleneck({
             maxConcurrent: 2,
@@ -69,46 +67,15 @@ export class WatchTransaction extends EventEmitter {
                       return;
                   }
   
+                // check txs per second
                   const walletData = this.walletTransactions.get(walletAddress);
                   if (!walletData) {
                       return;
                   }
-  
-                  // Increment the transaction count
-                  walletData.count++;
-                  const elapsedTime = (Date.now() - walletData.startTime) / 1000; // seconds
-  
-                  if (elapsedTime >= 1) {
-                      const tps = walletData.count / elapsedTime;
-                      console.log(`TPS for wallet ${walletAddress}: ${tps.toFixed(2)}`);
-  
-                      if (tps >= 0.2) {
-                          // Immediately exclude spamming wallet
-                          this.excludedWallets.set(walletAddress, true);
-                          console.log(`Wallet ${walletAddress} excluded for 20 minutes due to high TPS.`);
-  
-                          for (const user of wallet.userWallets) {
-                              bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(walletAddress), { parse_mode: 'HTML' });
-                          }
-  
-                          setTimeout(() => {
-                              this.excludedWallets.delete(walletAddress);
-  
-                              for (const user of wallet.userWallets) {
-                                  bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(walletAddress), { parse_mode: 'HTML' });
-                              }
-  
-                              console.log(`Wallet ${walletAddress} re-included after 20 minutes.`);
-                          }, 20 * 60 * 1000);
-  
-                          // Stop processing for this wallet
-                          return;
-                      }
-  
-                      // Reset for next interval
-                      walletData.count = 0;
-                      walletData.startTime = Date.now();
-                  }
+
+                  const isWalletRateLimited = await this.rateLimit.txPerSecondCap({ wallet, bot, excludedWallets: this.excludedWallets, walletData })
+
+                  if (!isWalletRateLimited) return
   
                   const transactionSignature = logs.signature;
                   const transactionDetails = await this.getParsedTransaction(transactionSignature);

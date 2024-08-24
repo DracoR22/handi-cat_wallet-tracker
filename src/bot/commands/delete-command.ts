@@ -49,26 +49,30 @@ export class DeleteCommand {
 
         const listener = async (responseMsg: TelegramBot.Message) => {
 
-        const walletAddress = responseMsg.text;
+        const walletAddresses = responseMsg.text?.split('\n').map(addr => addr.trim()).filter(Boolean); // Split input by new lines, trim, and remove empty lines
 
-          // validate the wallet before using the database
-          const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+        const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
-          const isValid = base58Regex.test(walletAddress as string) && PublicKey.isOnCurve(new PublicKey(walletAddress as string).toBytes());
- 
+        for (const walletAddress of walletAddresses!) {
+          // Validate each wallet address before using it in the database
+          const isValid = base58Regex.test(walletAddress) && PublicKey.isOnCurve(new PublicKey(walletAddress).toBytes());
+      
           if (!isValid) {
-            this.bot.sendMessage(message.chat.id, "Address provided is not a valid Solana wallet");
-            return;
+            this.bot.sendMessage(message.chat.id, `Address ${walletAddress} is not a valid Solana wallet`);
+            continue;
           }
-
-        const deletedAddress = await this.prismaWalletRepository.deleteWallet(userId, walletAddress!)
-
-        if (!deletedAddress?.walletId) {
-            this.bot.sendMessage(message.chat.id, "You're not tracking this wallet at the time");
-            return
+      
+          const deletedAddress = await this.prismaWalletRepository.deleteWallet(userId, walletAddress);
+      
+          if (!deletedAddress?.walletId) {
+            this.bot.sendMessage(message.chat.id, `You're not tracking the wallet: ${walletAddress}`);
+            continue;
+          }
         }
 
-         this.bot.sendMessage(message.chat.id, "Wallet deleted succesfully");
+        if (walletAddresses) {
+            this.bot.sendMessage(message.chat.id, `🐱 ${walletAddresses.length} ${walletAddresses?.length < 2 ? `wallet has been succesfully deleted!` : `wallets have succesfully been deleted!`} you will no longer get notifications for these ${walletAddresses.length < 2  ? `wallet` : `wallets`}`, { reply_markup: SUB_MENU });
+        }
 
          this.bot.removeListener('message', listener);
         }
