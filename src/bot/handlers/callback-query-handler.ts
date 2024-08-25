@@ -5,12 +5,23 @@ import { ManageCommand } from '../commands/manage-command'
 import { DeleteCommand } from '../commands/delete-command'
 import { userExpectingWalletAddress } from '../../constants/flags'
 import { MyWalletCommand } from '../commands/mywallet-command'
+import { GeneralMessages } from '../messages/general-messages'
+import { UpgradePlanCommand } from '../commands/upgrade-plan-command'
+import { Subscriptions } from '../../lib/subscriptions'
+import { SubscriptionMessageEnum } from '../../types/parsed-info-types'
+import { MAX_HOBBY_WALLETS } from '../../constants/pricing'
+import { UpgradePlanHandler } from './upgrade-plan-handler'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
   private manageCommand: ManageCommand
   private deleteCommand: DeleteCommand
   private myWalletCommand: MyWalletCommand
+  private upgradePlanCommand: UpgradePlanCommand
+
+  private generalMessages: GeneralMessages
+
+  private upgradePlanHandler: UpgradePlanHandler
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
@@ -18,6 +29,11 @@ export class CallbackQueryHandler {
     this.manageCommand = new ManageCommand(this.bot)
     this.deleteCommand = new DeleteCommand(this.bot)
     this.myWalletCommand = new MyWalletCommand(this.bot)
+    this.upgradePlanCommand = new UpgradePlanCommand(this.bot)
+
+    this.generalMessages = new GeneralMessages()
+
+    this.upgradePlanHandler = new UpgradePlanHandler(this.bot)
   }
 
   public call() {
@@ -26,7 +42,9 @@ export class CallbackQueryHandler {
       const chatId = message?.chat.id
       const data = callbackQuery.data
 
-      if (!chatId) {
+      const userId = message?.chat.id.toString()
+
+      if (!chatId || !userId) {
         return
       }
 
@@ -45,23 +63,23 @@ export class CallbackQueryHandler {
         case 'settings':
           responseText = 'You clicked Settings.'
           break
-        case 'groups':
-          responseText = 'You clicked Groups.'
+        case 'upgrade':
+          this.upgradePlanCommand.upgradePlanCommandHandler(message)
           break
-        case 'pro':
-          responseText = 'You clicked PRO.'
+        case 'upgrade_hobby':
+          await this.upgradePlanHandler.upgradePlan(message, 'HOBBY')
+          break
+        case 'upgrade_pro':
+          await this.upgradePlanHandler.upgradePlan(message, 'PRO')
+          break
+        case 'upgrade_whale':
+          await this.upgradePlanHandler.upgradePlan(message, 'WHALE')
           break
         case 'my_wallet':
           this.myWalletCommand.myWalletCommandHandler(message)
           break
-        case 'links':
-          responseText = 'You clicked Links.'
-          break
-        case 'sell':
-          responseText = 'You clicked SELL.'
-          break
         case 'back_to_main_menu':
-          const messageText = `🐱 Handi Cat | Wallet Tracker\n\n 🆙 For more features, you can upgrade to PRO, which allows tracking 50+ wallets.`
+          const messageText = this.generalMessages.sendStartMessage()
 
           // reset any flags
           userExpectingWalletAddress[Number(chatId)] = false

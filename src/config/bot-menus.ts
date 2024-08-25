@@ -1,4 +1,5 @@
 import { InlineKeyboardMarkup } from 'node-telegram-bot-api'
+import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, WHALE_PLAN_FEE } from '../constants/pricing'
 
 export const START_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
@@ -6,7 +7,10 @@ export const START_MENU: InlineKeyboardMarkup = {
       { text: '🔮 Add', callback_data: 'add' },
       { text: '👀 Manage', callback_data: 'manage' },
     ],
-    [{ text: '👛 My Wallet', callback_data: 'my_wallet' }],
+    [
+      { text: '👛 My Wallet', callback_data: 'my_wallet' },
+      { text: '👑 Upgrade', callback_data: 'upgrade' },
+    ],
     // [{ text: '⚙️ Settings', callback_data: 'settings' }, { text: '👥 Groups', callback_data: 'groups' }],
     // [{ text: '💎 PRO', callback_data: 'pro' }, { text: '👛 My Wallet', callback_data: 'my_wallet' }],
     // [{ text: '🔗 Links', callback_data: 'links' }, { text: '💱 SELL', callback_data: 'sell' }],
@@ -46,5 +50,38 @@ export const MANAGE_SUB_MENU: InlineKeyboardMarkup = {
       { text: '🔮 Add', callback_data: 'add' },
       { text: '🗑️ Delete', callback_data: 'delete' },
     ],
+
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
+  ],
+}
+
+export const UPGRADE_PLAN_SUBMENU: InlineKeyboardMarkup = {
+  inline_keyboard: [
+    [
+      {
+        text: `BUY HOBBY ${HOBBY_PLAN_FEE / 1e9} SOL /m`,
+        callback_data: 'upgrade_hobby',
+      },
+    ],
+    [
+      {
+        text: `BUY PRO ${PRO_PLAN_FEE / 1e9} SOL /m`,
+        callback_data: 'upgrade_pro',
+      },
+    ],
+    [
+      {
+        text: `BUY WHALE ${WHALE_PLAN_FEE / 1e9} SOL /m`,
+        callback_data: 'upgrade_whale',
+      },
+    ],
+    [
+      {
+        text: `😸 Or click to buy your own Handi Cat!`,
+        callback_data: 'buy_code',
+      },
+    ],
+
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
   ],
 }

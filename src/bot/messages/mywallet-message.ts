@@ -23,7 +23,7 @@ export class MyWalletMessages {
 <b>Your wallet address:</b> 
 <code>${wallet && wallet.personalWalletPubKey}</code>
 
-<b>SOL:</b> ${solBalance ? solBalance : 0}
+<b>SOL:</b> ${solBalance ? solBalance / 1e9 : 0}
 
 `
 

@@ -25,13 +25,15 @@ export class PrismaSubscriptionRepository {
     const now = new Date()
     const oneMonthFromNow = new Date(now.setMonth(now.getMonth() + 1))
 
+    const subscriptionCurrentPeriodEnd = plan === 'FREE' ? null : oneMonthFromNow
+
     // create subscription if it doesnt exists
     if (!userSubscription) {
       const newSubscription = await prisma.userSubscription.create({
         data: {
           userId,
           plan,
-          subscriptionCurrentPeriodEnd: oneMonthFromNow,
+          subscriptionCurrentPeriodEnd,
         },
         select: {
           subscriptionCurrentPeriodEnd: true,
@@ -48,7 +50,7 @@ export class PrismaSubscriptionRepository {
         data: {
           plan,
           isCanceled: false,
-          subscriptionCurrentPeriodEnd: oneMonthFromNow,
+          subscriptionCurrentPeriodEnd,
         },
         select: {
           subscriptionCurrentPeriodEnd: true,

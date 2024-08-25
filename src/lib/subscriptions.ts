@@ -6,15 +6,9 @@ import { connection } from '../providers/solana'
 import { PrismaUserRepository } from '../repositories/prisma/user'
 import { SubscriptionPlan, User, UserSubscription } from '@prisma/client'
 import { PrismaSubscriptionRepository } from '../repositories/prisma/subscription'
-
-interface UserWithSubscription {
-  id: string
-  personalWalletPubKey: string
-  personalWalletPrivKey: string
-  userSubscription: {
-    plan: SubscriptionPlan
-  }
-}
+import { SubscriptionMessageEnum } from '../types/parsed-info-types'
+import { format } from 'date-fns'
+import { GeneralMessages } from '../bot/messages/general-messages'
 
 export class Subscriptions {
   private userBalances: UserBalances
@@ -31,15 +25,20 @@ export class Subscriptions {
   }
 
   public async chargeSubscription(
-    user: Pick<User, 'id' | 'personalWalletPubKey' | 'personalWalletPrivKey'>,
+    userId: string,
     plan: SubscriptionPlan,
-  ) {
+  ): Promise<{ success: boolean; message: SubscriptionMessageEnum; subscriptionEnd: string | null }> {
+    const user = await this.prismaUserRepository.getById(userId)
+
+    if (!user) {
+      return { success: false, message: SubscriptionMessageEnum.NO_USER_FOUND, subscriptionEnd: null }
+    }
+
     const userPublicKey = new PublicKey(user.personalWalletPubKey)
     const balance = await this.userBalances.userPersonalSolBalance(user.personalWalletPubKey)
-
+    console.log('BALANCE:', balance)
     if (balance === undefined) {
-      console.log('no user balance fetched')
-      return
+      return { success: false, message: SubscriptionMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
     }
 
     const planFees: { [key: string]: number } = {
@@ -51,8 +50,7 @@ export class Subscriptions {
     const planFee = planFees[plan]
 
     if (planFee === undefined) {
-      console.log('invalid plan')
-      return
+      return { success: false, message: SubscriptionMessageEnum.INVALID_PLAN, subscriptionEnd: null }
     }
     console.log(planFee)
 
@@ -60,24 +58,25 @@ export class Subscriptions {
       try {
         const transaction = await this.createSubscriptionTransaction(userPublicKey, planFee)
         const userKeypair = await this.getKeypairFromPrivateKey(user.personalWalletPrivKey)
-        console.log('USER_PAIR', userKeypair)
+        // console.log('USER_PAIR', userKeypair)
 
         // Sign and send the transaction
         let signature = await connection.sendTransaction(transaction, [userKeypair])
         console.log('Transaction signature:', signature)
 
-        await this.prismaSubscriptionRepository.updateUserSubscription(user.id, plan)
+        const subscription = await this.prismaSubscriptionRepository.updateUserSubscription(user.id, plan)
 
-        return signature
+        const parsedDate = format(subscription.subscriptionCurrentPeriodEnd!, 'MM/dd/yyyy')
+
+        return { success: true, message: SubscriptionMessageEnum.PLAN_UPGRADED, subscriptionEnd: parsedDate }
       } catch (error) {
-        console.log('TRANSACTION_FAILED', error)
-        return
+        console.log('ERROR', error)
+        return { success: false, message: SubscriptionMessageEnum.INTERNAL_ERROR, subscriptionEnd: null }
       }
     }
 
-    console.log('INSUFFICIENT_FUNDS')
     await this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE')
-    return
+    return { success: false, message: SubscriptionMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
   }
 
   private async createSubscriptionTransaction(userPublicKey: PublicKey, planFee: number) {

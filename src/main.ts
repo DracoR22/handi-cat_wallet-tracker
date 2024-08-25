@@ -53,8 +53,8 @@ class Main {
       try {
         res.status(200).send('Hello world')
       } catch (error) {
-        console.error('Error processing update:', error)
-        res.status(500).send('Error processing update')
+        console.error('Default route error', error)
+        res.status(500).send('Error processing default rpute')
       }
     })
     this.app.post(`/webhook/telegram`, async (req, res) => {
@@ -71,15 +71,14 @@ class Main {
 
   public async init(): Promise<void> {
     // Bot
-    this.newMembersHandler.newMember()
     this.callbackQueryHandler.call()
     this.startCommand.start()
     this.addCommand.addCommandHandler()
-    await this.manageCommand.manageCommandHandler()
     this.deleteCommand.deleteCommandHandler()
 
     // await test('CwiiPtoSZTeiPXXa2U95NUFX8kVhKAqTNwqfDkXAqgRj')
-    await getLastWalletTransaction('4eADUUa7sumjdV1uJCBCZxCyeDYTbMruVwKNzWAnYZU4')
+    // await getLastWalletTransaction('4eADUUa7sumjdV1uJCBCZxCyeDYTbMruVwKNzWAnYZU4')
+
     await this.trackWallets.setupWalletWatcher()
     await this.trackWallets.listenForDatabaseChanges()
   }

@@ -17,7 +17,7 @@ export class UserBalances {
 
       // console.log(`Balance: ${solBalance} SOL`);
 
-      return solBalance
+      return balance
     } catch (error) {
       console.error('USER_FETCH_BALANCE_ERROR', error)
       return

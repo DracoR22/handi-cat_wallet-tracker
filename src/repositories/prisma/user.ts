@@ -41,6 +41,24 @@ export class PrismaUserRepository {
     return user
   }
 
+  public async getUserPlan(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        personalWalletPubKey: true,
+        userSubscription: {
+          select: {
+            plan: true,
+          },
+        },
+      },
+    })
+
+    return user
+  }
+
   public async getPersonalWallet(userId: string) {
     const walletBalance = await prisma.user.findUnique({
       where: {
