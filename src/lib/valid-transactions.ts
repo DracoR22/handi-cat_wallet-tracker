@@ -11,7 +11,7 @@ export class ValidTransactions {
     // this.raydiumProgramId = raydiumProgramId
   }
 
-  public getTransaction(): { valid: boolean; swap: SwapType } {
+  public getDefiTransaction(): { valid: boolean; swap: SwapType } {
     const pumpFunTransaction = this.programIds && this.programIds.some((id: any) => id.equals(this.pumpFunProgramId))
     const raydiumTransaction = this.programIds && this.programIds.some((id: any) => id.equals(this.raydiumProgramId))
 

@@ -4,6 +4,7 @@ import { DeleteWalletMessage } from '../messages/delete-wallet-message'
 import { SUB_MENU } from '../../config/bot-menus'
 import { PublicKey } from '@solana/web3.js'
 import { TrackWallets } from '../../lib/track-wallets'
+import { userExpectingWalletAddress } from '../../constants/flags'
 
 export class DeleteCommand {
   private prismaWalletRepository: PrismaWalletRepository
@@ -45,13 +46,20 @@ export class DeleteCommand {
 
     const userId = message.chat.id.toString()
 
+    userExpectingWalletAddress[Number(userId)] = true
     const listener = async (responseMsg: TelegramBot.Message) => {
+      // Check if the user is expected to enter a wallet address
+      if (!userExpectingWalletAddress[Number(userId)]) return
+
       const walletAddresses = responseMsg.text
         ?.split('\n')
         .map((addr) => addr.trim())
         .filter(Boolean) // Split input by new lines, trim, and remove empty lines
 
       const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/
+
+      let deletedCount = 0
+      const failedAddresses: string[] = [] // Track failed deletions
 
       for (const walletAddress of walletAddresses!) {
         // Validate each wallet address before using it in the database
@@ -68,17 +76,22 @@ export class DeleteCommand {
           this.bot.sendMessage(message.chat.id, `You're not tracking the wallet: ${walletAddress}`)
           continue
         }
+
+        deletedCount++
       }
 
-      if (walletAddresses) {
+      if (deletedCount > 0) {
         this.bot.sendMessage(
           message.chat.id,
-          `🐱 ${walletAddresses.length} ${walletAddresses?.length < 2 ? `wallet has been succesfully deleted!` : `wallets have succesfully been deleted!`} you will no longer get notifications for these ${walletAddresses.length < 2 ? `wallet` : `wallets`}`,
+          `🐱 ${deletedCount} ${deletedCount < 2 ? `wallet has been succesfully deleted!` : `wallets have succesfully been deleted!`} you will no longer get notifications for these ${deletedCount < 2 ? `wallet` : `wallets`}`,
           { reply_markup: SUB_MENU },
         )
       }
 
       this.bot.removeListener('message', listener)
+
+      // Reset the flag
+      userExpectingWalletAddress[Number(userId)] = false
     }
 
     this.bot.once('message', listener)

@@ -96,9 +96,10 @@ export class WatchTransaction extends EventEmitter {
               .map((key) => key.pubkey)
               .filter((pubkey) => pubkey !== undefined)
             const validTransactions = new ValidTransactions(pumpFunProgramId, raydiumProgramId, programIds)
-            const isValidTransaction = validTransactions.getTransaction()
+            const isValidTransaction = validTransactions.getDefiTransaction()
 
             if (!isValidTransaction.valid) {
+              console.log('TRANSACTION IS NOT DEFI TRANSACTION')
               return
             }
 
