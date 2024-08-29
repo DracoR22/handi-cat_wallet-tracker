@@ -8,16 +8,9 @@ import express, { Express } from 'express'
 import { ManageCommand } from './bot/commands/manage-command'
 import { DeleteCommand } from './bot/commands/delete-command'
 import { TrackWallets } from './lib/track-wallets'
-import { getLastWalletTransaction, getRecentTransactionsCount, test } from './test'
-import { Subscriptions } from './lib/subscriptions'
+import { test } from './test'
 
 dotenv.config()
-
-const WALLET_ADDRESSES = [
-  '4eADUUa7sumjdV1uJCBCZxCyeDYTbMruVwKNzWAnYZU4',
-  '48ry8Bci3B62UNcUVvU2wavwSv9vjKCWEu9bTNmj6JqN',
-  'Eah4NJNMLUsJwQnTyELgm28uqy3Jtn3ft1YJ7r6WH55d',
-]
 
 const PORT = process.env.PORT || 3001
 
@@ -76,7 +69,7 @@ class Main {
     this.addCommand.addCommandHandler()
     this.deleteCommand.deleteCommandHandler()
 
-    // await test('CwiiPtoSZTeiPXXa2U95NUFX8kVhKAqTNwqfDkXAqgRj')
+    await test('dche6DnTqBLBe7nsoDbAB6B8ZnoAmxEYzouP2M2k8cBt9ifCwu8jT2jNPPc6Vtmng1oWP5nhVarKHWM7odpWi4R')
     // await getLastWalletTransaction('4eADUUa7sumjdV1uJCBCZxCyeDYTbMruVwKNzWAnYZU4')
 
     await this.trackWallets.setupWalletWatcher()
