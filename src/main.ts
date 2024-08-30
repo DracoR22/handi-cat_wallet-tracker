@@ -69,7 +69,7 @@ class Main {
     this.addCommand.addCommandHandler()
     this.deleteCommand.deleteCommandHandler()
 
-    await test('dche6DnTqBLBe7nsoDbAB6B8ZnoAmxEYzouP2M2k8cBt9ifCwu8jT2jNPPc6Vtmng1oWP5nhVarKHWM7odpWi4R')
+    // await test('G4nLsRD1Tm3TW9Km7EALPsMskhC5Dgs95u2hkGgM1ckHLLNrv4Z7qYRuESzV6oycvFmgP7zVwmd3XJzhBFfGq6n')
     // await getLastWalletTransaction('4eADUUa7sumjdV1uJCBCZxCyeDYTbMruVwKNzWAnYZU4')
 
     await this.trackWallets.setupWalletWatcher()

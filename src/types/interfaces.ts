@@ -1,8 +1,8 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { WalletWithUsers } from './swap-types'
+import { SwapType, WalletWithUsers } from './swap-types'
 
 export interface NativeParserInterface {
-  platform: 'raydium' | 'pumpfun' | null
+  platform: SwapType
   owner: string
   description: string
   type: string | undefined

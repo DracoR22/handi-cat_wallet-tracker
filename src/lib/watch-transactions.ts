@@ -1,7 +1,7 @@
 import { Connection, PublicKey } from '@solana/web3.js'
 import { connection } from '../providers/solana'
 import { ValidTransactions } from './valid-transactions'
-import { PUMP_FUND_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from '../config/program-ids'
+import { PUMP_FUN_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from '../config/program-ids'
 import EventEmitter from 'events'
 import { TransactionParser } from '../parsers/transaction-parser'
 import { SendTransactionMsgHandler } from '../bot/handlers/send-tx-msg-handler'
@@ -13,9 +13,6 @@ import Bottleneck from 'bottleneck'
 import { RateLimitMessages } from '../bot/messages/rate-limit-messages'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { RateLimit } from './rate-limit'
-
-const pumpFunProgramId = new PublicKey(PUMP_FUND_PROGRAM_ID)
-const raydiumProgramId = new PublicKey(RAYDIUM_PROGRAM_ID)
 
 export class WatchTransaction extends EventEmitter {
   public subscriptions: Map<string, number>
@@ -95,7 +92,7 @@ export class WatchTransaction extends EventEmitter {
             const programIds = transactionDetails[0]?.transaction.message.accountKeys
               .map((key) => key.pubkey)
               .filter((pubkey) => pubkey !== undefined)
-            const validTransactions = new ValidTransactions(pumpFunProgramId, raydiumProgramId, programIds)
+            const validTransactions = new ValidTransactions(programIds)
             const isValidTransaction = validTransactions.getDefiTransaction()
 
             if (!isValidTransaction.valid) {

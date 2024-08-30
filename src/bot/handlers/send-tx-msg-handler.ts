@@ -37,7 +37,7 @@ export class SendTransactionMsgHandler {
 
     const walletName = await this.prismaWalletRepository.getUserWalletNameById(chatId, message.owner)
 
-    if (message.platform === 'raydium') {
+    if (message.platform === 'raydium' || message.platform === 'jupiter') {
       let tokenMarketCap = message.swappedTokenMc
 
       // Check if the market cap is below 1000 and adjust if necessary
