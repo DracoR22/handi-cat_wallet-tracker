@@ -11,6 +11,7 @@ import { Subscriptions } from '../../lib/subscriptions'
 import { SubscriptionMessageEnum } from '../../types/parsed-info-types'
 import { MAX_HOBBY_WALLETS } from '../../constants/pricing'
 import { UpgradePlanHandler } from './upgrade-plan-handler'
+import { BuyCodeCommand } from '../commands/buy-code-command'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -18,6 +19,7 @@ export class CallbackQueryHandler {
   private deleteCommand: DeleteCommand
   private myWalletCommand: MyWalletCommand
   private upgradePlanCommand: UpgradePlanCommand
+  private buyCodeCommand: BuyCodeCommand
 
   private generalMessages: GeneralMessages
 
@@ -30,6 +32,7 @@ export class CallbackQueryHandler {
     this.deleteCommand = new DeleteCommand(this.bot)
     this.myWalletCommand = new MyWalletCommand(this.bot)
     this.upgradePlanCommand = new UpgradePlanCommand(this.bot)
+    this.buyCodeCommand = new BuyCodeCommand(this.bot)
 
     this.generalMessages = new GeneralMessages()
 
@@ -62,6 +65,9 @@ export class CallbackQueryHandler {
           break
         case 'settings':
           responseText = 'You clicked Settings.'
+          break
+        case 'buy_code':
+          this.buyCodeCommand.buyCodeCommandHandler(message)
           break
         case 'upgrade':
           this.upgradePlanCommand.upgradePlanCommandHandler(message)
