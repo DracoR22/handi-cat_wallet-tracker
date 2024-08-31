@@ -1,3 +1,4 @@
+import { walletsToTrack } from '../constants/flags'
 import { connection } from '../providers/solana'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { WalletWithUsers } from '../types/swap-types'
@@ -18,10 +19,10 @@ export class TrackWallets {
 
   public async setupWalletWatcher(refetch?: boolean): Promise<void> {
     const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
-
     if (refetch) {
       await this.updateWallets(allWallets!)
     } else {
+      walletsToTrack.push(...allWallets!)
       await this.walletWatcher.watchSocket(allWallets!)
     }
 

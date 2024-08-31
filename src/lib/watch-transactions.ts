@@ -20,10 +20,9 @@ export class WatchTransaction extends EventEmitter {
   private walletTransactions: Map<string, { count: number; startTime: number }>
   private excludedWallets: Map<string, boolean>
 
+  private trackedWallets: Set<string>
+
   private rateLimit: RateLimit
-
-  private limiter: Bottleneck
-
   constructor() {
     super()
 
@@ -31,12 +30,9 @@ export class WatchTransaction extends EventEmitter {
     this.walletTransactions = new Map()
     this.excludedWallets = new Map()
 
-    this.rateLimit = new RateLimit()
+    this.trackedWallets = new Set()
 
-    this.limiter = new Bottleneck({
-      maxConcurrent: 2,
-      minTime: 1000,
-    })
+    this.rateLimit = new RateLimit()
   }
 
   public async watchSocket(wallets: WalletWithUsers[]): Promise<void> {
