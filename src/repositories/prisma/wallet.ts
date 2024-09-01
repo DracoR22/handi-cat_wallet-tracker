@@ -32,6 +32,7 @@ export class PrismaWalletRepository {
               userId,
               walletId: existingWallet.id,
               name: walletName ? walletName : '',
+              address: walletAddress,
             },
           })
 
@@ -55,6 +56,7 @@ export class PrismaWalletRepository {
           userId: userId,
           walletId: newWallet.id,
           name: walletName ? walletName : '',
+          address: walletAddress,
         },
       })
 
@@ -227,6 +229,11 @@ export class PrismaWalletRepository {
         },
         select: {
           address: true,
+          userWallets: {
+            select: {
+              userId: true,
+            },
+          },
         },
       })
 

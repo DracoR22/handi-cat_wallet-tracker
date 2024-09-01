@@ -84,8 +84,10 @@ export class TrackWallets {
 
   public async stopWatchingWallet(walletId: string): Promise<void> {
     const walletAddress = await this.prismaWalletRepository.getWalletById(walletId)
+    if (!walletAddress) return
     const subscriptionId = this.walletWatcher.subscriptions.get(walletAddress!.address)
-    if (subscriptionId) {
+    console.log('LENGTH', walletAddress.userWallets.length)
+    if (subscriptionId && walletAddress.userWallets.length < 1) {
       connection.removeOnLogsListener(subscriptionId)
       console.log(`Stopped watching transactions for wallet: ${walletAddress!.address}`)
       this.walletWatcher.subscriptions.delete(walletAddress!.address)

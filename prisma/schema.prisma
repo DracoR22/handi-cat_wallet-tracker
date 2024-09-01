@@ -41,6 +41,7 @@ model UserWallet {
   userId    String
   walletId  String
   name      String
+  address   String
   user      User    @relation(fields: [userId], references: [id])
   wallet    Wallet  @relation(fields: [walletId], references: [id])
 
