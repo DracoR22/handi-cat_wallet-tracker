@@ -82,15 +82,15 @@ export class AddCommand {
           continue
         }
 
-        const latestWalletTxs = await this.rateLimit.last5MinutesTxs(walletAddress)
+        // const latestWalletTxs = await this.rateLimit.last5MinutesTxs(walletAddress)
 
-        if (latestWalletTxs && latestWalletTxs >= MAX_5_MIN_TXS_ALLOWED) {
-          this.bot.sendMessage(
-            message.chat.id,
-            `😾 Wallet ${walletAddress} is spamming too many transactions, try another wallet or try again later`,
-          )
-          continue
-        }
+        // if (latestWalletTxs && latestWalletTxs >= MAX_5_MIN_TXS_ALLOWED) {
+        //   this.bot.sendMessage(
+        //     message.chat.id,
+        //     `😾 Wallet ${walletAddress} is spamming too many transactions, try another wallet or try again later`,
+        //   )
+        //   continue
+        // }
 
         const isWalletAlready = await this.prismaWalletRepository.getUserWalletById(userId, walletAddress)
 

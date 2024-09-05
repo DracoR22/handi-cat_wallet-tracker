@@ -1,5 +1,5 @@
 import { InlineKeyboardMarkup } from 'node-telegram-bot-api'
-import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, WHALE_PLAN_FEE } from '../constants/pricing'
+import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, SOURCE_CODE_PRICE, WHALE_PLAN_FEE } from '../constants/pricing'
 
 export const START_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
@@ -85,4 +85,8 @@ export const UPGRADE_PLAN_SUBMENU: InlineKeyboardMarkup = {
 
     [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
   ],
+}
+
+export const BUY_SOURCE_CODE_MENU: InlineKeyboardMarkup = {
+  inline_keyboard: [[{ text: `BUY Code ${SOURCE_CODE_PRICE / 1e9} SOL`, callback_data: 'buy_code_action' }]],
 }

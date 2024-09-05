@@ -1,18 +1,18 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { GeneralMessages } from '../messages/general-messages'
-import { Subscriptions } from '../../lib/subscriptions'
+import { Payments } from '../../lib/payments'
 import { SubscriptionPlan } from '@prisma/client'
-import { SubscriptionMessageEnum } from '../../types/parsed-info-types'
+import { PaymentsMessageEnum } from '../../types/messages-types'
 import { SUB_MENU } from '../../config/bot-menus'
 
 export class UpgradePlanHandler {
   private generalMessages: GeneralMessages
-  private subscriptions: Subscriptions
+  private payments: Payments
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
     this.generalMessages = new GeneralMessages()
-    this.subscriptions = new Subscriptions()
+    this.payments = new Payments()
   }
 
   public async upgradePlan(message: TelegramBot.Message, plan: SubscriptionPlan): Promise<void> {
@@ -22,17 +22,24 @@ export class UpgradePlanHandler {
       message: subscriptionMessage,
       success,
       subscriptionEnd,
-    } = await this.subscriptions.chargeSubscription(userId, plan)
+    } = await this.payments.chargeSubscription(userId, plan)
 
-    if (subscriptionMessage === SubscriptionMessageEnum.PLAN_UPGRADED) {
+    if (subscriptionMessage === PaymentsMessageEnum.PLAN_UPGRADED) {
       this.bot.editMessageText(this.generalMessages.sendPlanUpgradedMessage(plan, subscriptionEnd!), {
         chat_id: chatId,
         message_id: message.message_id,
         reply_markup: SUB_MENU,
         parse_mode: 'HTML',
       })
-    } else if (subscriptionMessage === SubscriptionMessageEnum.INSUFFICIENT_BALANCE) {
+    } else if (subscriptionMessage === PaymentsMessageEnum.INSUFFICIENT_BALANCE) {
       this.bot.editMessageText(this.generalMessages.sendInsufficientBalanceMessage(), {
+        chat_id: chatId,
+        message_id: message.message_id,
+        reply_markup: SUB_MENU,
+        parse_mode: 'HTML',
+      })
+    } else if (subscriptionMessage === PaymentsMessageEnum.USER_ALREADY_PAID) {
+      this.bot.editMessageText(this.generalMessages.sendUserAlreadyPaidMessage('PLAN'), {
         chat_id: chatId,
         message_id: message.message_id,
         reply_markup: SUB_MENU,

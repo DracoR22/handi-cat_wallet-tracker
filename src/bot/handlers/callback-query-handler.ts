@@ -7,11 +7,10 @@ import { userExpectingWalletAddress } from '../../constants/flags'
 import { MyWalletCommand } from '../commands/mywallet-command'
 import { GeneralMessages } from '../messages/general-messages'
 import { UpgradePlanCommand } from '../commands/upgrade-plan-command'
-import { Subscriptions } from '../../lib/subscriptions'
-import { SubscriptionMessageEnum } from '../../types/parsed-info-types'
 import { MAX_HOBBY_WALLETS } from '../../constants/pricing'
 import { UpgradePlanHandler } from './upgrade-plan-handler'
 import { BuyCodeCommand } from '../commands/buy-code-command'
+import { BuyCodeHandler } from './buy-code-handler'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -24,6 +23,7 @@ export class CallbackQueryHandler {
   private generalMessages: GeneralMessages
 
   private upgradePlanHandler: UpgradePlanHandler
+  private buyCodeHandler: BuyCodeHandler
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
@@ -37,6 +37,7 @@ export class CallbackQueryHandler {
     this.generalMessages = new GeneralMessages()
 
     this.upgradePlanHandler = new UpgradePlanHandler(this.bot)
+    this.buyCodeHandler = new BuyCodeHandler(this.bot)
   }
 
   public call() {
@@ -80,6 +81,9 @@ export class CallbackQueryHandler {
           break
         case 'upgrade_whale':
           await this.upgradePlanHandler.upgradePlan(message, 'WHALE')
+          break
+        case 'buy_code_action':
+          await this.buyCodeHandler.buySourceCode(message)
           break
         case 'my_wallet':
           this.myWalletCommand.myWalletCommandHandler(message)

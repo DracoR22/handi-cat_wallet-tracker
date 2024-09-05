@@ -45,11 +45,3 @@ export type ParsedInfo =
   | CloseAccountInfo
   | SwapInfo
   | UnknownInfo
-
-export enum SubscriptionMessageEnum {
-  NO_USER_FOUND,
-  INSUFFICIENT_BALANCE,
-  INVALID_PLAN,
-  PLAN_UPGRADED,
-  INTERNAL_ERROR,
-}

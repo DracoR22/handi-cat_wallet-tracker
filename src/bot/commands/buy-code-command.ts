@@ -1,5 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { SUB_MENU } from '../../config/bot-menus'
+import { BUY_SOURCE_CODE_MENU } from '../../config/bot-menus'
 import { BuyCodeMessage } from '../messages/buy-code-message'
 
 export class BuyCodeCommand {
@@ -16,7 +16,7 @@ export class BuyCodeCommand {
     this.bot.editMessageText(messageText, {
       chat_id: msg.chat.id,
       message_id: msg.message_id,
-      reply_markup: SUB_MENU,
+      reply_markup: BUY_SOURCE_CODE_MENU,
       parse_mode: 'HTML',
     })
   }

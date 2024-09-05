@@ -21,7 +21,6 @@ class Main {
   private callbackQueryHandler: CallbackQueryHandler
   private startCommand: StartCommand
   private addCommand: AddCommand
-  private manageCommand: ManageCommand
   private deleteCommand: DeleteCommand
   constructor(private app: Express = express()) {
     this.app.use(express.json({ limit: '50mb' }))
@@ -34,7 +33,6 @@ class Main {
     this.callbackQueryHandler = new CallbackQueryHandler(bot)
     this.startCommand = new StartCommand(bot)
     this.addCommand = new AddCommand(bot)
-    this.manageCommand = new ManageCommand(bot)
     this.deleteCommand = new DeleteCommand(bot)
 
     this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
@@ -63,15 +61,13 @@ class Main {
   }
 
   public async init(): Promise<void> {
-    // Bot
+    // bot
     this.callbackQueryHandler.call()
     this.startCommand.start()
     this.addCommand.addCommandHandler()
     this.deleteCommand.deleteCommandHandler()
 
-    // await test('G4nLsRD1Tm3TW9Km7EALPsMskhC5Dgs95u2hkGgM1ckHLLNrv4Z7qYRuESzV6oycvFmgP7zVwmd3XJzhBFfGq6n')
-    // await getLastWalletTransaction('4eADUUa7sumjdV1uJCBCZxCyeDYTbMruVwKNzWAnYZU4')
-
+    // setup
     await this.trackWallets.setupWalletWatcher()
     await this.trackWallets.listenForDatabaseChanges()
   }
