@@ -6,7 +6,7 @@ import { MAX_FREE_DAILY_MESSAGES } from '../constants/pricing'
 
 import { RateLimitMessages } from '../bot/messages/rate-limit-messages'
 import { TxPerSecondCapInterface } from '../types/interfaces'
-import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED } from '../constants/handi-cat'
+import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED, WALLET_SLEEP_TIME } from '../constants/handi-cat'
 
 export class RateLimit {
   private rateLimitMessages: RateLimitMessages
@@ -53,20 +53,17 @@ export class RateLimit {
           bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(wallet.address), { parse_mode: 'HTML' })
         }
 
-        setTimeout(
-          () => {
-            excludedWallets.delete(wallet.address)
+        setTimeout(() => {
+          excludedWallets.delete(wallet.address)
 
-            for (const user of wallet.userWallets) {
-              bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(wallet.address), {
-                parse_mode: 'HTML',
-              })
-            }
+          for (const user of wallet.userWallets) {
+            bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(wallet.address), {
+              parse_mode: 'HTML',
+            })
+          }
 
-            console.log(`Wallet ${wallet.address} re-included after 20 minutes.`)
-          },
-          20 * 60 * 1000,
-        )
+          console.log(`Wallet ${wallet.address} re-included after 20 minutes.`)
+        }, WALLET_SLEEP_TIME)
 
         // Stop processing for this wallet
         return false

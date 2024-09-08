@@ -1,0 +1,4 @@
+- check if user has purchased source code
+- add source code link
+- do something with settings command
+- add minted token message
