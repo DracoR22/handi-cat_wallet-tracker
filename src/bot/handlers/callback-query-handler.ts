@@ -67,9 +67,6 @@ export class CallbackQueryHandler {
         case 'settings':
           responseText = 'You clicked Settings.'
           break
-        case 'buy_code':
-          this.buyCodeCommand.buyCodeCommandHandler(message)
-          break
         case 'upgrade':
           this.upgradePlanCommand.upgradePlanCommandHandler(message)
           break

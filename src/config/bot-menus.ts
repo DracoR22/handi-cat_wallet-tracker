@@ -76,12 +76,6 @@ export const UPGRADE_PLAN_SUBMENU: InlineKeyboardMarkup = {
         callback_data: 'upgrade_whale',
       },
     ],
-    [
-      {
-        text: `😸 Or click to buy your own Handi Cat!`,
-        callback_data: 'buy_code',
-      },
-    ],
 
     [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
   ],
