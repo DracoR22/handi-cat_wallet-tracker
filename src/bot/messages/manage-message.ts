@@ -8,11 +8,11 @@ export class ManageMessages {
     this.walletDetails = new WalletDetails()
   }
 
-  public async sendManageMessage(userWallets: UserWallet[]) {
+  public async sendManageMessage(userWallets: UserWallet[], walletsAmt: number) {
     // const s = await this.walletDetails.getWalletPNL('CwiiPtoSZTeiPXXa2U95NUFX8kVhKAqTNwqfDkXAqgRj')
     // console.log('DATA', s)
     const messageText = `
-<b>Your wallets: ${userWallets.length} / ${MAX_FREE_WALLETS}</b>
+<b>Your wallets: ${userWallets.length} / ${walletsAmt}</b>
 
 ✅ - Wallet is active
 ⏸️ - You paused this wallet

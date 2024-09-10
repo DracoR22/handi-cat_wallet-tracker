@@ -1,5 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { SUB_MENU } from '../../config/bot-menus'
+import { SUB_MENU, UPGRADE_PLAN_SUBMENU } from '../../config/bot-menus'
 import { PublicKey } from '@solana/web3.js'
 import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
 import { userExpectingWalletAddress } from '../../constants/flags'
@@ -7,19 +7,27 @@ import { TrackWallets } from '../../lib/track-wallets'
 import { RateLimit } from '../../lib/rate-limit'
 import { MAX_5_MIN_TXS_ALLOWED } from '../../constants/handi-cat'
 import { AddWalletMessage } from '../messages/add-wallet-message'
+import { UserPlan } from '../../lib/user-plan'
+import { PrismaUserRepository } from '../../repositories/prisma/user'
+import { GeneralMessages } from '../messages/general-messages'
 
 export class AddCommand {
   private prismaWalletRepository: PrismaWalletRepository
   private trackWallets: TrackWallets
   private rateLimit: RateLimit
   private addWalletMessage: AddWalletMessage
+  private userPlan: UserPlan
+  private generalMessages: GeneralMessages
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
     this.prismaWalletRepository = new PrismaWalletRepository()
+
     this.trackWallets = new TrackWallets()
     this.rateLimit = new RateLimit()
     this.addWalletMessage = new AddWalletMessage()
+    this.userPlan = new UserPlan()
+    this.generalMessages = new GeneralMessages()
   }
 
   public addCommandHandler() {
@@ -71,6 +79,18 @@ export class AddCommand {
 
       for (const entry of walletEntries) {
         const [walletAddress, walletName] = entry.split(' ')
+
+        // check if user can add a wallet inside their plan limits
+        const planWallets = await this.userPlan.getUserPlanWallets(userId)
+        const userWallets = await this.prismaWalletRepository.getUserWallets(userId)
+
+        if (userWallets && userWallets.length >= planWallets) {
+          return this.bot.sendMessage(
+            message.chat.id,
+            this.generalMessages.sendWalletLimitMessageError(walletName, walletAddress, planWallets),
+            { parse_mode: 'HTML', reply_markup: UPGRADE_PLAN_SUBMENU },
+          )
+        }
 
         // Validate the wallet before pushing to the database
         const isValid =

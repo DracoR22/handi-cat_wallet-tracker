@@ -1,7 +1,6 @@
 - do something with settings command
 - add minted token message
 - delete buy code logic
-- validate user wallets amount before adding more 
 - add new enum in wallets model (STATUS)
 - change STATUS to 'SLEEPING' when wallet is rate-limited
 - check that STATUS properly in the manage command

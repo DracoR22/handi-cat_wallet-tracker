@@ -10,7 +10,7 @@ export const START_MENU: InlineKeyboardMarkup = {
     [
       { text: '👛 My Wallet', callback_data: 'my_wallet' },
       { text: '👑 Upgrade', callback_data: 'upgrade' },
-      { text: '🐱 Get Code', callback_data: 'buy_code' },
+      // { text: '🐱 Get Code', callback_data: 'buy_code' },
     ],
     // [{ text: '⚙️ Settings', callback_data: 'settings' }, { text: '👥 Groups', callback_data: 'groups' }],
     // [{ text: '💎 PRO', callback_data: 'pro' }, { text: '👛 My Wallet', callback_data: 'my_wallet' }],

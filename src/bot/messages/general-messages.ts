@@ -64,6 +64,22 @@ You can try by adding some <b>SOL</b> to your Handi Cat personal wallet 😺
     return messageText
   }
 
+  public sendWalletLimitMessageError(
+    walletName: string | undefined,
+    walletAddress: string,
+    planWallets: number,
+  ): string {
+    const messageText = `
+😾 Could not add wallet: <code>${walletName ? walletName : walletAddress}</code>, 
+
+Wallet limit reached: <b>${planWallets}</b>
+
+You can try by upgrading your <b>plan</b> for more wallets 💎
+`
+
+    return messageText
+  }
+
   public sendGeneralMessageError(): string {
     const messageText = `
 😿 Ooops it seems that something went wrong while processing the transaction.
