@@ -1,4 +1,4 @@
-export const MAX_FREE_WALLETS = 6
+export const MAX_FREE_WALLETS = 20
 export const MAX_HOBBY_WALLETS = 120
 export const MAX_PRO_WALLETS = 220
 export const MAX_WHALE_WALLETS = 550
