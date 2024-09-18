@@ -1,3 +1,9 @@
+import TelegramBot from 'node-telegram-bot-api'
+
 export class SettingsCommand {
-  constructor() {}
+  constructor(private bot: TelegramBot) {
+    this.bot = bot
+  }
+
+  public async settingsCommandHandler() {}
 }

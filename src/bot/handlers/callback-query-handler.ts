@@ -79,6 +79,9 @@ export class CallbackQueryHandler {
         case 'upgrade_whale':
           await this.upgradePlanHandler.upgradePlan(message, 'WHALE')
           break
+        case 'buy_code':
+          this.buyCodeCommand.buyCodeCommandHandler(message)
+          break
         case 'buy_code_action':
           await this.buyCodeHandler.buySourceCode(message)
           break
