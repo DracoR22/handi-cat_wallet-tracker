@@ -1,4 +1,4 @@
-import { SubscriptionPlan, User, UserSubscription } from '@prisma/client'
+import { SubscriptionPlan, User, UserSubscription, WalletStatus } from '@prisma/client'
 
 export type UserWallet = {
   wallet: {
@@ -8,6 +8,7 @@ export type UserWallet = {
   userId: string
   walletId: string
   name: string
+  status: WalletStatus
 }
 
 export type UserWithSubscriptionPlan = {

@@ -20,7 +20,19 @@ export class ManageMessages {
 🛑 - Renew PRO to continue tracking this wallet
 
 ${userWallets
-  .map((wallet, i) => `✅ ${i + 1}. <code>${wallet.wallet.address}</code> ${wallet.name ? `(${wallet.name})` : ''}`)
+  .map((wallet, i) => {
+    const icon =
+      wallet.status === 'ACTIVE'
+        ? '✅'
+        : wallet.status === 'USER_PAUSED'
+          ? '⏸️'
+          : wallet.status === 'SPAM_PAUSED'
+            ? '⏳'
+            : wallet.status === 'BANNED'
+              ? '🛑'
+              : ''
+    return `${icon} ${i + 1}. <code>${wallet.wallet.address}</code> ${wallet.name ? `(${wallet.name})` : ''}`
+  })
   .join('\n\n')}
 `
 

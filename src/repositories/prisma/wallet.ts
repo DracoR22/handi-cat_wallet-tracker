@@ -132,8 +132,12 @@ export class PrismaWalletRepository {
     try {
       const userWallets = await prisma.userWallet.findMany({
         where: { userId: userId },
-        include: {
+        select: {
           wallet: true,
+          userId: true,
+          walletId: true,
+          name: true,
+          status: true,
         },
       })
 
@@ -246,6 +250,52 @@ export class PrismaWalletRepository {
     } catch (error) {
       console.error(`Error fetching wallet with ID ${walletId}:`, error)
       return null
+    }
+  }
+
+  public async pauseUserWalletSpam(userId: string, walletId: string) {
+    try {
+      const pausedWallet = await prisma.userWallet.update({
+        where: {
+          userId_walletId: {
+            userId,
+            walletId,
+          },
+        },
+        data: {
+          status: 'SPAM_PAUSED',
+        },
+      })
+
+      if (!pausedWallet) {
+        return
+      }
+
+      return pausedWallet
+    } catch (error) {
+      console.log('Error pausing user wallet')
+      return
+    }
+  }
+
+  public async resumeUserWallet(userId: string, walletId: string) {
+    try {
+      const resumedWallet = await prisma.userWallet.update({
+        where: {
+          userId_walletId: {
+            userId,
+            walletId,
+          },
+        },
+        data: {
+          status: 'ACTIVE',
+        },
+      })
+
+      return resumedWallet
+    } catch (error) {
+      console.log('Error resuming wallet')
+      return
     }
   }
 

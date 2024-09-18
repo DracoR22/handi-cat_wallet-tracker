@@ -37,6 +37,12 @@ export class TransactionParser {
 
     // console.log('PARSED_TRANSACTION:', transactionDetails)
 
+    const accountKeys = transactionDetails[0]?.transaction.message.accountKeys
+
+    const signerAccount = accountKeys!.find((account) => account.signer === true)
+
+    const signerAccountAddress = signerAccount?.pubkey.toString()
+
     const preBalances = transactionDetails[0].meta?.preBalances
     const postBalances = transactionDetails[0].meta?.postBalances
 
@@ -182,7 +188,7 @@ export class TransactionParser {
 
       const formattedAmount = this.formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
 
-      owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
+      owner = signerAccountAddress ? signerAccountAddress : transactions[0]?.info?.authority
       amountOut = nativeBalance?.type === 'sell' ? formattedAmount : totalSolSwapped.toFixed(2).toString()
       amountIn = nativeBalance?.type === 'sell' ? totalSolSwapped.toFixed(2).toString() : formattedAmount
       tokenOut = nativeBalance?.type === 'sell' ? cleanedTokenOutSymbol : 'SOL'

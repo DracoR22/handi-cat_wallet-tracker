@@ -7,12 +7,15 @@ import { MAX_FREE_DAILY_MESSAGES } from '../constants/pricing'
 import { RateLimitMessages } from '../bot/messages/rate-limit-messages'
 import { TxPerSecondCapInterface } from '../types/interfaces'
 import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED, WALLET_SLEEP_TIME } from '../constants/handi-cat'
+import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 
 export class RateLimit {
   private rateLimitMessages: RateLimitMessages
+  private prismaWalletRepository: PrismaWalletRepository
 
   constructor() {
     this.rateLimitMessages = new RateLimitMessages()
+    this.prismaWalletRepository = new PrismaWalletRepository()
   }
 
   public async last5MinutesTxs(walletAddress: string) {
@@ -50,6 +53,7 @@ export class RateLimit {
         console.log(`Wallet ${wallet.address} excluded for 20 minutes due to high TPS.`)
 
         for (const user of wallet.userWallets) {
+          this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id) // update database
           bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(wallet.address), { parse_mode: 'HTML' })
         }
 
@@ -57,6 +61,7 @@ export class RateLimit {
           excludedWallets.delete(wallet.address)
 
           for (const user of wallet.userWallets) {
+            this.prismaWalletRepository.resumeUserWallet(user.userId, wallet.id) // update database
             bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(wallet.address), {
               parse_mode: 'HTML',
             })

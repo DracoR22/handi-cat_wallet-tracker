@@ -10,6 +10,7 @@
     "postinstall": "tsc",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
+    "db:migrate": "prisma migrate dev --skip-seed",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"  --ignore-path .gitignore",
     "format:check": "pnpm format --check",
     "format:write": "pnpm format --write"

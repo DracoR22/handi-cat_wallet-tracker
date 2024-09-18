@@ -7,14 +7,24 @@ export const test = async (transactionSignature: string) => {
     maxSupportedTransactionVersion: 0,
   })
 
-  const programIds = transactionDetails[0]?.transaction.message.accountKeys
-    .map((key) => key.pubkey)
-    .filter((pubkey) => pubkey !== undefined)
+  // console.log(transactionDetails[0]?.transaction.message.accountKeys)
 
-  const instructions = transactionDetails[0]!.meta?.innerInstructions
+  const accountKeys = transactionDetails[0]?.transaction.message.accountKeys
 
-  console.log('INSTRUCTIONS', instructions)
-  console.log('PROGRAMIDS', programIds)
+  const signerAccount = accountKeys!.find((account) => account.signer === true)
+
+  const signerAccountAddress = signerAccount?.pubkey.toString()
+
+  console.log('SIGNER ACCOUNT', signerAccountAddress)
+
+  // const programIds = transactionDetails[0]?.transaction.message.accountKeys
+  //   .map((key) => key.pubkey)
+  //   .filter((pubkey) => pubkey !== undefined)
+
+  // const instructions = transactionDetails[0]!.meta?.innerInstructions
+
+  // console.log('INSTRUCTIONS', instructions)
+  // console.log('PROGRAMIDS', programIds)
 }
 
-test('4V1JZwjNvhBzKoC7k9kMF5r6iSM6TegMYNjMwfZ64481z17FMJgCETWwtHBShh7SzVGf14i4sZbUsdvofFPMKd3w')
+test('4HzXNmzVC4CNLt5Q2mYTrtSYeLwrhKJDADZju6jr7XHJ6uGudZ4E2JEzpuBB1WMBVdGhypCABB8WkJrvoyremoSR')

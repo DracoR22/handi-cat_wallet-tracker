@@ -14,6 +14,13 @@ enum SubscriptionPlan {
   WHALE
 }
 
+enum WalletStatus {
+  ACTIVE
+  USER_PAUSED
+  SPAM_PAUSED
+  BANNED
+}
+
 model User {
   id                      String             @id
   username                String
@@ -44,6 +51,9 @@ model UserWallet {
   walletId  String
   name      String
   address   String
+
+  status    WalletStatus @default(ACTIVE)
+
   user      User    @relation(fields: [userId], references: [id])
   wallet    Wallet  @relation(fields: [walletId], references: [id])
 

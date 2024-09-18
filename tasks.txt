@@ -1,6 +1,3 @@
-- do something with settings command
+- change wallet status settings command
 - add minted token message
-- delete buy code logic
-- add new enum in wallets model (STATUS)
-- change STATUS to 'SLEEPING' when wallet is rate-limited
-- check that STATUS properly in the manage command
+- add subscription cron-job
