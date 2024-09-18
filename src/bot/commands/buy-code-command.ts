@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { BUY_SOURCE_CODE_MENU } from '../../config/bot-menus'
-import { BuyCodeMessage } from '../messages/buy-code-message'
+import { BuyCodeMessage } from '../messages/buy-code-messages'
 
 export class BuyCodeCommand {
   private buyCodeMessage: BuyCodeMessage

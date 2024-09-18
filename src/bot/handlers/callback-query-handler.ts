@@ -11,6 +11,7 @@ import { MAX_HOBBY_WALLETS } from '../../constants/pricing'
 import { UpgradePlanHandler } from './upgrade-plan-handler'
 import { BuyCodeCommand } from '../commands/buy-code-command'
 import { BuyCodeHandler } from './buy-code-handler'
+import { SettingsCommand } from '../commands/settings-command'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -19,6 +20,7 @@ export class CallbackQueryHandler {
   private myWalletCommand: MyWalletCommand
   private upgradePlanCommand: UpgradePlanCommand
   private buyCodeCommand: BuyCodeCommand
+  private settingsCommand: SettingsCommand
 
   private generalMessages: GeneralMessages
 
@@ -33,6 +35,7 @@ export class CallbackQueryHandler {
     this.myWalletCommand = new MyWalletCommand(this.bot)
     this.upgradePlanCommand = new UpgradePlanCommand(this.bot)
     this.buyCodeCommand = new BuyCodeCommand(this.bot)
+    this.settingsCommand = new SettingsCommand(this.bot)
 
     this.generalMessages = new GeneralMessages()
 
@@ -65,7 +68,7 @@ export class CallbackQueryHandler {
           this.deleteCommand.deleteButtonHandler(message)
           break
         case 'settings':
-          responseText = 'You clicked Settings.'
+          this.settingsCommand.settingsCommandHandler(message)
           break
         case 'upgrade':
           this.upgradePlanCommand.upgradePlanCommandHandler(message)

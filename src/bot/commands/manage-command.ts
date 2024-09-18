@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
-import { ManageMessages } from '../messages/manage-message'
+import { ManageMessages } from '../messages/manage-messages'
 import { MANAGE_SUB_MENU } from '../../config/bot-menus'
 import { UserPlan } from '../../lib/user-plan'
 
