@@ -27,4 +27,4 @@ export const test = async (transactionSignature: string) => {
   // console.log('PROGRAMIDS', programIds)
 }
 
-test('4HzXNmzVC4CNLt5Q2mYTrtSYeLwrhKJDADZju6jr7XHJ6uGudZ4E2JEzpuBB1WMBVdGhypCABB8WkJrvoyremoSR')
+test('ALkw5MXZkn4S5r1yrb2HaJHqYSM5d4JxPTLWAp1iP8q7BLiuvQUDXsdM7h5gF3uUDrpdV6z6agb1QQ6qLf1DZrG')

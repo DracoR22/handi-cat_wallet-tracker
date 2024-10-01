@@ -39,7 +39,7 @@ export class RateLimit {
     return recentTransactions.length
   }
 
-  public async txPerSecondCap({ bot, excludedWallets, wallet, walletData }: TxPerSecondCapInterface) {
+  public async txPerSecondCap({ bot, excludedWallets, wallet, walletData }: TxPerSecondCapInterface): Promise<boolean> {
     walletData.count++
     const elapsedTime = (Date.now() - walletData.startTime) / 1000 // seconds
 
@@ -71,7 +71,7 @@ export class RateLimit {
         }, WALLET_SLEEP_TIME)
 
         // Stop processing for this wallet
-        return false
+        return true
       }
 
       // Reset for next interval
@@ -79,7 +79,7 @@ export class RateLimit {
       walletData.startTime = Date.now()
     }
 
-    return true
+    return false
   }
 
   public async dailyMessageLimit(messagesToday: number, userPlan: SubscriptionPlan) {

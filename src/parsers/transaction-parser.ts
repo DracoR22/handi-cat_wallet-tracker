@@ -193,7 +193,7 @@ export class TransactionParser {
       amountIn = nativeBalance?.type === 'sell' ? totalSolSwapped.toFixed(2).toString() : formattedAmount
       tokenOut = nativeBalance?.type === 'sell' ? cleanedTokenOutSymbol : 'SOL'
       tokenIn = nativeBalance?.type === 'sell' ? 'SOL' : cleanedTokenInSymbol
-
+      console.log('OWNER', signerAccountAddress)
       const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`
 
       return {

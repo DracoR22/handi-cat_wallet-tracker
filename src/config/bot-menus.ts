@@ -85,3 +85,15 @@ export const UPGRADE_PLAN_SUBMENU: InlineKeyboardMarkup = {
 export const BUY_SOURCE_CODE_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [[{ text: `BUY Code ${SOURCE_CODE_PRICE / 1e9} SOL`, callback_data: 'buy_code_action' }]],
 }
+
+export const USER_SETTINGS_MENU: InlineKeyboardMarkup = {
+  inline_keyboard: [
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
+    [
+      {
+        text: '⏸️ Pause / resume Handi',
+        callback_data: 'pause-resume-bot',
+      },
+    ],
+  ],
+}

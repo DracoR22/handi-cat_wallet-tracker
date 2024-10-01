@@ -10,11 +10,11 @@
 
     "skipLibCheck": true,   
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "./src",
 
     "typeRoots": ["src/types/interfaces", "./node_modules/@types"]
   },
 
-  "include": ["src/**/*", "tests/**/*"], // Include both src and tests directories
+  
   "exclude": ["node_modules", "dist"]
 }

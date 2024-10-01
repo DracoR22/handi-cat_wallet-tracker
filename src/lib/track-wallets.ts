@@ -22,6 +22,22 @@ export class TrackWallets {
     if (refetch) {
       await this.updateWallets(allWallets!)
     } else {
+      // check for paused wallets before initial watcher call
+      const pausedWallets = allWallets?.filter((wallet) =>
+        wallet.userWallets.some((userWallet) => userWallet.status === 'SPAM_PAUSED'),
+      )
+
+      // If there are paused wallets, resume their status
+      if (pausedWallets && pausedWallets.length > 0) {
+        for (const wallet of pausedWallets) {
+          for (const userWallet of wallet.userWallets) {
+            if (userWallet.status === 'SPAM_PAUSED') {
+              await this.prismaWalletRepository.resumeUserWallet(userWallet.userId, userWallet.walletId)
+            }
+          }
+        }
+      }
+
       walletsToTrack.push(...allWallets!)
       await this.walletWatcher.watchSocket(allWallets!)
     }

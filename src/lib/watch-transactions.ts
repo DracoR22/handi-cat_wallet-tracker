@@ -1,18 +1,14 @@
-import { Connection, PublicKey } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
 import { connection } from '../providers/solana'
 import { ValidTransactions } from './valid-transactions'
-import { PUMP_FUN_PROGRAM_ID, RAYDIUM_PROGRAM_ID } from '../config/program-ids'
 import EventEmitter from 'events'
 import { TransactionParser } from '../parsers/transaction-parser'
 import { SendTransactionMsgHandler } from '../bot/handlers/send-tx-msg-handler'
 import { bot } from '../providers/telegram'
-import { Wallet } from '@prisma/client'
 import { WalletWithUsers } from '../types/swap-types'
-import pLimit from 'p-limit'
-import Bottleneck from 'bottleneck'
-import { RateLimitMessages } from '../bot/messages/rate-limit-messages'
-import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { RateLimit } from './rate-limit'
+
+export const trackedWallets: Set<string> = new Set()
 
 export class WatchTransaction extends EventEmitter {
   public subscriptions: Map<string, number>
@@ -20,7 +16,7 @@ export class WatchTransaction extends EventEmitter {
   private walletTransactions: Map<string, { count: number; startTime: number }>
   private excludedWallets: Map<string, boolean>
 
-  private trackedWallets: Set<string>
+  // private trackedWallets: Set<string>
 
   private rateLimit: RateLimit
   constructor() {
@@ -30,7 +26,7 @@ export class WatchTransaction extends EventEmitter {
     this.walletTransactions = new Map()
     this.excludedWallets = new Map()
 
-    this.trackedWallets = new Set()
+    // this.trackedWallets = new Set()
 
     this.rateLimit = new RateLimit()
   }
@@ -75,7 +71,7 @@ export class WatchTransaction extends EventEmitter {
               walletData,
             })
 
-            if (!isWalletRateLimited) return
+            if (isWalletRateLimited) return
 
             const transactionSignature = logs.signature
             const transactionDetails = await this.getParsedTransaction(transactionSignature)

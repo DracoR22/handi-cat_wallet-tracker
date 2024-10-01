@@ -33,7 +33,6 @@ export class ValidTransactions {
       console.log('detected raydium transaction')
       return { valid: true, swap: 'raydium' }
     } else {
-      console.log('PROGAMIDS', this.programIds)
       return { valid: false, swap: null }
     }
   }
