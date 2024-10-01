@@ -96,4 +96,27 @@ export class PrismaUserRepository {
       return
     }
   }
+
+  public async getUsersWithDue() {
+    try {
+      const today = new Date()
+
+      const usersToCharge = await prisma.userSubscription.findMany({
+        where: {
+          subscriptionCurrentPeriodEnd: {
+            lte: today,
+          },
+          isCanceled: false,
+          plan: {
+            not: 'FREE', // only get users which plan is not free
+          },
+        },
+      })
+
+      return usersToCharge
+    } catch (error) {
+      console.log('GET_USERS_TO_CHARGE_ERROR', error)
+      return []
+    }
+  }
 }

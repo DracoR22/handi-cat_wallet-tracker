@@ -9,6 +9,7 @@ import { ManageCommand } from './bot/commands/manage-command'
 import { DeleteCommand } from './bot/commands/delete-command'
 import { TrackWallets } from './lib/track-wallets'
 import { test } from './test'
+import { CronJobs } from './lib/cron-jobs'
 
 dotenv.config()
 
@@ -17,7 +18,7 @@ const PORT = process.env.PORT || 3001
 class Main {
   private trackWallets: TrackWallets
 
-  private newMembersHandler: NewMembersHandler
+  private cronJobs: CronJobs
   private callbackQueryHandler: CallbackQueryHandler
   private startCommand: StartCommand
   private addCommand: AddCommand
@@ -26,10 +27,10 @@ class Main {
     this.app.use(express.json({ limit: '50mb' }))
 
     this.setupRoutes()
+    this.cronJobs = new CronJobs()
 
     this.trackWallets = new TrackWallets()
 
-    this.newMembersHandler = new NewMembersHandler(bot)
     this.callbackQueryHandler = new CallbackQueryHandler(bot)
     this.startCommand = new StartCommand(bot)
     this.addCommand = new AddCommand(bot)
@@ -66,6 +67,9 @@ class Main {
     this.startCommand.start()
     this.addCommand.addCommandHandler()
     this.deleteCommand.deleteCommandHandler()
+
+    // cron jobs
+    await this.cronJobs.monthlySubscriptionFee()
 
     // setup
     await this.trackWallets.setupWalletWatcher()
