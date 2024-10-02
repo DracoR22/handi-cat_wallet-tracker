@@ -119,4 +119,48 @@ export class PrismaUserRepository {
       return []
     }
   }
+
+  public async updateUserHandiCatStatus(userId: string) {
+    try {
+      const userStatus = await prisma.user.findFirst({
+        where: {
+          id: userId,
+        },
+        select: {
+          handiCatStatus: true,
+        },
+      })
+
+      if (!userStatus) {
+        return { status: 'error' }
+      }
+
+      // pause it if its ACTIVE
+      if (userStatus.handiCatStatus === 'ACTIVE') {
+        await prisma.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            handiCatStatus: 'PAUSED',
+          },
+        })
+        // resume if its PAUSED
+      } else {
+        await prisma.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            handiCatStatus: 'PAUSED',
+          },
+        })
+      }
+
+      return { status: 'ok' }
+    } catch (error) {
+      console.log('UPDATE_HANDICAT_STATUS_ERROR', error)
+      return { status: 'error' }
+    }
+  }
 }

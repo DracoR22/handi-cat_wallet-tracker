@@ -79,6 +79,7 @@ export class Payments {
       }
     }
 
+    // switch back user plan to FREE if the dont have any balance
     await this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE')
     return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
   }

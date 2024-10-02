@@ -21,11 +21,18 @@ enum WalletStatus {
   BANNED
 }
 
+enum HandiCatStatus {
+  ACTIVE
+  PAUSED
+}
+
 model User {
   id                      String             @id
   username                String
   firstName               String
   lastName                String
+
+  handiCatStatus          HandiCatStatus   @default(ACTIVE)
 
   purchasedCode           Boolean          @default(false)
 

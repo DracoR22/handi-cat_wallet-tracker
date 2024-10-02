@@ -186,7 +186,11 @@ export class PrismaWalletRepository {
       const walletsWithUsers = await prisma.wallet.findMany({
         where: {
           userWallets: {
-            some: {}, // This will filter wallets that have at least one related UserWallet
+            some: {
+              user: {
+                handiCatStatus: 'ACTIVE',
+              },
+            }, // This will filter wallets that have at least one related UserWallet
           },
         },
         include: {

@@ -12,6 +12,7 @@ import { UpgradePlanHandler } from './upgrade-plan-handler'
 import { BuyCodeCommand } from '../commands/buy-code-command'
 import { BuyCodeHandler } from './buy-code-handler'
 import { SettingsCommand } from '../commands/settings-command'
+import { UpdateBotStatusHandler } from './update-bot-status-handler'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -21,6 +22,7 @@ export class CallbackQueryHandler {
   private upgradePlanCommand: UpgradePlanCommand
   private buyCodeCommand: BuyCodeCommand
   private settingsCommand: SettingsCommand
+  private updateBotStatusHandler: UpdateBotStatusHandler
 
   private generalMessages: GeneralMessages
 
@@ -36,6 +38,7 @@ export class CallbackQueryHandler {
     this.upgradePlanCommand = new UpgradePlanCommand(this.bot)
     this.buyCodeCommand = new BuyCodeCommand(this.bot)
     this.settingsCommand = new SettingsCommand(this.bot)
+    this.updateBotStatusHandler = new UpdateBotStatusHandler(this.bot)
 
     this.generalMessages = new GeneralMessages()
 
@@ -69,6 +72,9 @@ export class CallbackQueryHandler {
           break
         case 'settings':
           this.settingsCommand.settingsCommandHandler(message)
+          break
+        case 'pause-resume-bot':
+          await this.updateBotStatusHandler.pauseResumeBot(message)
           break
         case 'upgrade':
           this.upgradePlanCommand.upgradePlanCommandHandler(message)
