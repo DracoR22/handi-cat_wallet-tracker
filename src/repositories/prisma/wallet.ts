@@ -187,9 +187,7 @@ export class PrismaWalletRepository {
         where: {
           userWallets: {
             some: {
-              user: {
-                handiCatStatus: 'ACTIVE',
-              },
+              handiCatStatus: 'ACTIVE',
             }, // This will filter wallets that have at least one related UserWallet
           },
         },
@@ -305,7 +303,7 @@ export class PrismaWalletRepository {
 
   public async pulseWallet() {
     try {
-      const stream = await prisma.userWallet.stream({ create: {}, delete: {} })
+      const stream = await prisma.userWallet.stream({ create: {}, delete: {}, update: {} })
       return stream
     } catch (error: any) {
       if (error.code === 'ECONNREFUSED') {

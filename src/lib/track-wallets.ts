@@ -55,7 +55,7 @@ export class TrackWallets {
           try {
             console.log('New event:', event)
 
-            if (event.action === 'create') {
+            if (event.action === 'create' || event.action === 'update') {
               await this.setupWalletWatcher(true)
             } else if (event.action === 'delete') {
               await this.stopWatchingWallet(event.deleted.walletId)

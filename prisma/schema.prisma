@@ -32,8 +32,6 @@ model User {
   firstName               String
   lastName                String
 
-  handiCatStatus          HandiCatStatus   @default(ACTIVE)
-
   purchasedCode           Boolean          @default(false)
 
   personalWalletPubKey    String
@@ -54,15 +52,16 @@ model Wallet {
 }
 
 model UserWallet {
-  userId    String
-  walletId  String
-  name      String
-  address   String
+  userId          String
+  walletId        String
+  name            String
+  address         String
 
-  status    WalletStatus @default(ACTIVE)
+  handiCatStatus  HandiCatStatus   @default(ACTIVE)
+  status          WalletStatus     @default(ACTIVE)
 
-  user      User    @relation(fields: [userId], references: [id])
-  wallet    Wallet  @relation(fields: [walletId], references: [id])
+  user            User             @relation(fields: [userId], references: [id])
+  wallet          Wallet           @relation(fields: [walletId], references: [id])
 
   @@id([userId, walletId]) 
 }

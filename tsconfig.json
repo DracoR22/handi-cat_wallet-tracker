@@ -10,7 +10,6 @@
 
     "skipLibCheck": true,   
     "outDir": "dist",
-    "rootDir": "./src",
 
     "typeRoots": ["src/types/interfaces", "./node_modules/@types"]
   },

@@ -16,10 +16,28 @@ export class UpdateBotStatusHandler {
 
     if (botPaused.status !== 'ok') return
 
-    const messageText = `
-Handi Cat has been paused and you will no longer receive more notifications until you resume it!
+    const changedStatus = botPaused.changedStatus
 
-you can still resume the bot anytime at the settings menu
+    const messageText = `
+${
+  changedStatus === 'PAUSED'
+    ? `
+Handi Cat has been paused and you will no longer receive notifications until you resume it!
+    
+You can still resume the bot anytime in the settings menu
+`
+    : changedStatus === 'ACTIVE'
+      ? `
+Handi Cat has been resumed and you will start receiving notifications again!
+    
+Feel free to adjust your preferences anytime in the settings menu
+`
+      : changedStatus === 'NONE'
+        ? `
+Something went wrong while updating the status, please try again later
+`
+        : ''
+}
 `
 
     this.bot.editMessageText(messageText, {

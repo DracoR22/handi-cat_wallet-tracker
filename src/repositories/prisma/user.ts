@@ -120,47 +120,44 @@ export class PrismaUserRepository {
     }
   }
 
-  public async updateUserHandiCatStatus(userId: string) {
+  public async updateUserHandiCatStatus(
+    userId: string,
+  ): Promise<{ status: string; message: string; changedStatus: 'NONE' | 'ACTIVE' | 'PAUSED' }> {
     try {
-      const userStatus = await prisma.user.findFirst({
+      const userWallets = await prisma.userWallet.findMany({
         where: {
-          id: userId,
+          userId,
         },
         select: {
           handiCatStatus: true,
         },
       })
 
-      if (!userStatus) {
-        return { status: 'error' }
+      if (!userWallets) {
+        return { status: 'error', message: 'No wallets found for this user', changedStatus: 'NONE' }
       }
 
-      // pause it if its ACTIVE
-      if (userStatus.handiCatStatus === 'ACTIVE') {
-        await prisma.user.update({
-          where: {
-            id: userId,
-          },
-          data: {
-            handiCatStatus: 'PAUSED',
-          },
-        })
-        // resume if its PAUSED
-      } else {
-        await prisma.user.update({
-          where: {
-            id: userId,
-          },
-          data: {
-            handiCatStatus: 'PAUSED',
-          },
-        })
-      }
+      // all wallets will have the same status
+      const currentStatus = userWallets[0].handiCatStatus
+      const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
 
-      return { status: 'ok' }
+      await prisma.userWallet.updateMany({
+        where: {
+          userId,
+        },
+        data: {
+          handiCatStatus: newStatus,
+        },
+      })
+
+      return {
+        status: 'ok',
+        message: `All wallets from user ${userId}, updated to status: ${newStatus}`,
+        changedStatus: newStatus,
+      }
     } catch (error) {
       console.log('UPDATE_HANDICAT_STATUS_ERROR', error)
-      return { status: 'error' }
+      return { status: 'error', message: 'An error occurred while updating handi cat status', changedStatus: 'NONE' }
     }
   }
 }
