@@ -8,8 +8,8 @@ import { MyWalletCommand } from '../commands/mywallet-command'
 import { GeneralMessages } from '../messages/general-messages'
 import { UpgradePlanCommand } from '../commands/upgrade-plan-command'
 import { UpgradePlanHandler } from './upgrade-plan-handler'
-import { BuyCodeCommand } from '../commands/buy-code-command'
-import { BuyCodeHandler } from './buy-code-handler'
+import { DonateCommand } from '../commands/donate-command'
+import { DonateHandler } from './donate-handler'
 import { SettingsCommand } from '../commands/settings-command'
 import { UpdateBotStatusHandler } from './update-bot-status-handler'
 
@@ -19,14 +19,14 @@ export class CallbackQueryHandler {
   private deleteCommand: DeleteCommand
   private myWalletCommand: MyWalletCommand
   private upgradePlanCommand: UpgradePlanCommand
-  private buyCodeCommand: BuyCodeCommand
+  private donateCommand: DonateCommand
   private settingsCommand: SettingsCommand
   private updateBotStatusHandler: UpdateBotStatusHandler
 
   private generalMessages: GeneralMessages
 
   private upgradePlanHandler: UpgradePlanHandler
-  private buyCodeHandler: BuyCodeHandler
+  private donateHandler: DonateHandler
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
@@ -35,14 +35,14 @@ export class CallbackQueryHandler {
     this.deleteCommand = new DeleteCommand(this.bot)
     this.myWalletCommand = new MyWalletCommand(this.bot)
     this.upgradePlanCommand = new UpgradePlanCommand(this.bot)
-    this.buyCodeCommand = new BuyCodeCommand(this.bot)
+    this.donateCommand = new DonateCommand(this.bot)
     this.settingsCommand = new SettingsCommand(this.bot)
     this.updateBotStatusHandler = new UpdateBotStatusHandler(this.bot)
 
     this.generalMessages = new GeneralMessages()
 
     this.upgradePlanHandler = new UpgradePlanHandler(this.bot)
-    this.buyCodeHandler = new BuyCodeHandler(this.bot)
+    this.donateHandler = new DonateHandler(this.bot)
   }
 
   public call() {
@@ -58,6 +58,14 @@ export class CallbackQueryHandler {
       }
 
       let responseText
+
+      // handle donations
+      if (data?.startsWith('donate_action')) {
+        const donationAmount = data.split('_')[2]
+        console.log(`User wants to donate ${donationAmount} SOL`)
+        await this.donateHandler.makeDonation(message, Number(donationAmount))
+        return
+      }
 
       switch (data) {
         case 'add':
@@ -87,11 +95,8 @@ export class CallbackQueryHandler {
         case 'upgrade_whale':
           await this.upgradePlanHandler.upgradePlan(message, 'WHALE')
           break
-        case 'buy_code':
-          this.buyCodeCommand.buyCodeCommandHandler(message)
-          break
-        case 'buy_code_action':
-          await this.buyCodeHandler.buySourceCode(message)
+        case 'donate':
+          this.donateCommand.donateCommandHandler(message)
           break
         case 'my_wallet':
           this.myWalletCommand.myWalletCommandHandler(message)

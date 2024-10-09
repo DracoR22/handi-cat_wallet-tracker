@@ -32,20 +32,6 @@ Your plan will be renewed at <b>${subscriptionEnd}</b>
     return messageText
   }
 
-  public sendSourceCodeBoughtMessage(): string {
-    const messageText = `
-😸 Success! source code was purchased succesfully
-
-Below you can see the access link to download the code as well as the instructions for setting it up
-
-you can also re-visit this menu to see the link at any time
-
-<a href="todo:adthis">TODO: add source code here</a>
-`
-
-    return messageText
-  }
-
   public sendInsufficientBalanceMessage(): string {
     const messageText = `
 😿 Ooops it seems that you don't have sufficient balance to perform this transaction.

@@ -84,15 +84,14 @@ export class Payments {
     return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
   }
 
-  public async chargeSourceCode(userId: string): Promise<{ success: boolean; message: PaymentsMessageEnum }> {
+  public async chargeDonation(
+    userId: string,
+    donationAmt: number,
+  ): Promise<{ success: boolean; message: PaymentsMessageEnum }> {
     const user = await this.prismaUserRepository.getById(userId)
 
     if (!user) {
       return { success: false, message: PaymentsMessageEnum.NO_USER_FOUND }
-    }
-
-    if (user.purchasedCode) {
-      return { success: false, message: PaymentsMessageEnum.USER_ALREADY_PAID }
     }
 
     const userPublicKey = new PublicKey(user.personalWalletPubKey)
@@ -104,9 +103,9 @@ export class Payments {
       return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE }
     }
 
-    if (balance >= SOURCE_CODE_PRICE) {
+    if (balance >= donationAmt) {
       try {
-        const transaction = await this.createTransaction(userPublicKey, SOURCE_CODE_PRICE)
+        const transaction = await this.createTransaction(userPublicKey, donationAmt * 1e9)
         const userKeypair = await this.getKeypairFromPrivateKey(user.personalWalletPrivKey)
         // console.log('USER_PAIR', userKeypair)
 
@@ -114,15 +113,16 @@ export class Payments {
         let signature = await connection.sendTransaction(transaction, [userKeypair])
         console.log('Transaction signature:', signature)
 
-        await this.prismaUserRepository.buySourceCode(userId)
+        await this.prismaUserRepository.hasDonated(userId)
 
-        return { success: true, message: PaymentsMessageEnum.SOURCE_CODE_BOUGHT }
+        return { success: true, message: PaymentsMessageEnum.DONATION_MADE }
       } catch (error) {
         console.log('ERROR', error)
         return { success: false, message: PaymentsMessageEnum.INTERNAL_ERROR }
       }
     }
 
+    console.log('BALANCE BELOW AMT', donationAmt * 1e9)
     return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE }
   }
 

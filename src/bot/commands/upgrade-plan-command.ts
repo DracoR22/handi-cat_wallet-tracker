@@ -1,6 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { SubscriptionMessages } from '../messages/subscription-messages'
-import { UPGRADE_PLAN_SUBMENU } from '../../config/bot-menus'
+import { UPGRADE_PLAN_SUB_MENU } from '../../config/bot-menus'
 import { PrismaUserRepository } from '../../repositories/prisma/user'
 
 export class UpgradePlanCommand {
@@ -23,7 +23,7 @@ export class UpgradePlanCommand {
     this.bot.editMessageText(messageText, {
       chat_id: msg.chat.id,
       message_id: msg.message_id,
-      reply_markup: UPGRADE_PLAN_SUBMENU,
+      reply_markup: UPGRADE_PLAN_SUB_MENU,
       parse_mode: 'HTML',
     })
   }

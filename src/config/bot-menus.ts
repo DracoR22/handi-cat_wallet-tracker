@@ -1,5 +1,5 @@
 import { InlineKeyboardMarkup } from 'node-telegram-bot-api'
-import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, SOURCE_CODE_PRICE, WHALE_PLAN_FEE } from '../constants/pricing'
+import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, WHALE_PLAN_FEE } from '../constants/pricing'
 
 export const START_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
@@ -10,10 +10,9 @@ export const START_MENU: InlineKeyboardMarkup = {
     [
       { text: '👛 My Wallet', callback_data: 'my_wallet' },
       { text: '👑 Upgrade', callback_data: 'upgrade' },
-      // { text: '🐱 Get Code', callback_data: 'buy_code' },
       { text: '⚙️ Settings', callback_data: 'settings' },
     ],
-    // [{ text: '⚙️ Settings', callback_data: 'settings' }, { text: '👥 Groups', callback_data: 'groups' }],
+    [{ text: '❤️ Donate', callback_data: 'donate' }],
     // [{ text: '💎 PRO', callback_data: 'pro' }, { text: '👛 My Wallet', callback_data: 'my_wallet' }],
     // [{ text: '🔗 Links', callback_data: 'links' }, { text: '💱 SELL', callback_data: 'sell' }],
   ],
@@ -57,7 +56,7 @@ export const MANAGE_SUB_MENU: InlineKeyboardMarkup = {
   ],
 }
 
-export const UPGRADE_PLAN_SUBMENU: InlineKeyboardMarkup = {
+export const UPGRADE_PLAN_SUB_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
     [
       {
@@ -82,8 +81,21 @@ export const UPGRADE_PLAN_SUBMENU: InlineKeyboardMarkup = {
   ],
 }
 
-export const BUY_SOURCE_CODE_MENU: InlineKeyboardMarkup = {
-  inline_keyboard: [[{ text: `BUY Code ${SOURCE_CODE_PRICE / 1e9} SOL`, callback_data: 'buy_code_action' }]],
+export const DONATE_MENU: InlineKeyboardMarkup = {
+  inline_keyboard: [
+    [{ text: `❤️ ${0.1} SOL`, callback_data: 'donate_action_0.1' }],
+    [{ text: `✨ ${0.5} SOL`, callback_data: 'donate_action_0.5' }],
+    [{ text: `💪 ${1.0} SOL`, callback_data: 'donate_action_1.0' }],
+    [{ text: `🗿 ${5.0} SOL`, callback_data: 'donate_action_5.0' }],
+    [{ text: `🔥 ${10.0} SOL`, callback_data: 'donate_action_10.0' }],
+  ],
+}
+
+export const INSUFFICIENT_BALANCE_SUB_MENU: InlineKeyboardMarkup = {
+  inline_keyboard: [
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
+    [{ text: '😺 Your Handi Cat Wallet', callback_data: 'my_wallet' }],
+  ],
 }
 
 export const USER_SETTINGS_MENU: InlineKeyboardMarkup = {

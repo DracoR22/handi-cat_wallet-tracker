@@ -1,3 +1,2 @@
-- change wallet status in settings command
 - add minted token message
-- add subscription cron-job
+- change gmgnai api usage to a custom one

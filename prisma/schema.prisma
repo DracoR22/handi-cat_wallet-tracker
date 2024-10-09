@@ -32,7 +32,7 @@ model User {
   firstName               String
   lastName                String
 
-  purchasedCode           Boolean          @default(false)
+  hasDonated              Boolean          @default(false)
 
   personalWalletPubKey    String
   personalWalletPrivKey   String

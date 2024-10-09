@@ -1,14 +1,11 @@
 import dotenv from 'dotenv'
 import { bot } from './providers/telegram'
 import { StartCommand } from './bot/commands/start-command'
-import { NewMembersHandler } from './bot/handlers/new-members-handler'
 import { AddCommand } from './bot/commands/add-command'
 import { CallbackQueryHandler } from './bot/handlers/callback-query-handler'
 import express, { Express } from 'express'
-import { ManageCommand } from './bot/commands/manage-command'
 import { DeleteCommand } from './bot/commands/delete-command'
 import { TrackWallets } from './lib/track-wallets'
-import { test } from './test'
 import { CronJobs } from './lib/cron-jobs'
 
 dotenv.config()

@@ -1,5 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { SUB_MENU, UPGRADE_PLAN_SUBMENU } from '../../config/bot-menus'
+import { SUB_MENU, UPGRADE_PLAN_SUB_MENU } from '../../config/bot-menus'
 import { PublicKey } from '@solana/web3.js'
 import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
 import { userExpectingWalletAddress } from '../../constants/flags'
@@ -88,7 +88,7 @@ export class AddCommand {
           return this.bot.sendMessage(
             message.chat.id,
             this.generalMessages.sendWalletLimitMessageError(walletName, walletAddress, planWallets),
-            { parse_mode: 'HTML', reply_markup: UPGRADE_PLAN_SUBMENU },
+            { parse_mode: 'HTML', reply_markup: UPGRADE_PLAN_SUB_MENU },
           )
         }
 

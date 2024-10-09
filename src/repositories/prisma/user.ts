@@ -35,7 +35,7 @@ export class PrismaUserRepository {
         id: true,
         personalWalletPrivKey: true,
         personalWalletPubKey: true,
-        purchasedCode: true,
+        hasDonated: true,
         userSubscription: {
           select: {
             plan: true,
@@ -79,14 +79,14 @@ export class PrismaUserRepository {
     return walletBalance
   }
 
-  public async buySourceCode(userId: string) {
+  public async hasDonated(userId: string) {
     try {
       const buyCode = await prisma.user.update({
         where: {
           id: userId,
         },
         data: {
-          purchasedCode: true,
+          hasDonated: true,
         },
       })
 

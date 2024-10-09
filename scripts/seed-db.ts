@@ -32,7 +32,7 @@ async function seedDatabase() {
           username: user.username,
           firstName: user.firstName,
           lastName: user.lastName,
-          purchasedCode: user.purchasedCode,
+          hasDonated: user.hasDonated,
           personalWalletPubKey: user.personalWalletPubKey,
           personalWalletPrivKey: user.personalWalletPrivKey,
           createdAt: new Date(user.createdAt),
