@@ -6,7 +6,7 @@ export class GeneralMessages {
 
   public sendStartMessage(): string {
     const messageText = `
-🐱 Handi Cat | Wallet Tracker\n\n 🆙 For more features, you can upgrade to PRO, which allows tracking 50+ wallets.
+🐱 Handi Cat | Wallet Tracker\n\n 🆙 For more features, you can upgrade to PRO, which allows tracking ${MAX_HOBBY_WALLETS}+ wallets.
 `
 
     return messageText

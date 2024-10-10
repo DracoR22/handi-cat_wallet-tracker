@@ -5,8 +5,8 @@ import { SubscriptionPlan } from '@prisma/client'
 import { MAX_FREE_DAILY_MESSAGES } from '../constants/pricing'
 
 import { RateLimitMessages } from '../bot/messages/rate-limit-messages'
-import { TxPerSecondCapInterface } from '../types/interfaces'
-import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED, WALLET_SLEEP_TIME } from '../constants/handi-cat'
+import { TxPerSecondCapInterface } from '../types/general-interfaces'
+import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED, MAX_TPS_FOR_BAN, WALLET_SLEEP_TIME } from '../constants/handi-cat'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 
 export class RateLimit {
@@ -47,13 +47,22 @@ export class RateLimit {
       const tps = walletData.count / elapsedTime
       console.log(`TPS for wallet ${wallet.address}: ${tps.toFixed(2)}`)
 
-      if (tps >= MAX_TPS_ALLOWED) {
-        // Immediately exclude spamming wallet
+      if (tps >= MAX_TPS_FOR_BAN) {
         excludedWallets.set(wallet.address, true)
-        console.log(`Wallet ${wallet.address} excluded for 20 minutes due to high TPS.`)
+        console.log(`Wallet ${wallet.address} has been banned.`)
 
         for (const user of wallet.userWallets) {
-          this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id) // update database
+          this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id, 'BANNED') // update database
+          bot.sendMessage(user.userId, this.rateLimitMessages.walletWasBanned(wallet.address), { parse_mode: 'HTML' })
+        }
+      }
+
+      if (tps >= MAX_TPS_ALLOWED) {
+        excludedWallets.set(wallet.address, true)
+        console.log(`Wallet ${wallet.address} excluded for 2 hours due to high TPS.`)
+
+        for (const user of wallet.userWallets) {
+          this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id, 'SPAM_PAUSED') // update database
           bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(wallet.address), { parse_mode: 'HTML' })
         }
 
@@ -67,7 +76,7 @@ export class RateLimit {
             })
           }
 
-          console.log(`Wallet ${wallet.address} re-included after 20 minutes.`)
+          console.log(`Wallet ${wallet.address} re-included after 2 hours.`)
         }, WALLET_SLEEP_TIME)
 
         // Stop processing for this wallet

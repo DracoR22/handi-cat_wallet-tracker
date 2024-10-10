@@ -16,4 +16,12 @@ Your wallet <code>${walletAddress}</code> has been resumed from sleeping after 2
 
     return messageText
   }
+
+  public walletWasBanned(walletAddress: string) {
+    const messageText = `
+Your wallet <code>${walletAddress}</code> was banned and no longer being tracked due to hard spamming txs
+`
+
+    return messageText
+  }
 }

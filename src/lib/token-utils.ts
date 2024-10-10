@@ -8,7 +8,7 @@ import axios from 'axios'
 import { PoolInfoLayout, SqrtPriceMath } from '@raydium-io/raydium-sdk'
 import { SwapType } from '../types/swap-types'
 import dotenv from 'dotenv'
-import { ParsedTxInfo } from '../types/interfaces'
+import { ParsedTxInfo } from '../types/general-interfaces'
 dotenv.config()
 
 export class TokenUtils {
@@ -147,7 +147,7 @@ export class TokenUtils {
     }
   }
 
-  public async getTokenPrice(txInstructions: ParsedTxInfo[], type: 'buy' | 'sell'): Promise<number | undefined> {
+  public async getTokenPriceRaydium(txInstructions: ParsedTxInfo[], type: 'buy' | 'sell'): Promise<number | undefined> {
     if (type === 'buy') {
       const tokenAccountAddress = new PublicKey(txInstructions[1]!.info.source)
       const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[0]!.info.destination)
@@ -203,6 +203,10 @@ export class TokenUtils {
     }
 
     return
+  }
+
+  public async getTokenPricePumpFun() {
+    // TODO
   }
 
   public async getTokenMktCap(tokenPrice: number, tokenMint: string) {

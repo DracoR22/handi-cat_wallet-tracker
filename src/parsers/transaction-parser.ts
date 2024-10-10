@@ -4,7 +4,7 @@ import { TokenUtils } from '../lib/token-utils'
 import { ParsedTransactionWithMeta } from '@solana/web3.js'
 import { SwapType } from '../types/swap-types'
 import { FormatNumbers } from '../lib/format-numbers'
-import { NativeParserInterface } from '../types/interfaces'
+import { NativeParserInterface } from '../types/general-interfaces'
 
 export class TransactionParser {
   private formatNumbers: FormatNumbers
@@ -139,7 +139,10 @@ export class TransactionParser {
 
       // get the token price and market cap for raydium
       if (transactions.length[0]?.info?.amount !== transactions[1]?.info?.amount) {
-        const tokenPrice = await this.tokenUtils.getTokenPrice(transactions, nativeBalance?.type as 'buy' | 'sell')
+        const tokenPrice = await this.tokenUtils.getTokenPriceRaydium(
+          transactions,
+          nativeBalance?.type as 'buy' | 'sell',
+        )
 
         const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
 

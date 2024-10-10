@@ -1,4 +1,4 @@
-import { NativeParserInterface } from '../../types/interfaces'
+import { NativeParserInterface } from '../../types/general-interfaces'
 
 export class TxMessages {
   constructor() {}

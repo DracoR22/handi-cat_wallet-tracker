@@ -88,24 +88,25 @@ export const DONATE_MENU: InlineKeyboardMarkup = {
     [{ text: `💪 ${1.0} SOL`, callback_data: 'donate_action_1.0' }],
     [{ text: `🗿 ${5.0} SOL`, callback_data: 'donate_action_5.0' }],
     [{ text: `🔥 ${10.0} SOL`, callback_data: 'donate_action_10.0' }],
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
   ],
 }
 
 export const INSUFFICIENT_BALANCE_SUB_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
-    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
     [{ text: '😺 Your Handi Cat Wallet', callback_data: 'my_wallet' }],
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
   ],
 }
 
 export const USER_SETTINGS_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
-    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
     [
       {
         text: '⏸️ Pause / resume Handi',
         callback_data: 'pause-resume-bot',
       },
     ],
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
   ],
 }

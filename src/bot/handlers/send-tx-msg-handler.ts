@@ -1,11 +1,11 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { TokenUtils } from '../../lib/token-utils'
-import { TokenPrices } from '../../lib/token-prices'
+import { TokenPrices } from '../../lib/token-prices-api'
 import { FormatNumbers } from '../../lib/format-numbers'
 import { createTxSubMenu } from '../../config/bot-menus'
 import { TxMessages } from '../messages/tx-message'
 import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
-import { NativeParserInterface } from '../../types/interfaces'
+import { NativeParserInterface } from '../../types/general-interfaces'
 
 export class SendTransactionMsgHandler {
   private tokenUtils: TokenUtils
@@ -55,8 +55,10 @@ export class SendTransactionMsgHandler {
         reply_markup: TX_SUB_MENU,
       })
     } else if (message.platform === 'pumpfun') {
-      const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
-      let tokenMarketCap = tokenInfo?.market_cap
+      // const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
+      // let tokenMarketCap = tokenInfo?.market_cap
+      const tokenInfo = await this.tokenPrices.pumpFunTokenInfo(tokenToMc)
+      let tokenMarketCap = tokenInfo?.usd_market_cap
 
       const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
 

@@ -15,9 +15,8 @@ export class ManageMessages {
 <b>Your wallets: ${userWallets.length} / ${walletsAmt}</b>
 
 ✅ - Wallet is active
-⏸️ - You paused this wallet
 ⏳ - Wallet was sending too many txs and is paused
-🛑 - Renew PRO to continue tracking this wallet
+🛑 - Wallet was banned
 
 ${userWallets
   .map((wallet, i) => {
