@@ -1,12 +1,18 @@
 import { SubscriptionPlan } from '@prisma/client'
-import { MAX_HOBBY_WALLETS, MAX_PRO_WALLETS, MAX_WHALE_WALLETS } from '../../constants/pricing'
+import { MAX_FREE_WALLETS, MAX_HOBBY_WALLETS, MAX_PRO_WALLETS, MAX_WHALE_WALLETS } from '../../constants/pricing'
 
 export class GeneralMessages {
   constructor() {}
 
   public sendStartMessage(): string {
     const messageText = `
-🐱 Handi Cat | Wallet Tracker\n\n 🆙 For more features, you can upgrade to PRO, which allows tracking ${MAX_HOBBY_WALLETS}+ wallets.
+🐱 Handi Cat | Wallet Tracker
+
+Get real time activity notifications for any wallet you add!
+
+You can track up to ${MAX_FREE_WALLETS} wallets for free ✨
+
+🆙 For more features, you can upgrade to PRO, which allows tracking ${MAX_HOBBY_WALLETS}+ wallets.
 `
 
     return messageText

@@ -3,7 +3,7 @@ import { GeneralMessages } from '../messages/general-messages'
 import { Payments } from '../../lib/payments'
 import { SubscriptionPlan } from '@prisma/client'
 import { PaymentsMessageEnum } from '../../types/messages-types'
-import { SUB_MENU } from '../../config/bot-menus'
+import { INSUFFICIENT_BALANCE_SUB_MENU, SUB_MENU } from '../../config/bot-menus'
 
 export class UpgradePlanHandler {
   private generalMessages: GeneralMessages
@@ -35,7 +35,7 @@ export class UpgradePlanHandler {
       this.bot.editMessageText(this.generalMessages.sendInsufficientBalanceMessage(), {
         chat_id: chatId,
         message_id: message.message_id,
-        reply_markup: SUB_MENU,
+        reply_markup: INSUFFICIENT_BALANCE_SUB_MENU,
         parse_mode: 'HTML',
       })
     } else if (subscriptionMessage === PaymentsMessageEnum.USER_ALREADY_PAID) {
