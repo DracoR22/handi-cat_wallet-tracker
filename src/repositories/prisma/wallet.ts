@@ -189,7 +189,12 @@ export class PrismaWalletRepository {
         where: {
           userWallets: {
             some: {
-              handiCatStatus: 'ACTIVE',
+              status: {
+                not: 'BANNED',
+              },
+              handiCatStatus: {
+                not: 'PAUSED',
+              },
             }, // This will filter wallets that have at least one related UserWallet
           },
         },
@@ -220,6 +225,12 @@ export class PrismaWalletRepository {
           userWallets: {
             some: {
               userId,
+              status: {
+                not: 'BANNED',
+              },
+              handiCatStatus: {
+                not: 'PAUSED',
+              },
             },
           },
         },

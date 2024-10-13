@@ -3,7 +3,7 @@ export class RateLimitMessages {
 
   public walletWasPaused(walletAddress: string) {
     const messageText = `
-Your wallet <code>${walletAddress}</code> is spamming to many txs per second and it will be paused for 20 minutes
+Your wallet <code>${walletAddress}</code> is spamming to many txs per second and it will be paused for 2 hours
 `
 
     return messageText
@@ -11,7 +11,7 @@ Your wallet <code>${walletAddress}</code> is spamming to many txs per second and
 
   public walletWasResumed(walletAddress: string) {
     const messageText = `
-Your wallet <code>${walletAddress}</code> has been resumed from sleeping after 20 minutes!
+Your wallet <code>${walletAddress}</code> has been resumed from sleeping after 2 hours!
         `
 
     return messageText

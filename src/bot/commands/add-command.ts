@@ -80,6 +80,19 @@ export class AddCommand {
       for (const entry of walletEntries) {
         const [walletAddress, walletName] = entry.split(' ')
 
+        // check for bot wallets
+        if (walletAddress.includes('orc')) {
+          return this.bot.sendMessage(message.chat.id, this.generalMessages.sendBotWalletError(), {
+            parse_mode: 'HTML',
+            reply_markup: SUB_MENU,
+          })
+        } else if (walletAddress.includes('pump')) {
+          return this.bot.sendMessage(message.chat.id, this.generalMessages.sendBotWalletError(), {
+            parse_mode: 'HTML',
+            reply_markup: SUB_MENU,
+          })
+        }
+
         // check if user can add a wallet inside their plan limits
         const planWallets = await this.userPlan.getUserPlanWallets(userId)
         const userWallets = await this.prismaWalletRepository.getUserWallets(userId)

@@ -83,4 +83,12 @@ Maybe try adding some <b>SOL</b> to your Handi Cat personal wallet 😺
 
     return messageText
   }
+
+  public sendBotWalletError(): string {
+    const messageText = `
+😿 Oops! it seems that this wallet has been banned due to too many tps
+`
+
+    return messageText
+  }
 }
