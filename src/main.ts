@@ -69,7 +69,7 @@ class Main {
     await this.cronJobs.monthlySubscriptionFee()
 
     // setup
-    await this.trackWallets.setupWalletWatcher()
+    await this.trackWallets.setupWalletWatcher({ event: 'initial' })
     await this.trackWallets.listenForDatabaseChanges()
   }
 }

@@ -1,8 +1,11 @@
 import { walletsToTrack } from '../constants/flags'
 import { connection } from '../providers/solana'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
+import { SetupWalletWatcherProps } from '../types/general-interfaces'
 import { WalletWithUsers } from '../types/swap-types'
 import { WatchTransaction } from './watch-transactions'
+
+export const walletsArray: WalletWithUsers[] = []
 
 export class TrackWallets {
   private prismaWalletRepository: PrismaWalletRepository
@@ -17,11 +20,55 @@ export class TrackWallets {
     this.walletsState = []
   }
 
-  public async setupWalletWatcher(refetch?: boolean): Promise<void> {
-    const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
-    if (refetch) {
-      await this.updateWallets(allWallets!)
-    } else {
+  public async setupWalletWatcher({ event, userId, walletId }: SetupWalletWatcherProps): Promise<void> {
+    let walletsToFetch
+    if (event === 'delete' && walletId) {
+      console.log('EVENT IS DELETE')
+      const refetchedWallet = await this.prismaWalletRepository.getWalletByIdForArray(walletId)
+
+      if (refetchedWallet) {
+        const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === refetchedWallet.address)
+
+        if (existingWalletIndex !== -1) {
+          if (refetchedWallet.userWallets.length === 0) {
+            walletsArray.splice(existingWalletIndex, 1)
+          } else {
+            // Replace the existing wallet with the refetched one
+            walletsArray[existingWalletIndex] = refetchedWallet
+          }
+        }
+      }
+
+      await this.updateWallets(walletsArray!)
+    } else if (event === 'create' && walletId) {
+      console.log('EVENT IS CREATE')
+      const refetchedWallet = await this.prismaWalletRepository.getWalletByIdForArray(walletId)
+
+      if (refetchedWallet) {
+        const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === refetchedWallet.address)
+
+        if (existingWalletIndex !== -1) {
+          // Replace the existing wallet with the refetched one
+          walletsArray[existingWalletIndex] = refetchedWallet
+        } else {
+          walletsArray.push(refetchedWallet) // If the wallet is not already in the array, push it
+        }
+      }
+
+      await this.updateWallets(walletsArray!)
+    } else if (event === 'update' && userId) {
+      console.log('EVENT IS UPDATE')
+      walletsToFetch = await this.prismaWalletRepository.getUserWalletsWithUserIds(userId)
+      walletsToFetch?.forEach((fetchedWallet) => {
+        const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === fetchedWallet.address)
+        if (existingWalletIndex !== -1) {
+          walletsArray[existingWalletIndex] = fetchedWallet
+        }
+      })
+      walletsArray.map((w) => console.log('WALLETS ARRAY U:', w.userWallets))
+    } else if (event === 'initial') {
+      const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
+      walletsArray?.push(...allWallets!)
       // check for paused wallets before initial watcher call
       const pausedWallets = allWallets?.filter((wallet) =>
         wallet.userWallets.some((userWallet) => userWallet.status === 'SPAM_PAUSED'),
@@ -39,6 +86,7 @@ export class TrackWallets {
       }
 
       walletsToTrack.push(...allWallets!)
+      // console.log('WALLETS ARRAY:', walletsArray)
       await this.walletWatcher.watchSocket(allWallets!)
     }
 
@@ -55,11 +103,16 @@ export class TrackWallets {
           try {
             console.log('New event:', event)
 
-            if (event.action === 'create' || event.action === 'update') {
-              await this.setupWalletWatcher(true)
+            if (event.action === 'create') {
+              const createdWalletId = event.created.walletId
+              await this.setupWalletWatcher({ event: 'create', walletId: createdWalletId })
             } else if (event.action === 'delete') {
+              const deletedWalletId = event.deleted.walletId
               await this.stopWatchingWallet(event.deleted.walletId)
-              await this.setupWalletWatcher(true)
+              await this.setupWalletWatcher({ event: 'delete', walletId: deletedWalletId })
+            } else if (event.action === 'update') {
+              const updatedUserId = event.after.userId
+              await this.setupWalletWatcher({ event: 'update', userId: updatedUserId })
             }
           } catch (eventError: any) {
             console.error('Error processing event:', eventError.message)
@@ -71,16 +124,6 @@ export class TrackWallets {
         // Wait before retrying (e.g., 5 seconds)
         await new Promise((resolve) => setTimeout(resolve, 5000))
       }
-    }
-  }
-
-  public async triggerDatabaseChange(event: 'create' | 'delete', walletAddress: string) {
-    if (event === 'create') {
-      return await this.setupWalletWatcher(true)
-    } else if (event === 'delete') {
-      await this.stopWatchingWallet(walletAddress)
-
-      return await this.setupWalletWatcher(true)
     }
   }
 

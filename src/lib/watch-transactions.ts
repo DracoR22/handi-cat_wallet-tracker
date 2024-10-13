@@ -105,7 +105,8 @@ export class WatchTransaction extends EventEmitter {
             // Use bot to send message of transaction
             const sendMessageHandler = new SendTransactionMsgHandler(bot)
 
-            for (const user of wallet.userWallets) {
+            const activeUsers = wallet.userWallets.filter((w) => w.handiCatStatus === 'ACTIVE')
+            for (const user of activeUsers) {
               console.log('Users:', user)
               await sendMessageHandler.send(parsed, user.userId)
             }

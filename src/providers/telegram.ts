@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const BOT_TOKEN = process.env.BOT_TOKEN
+const TEST_BOT_TOKEN = process.env.TEST_BOT_TOKEN
 const APP_URL = process.env.APP_URL
 
 const WEBHOOK_URL = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook?url=${APP_URL}`

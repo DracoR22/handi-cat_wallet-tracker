@@ -1,5 +1,6 @@
 import { WalletStatus } from '@prisma/client'
 import prisma from './prisma'
+import { WalletWithUsers } from '../../types/swap-types'
 
 export class PrismaWalletRepository {
   constructor() {}
@@ -209,6 +210,60 @@ export class PrismaWalletRepository {
     } catch (error: any) {
       console.log('GET_ALL_WALLETS_WITH_USER_IDS_ERROR', error)
       return
+    }
+  }
+
+  public async getUserWalletsWithUserIds(userId: string) {
+    try {
+      const walletsWithUsers = await prisma.wallet.findMany({
+        where: {
+          userWallets: {
+            some: {
+              userId,
+            },
+          },
+        },
+        include: {
+          userWallets: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      return walletsWithUsers
+    } catch (error: any) {
+      console.log('GET_ALL_WALLETS_WITH_USER_IDS_ERROR', error)
+      return
+    }
+  }
+
+  public async getWalletByIdForArray(walletId: string): Promise<WalletWithUsers | null> {
+    try {
+      const walletWithUsers = await prisma.wallet.findUnique({
+        where: { id: walletId },
+        include: {
+          userWallets: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      return walletWithUsers
+    } catch (error: any) {
+      console.log('GET_WALLET_BY_ID_ERROR', error)
+      return null
     }
   }
 

@@ -42,3 +42,9 @@ export interface TxPerSecondCapInterface {
   walletData: { count: number; startTime: number }
   excludedWallets: Map<string, boolean>
 }
+
+export interface SetupWalletWatcherProps {
+  userId?: string | null
+  walletId?: string | null
+  event: 'create' | 'delete' | 'initial' | 'update'
+}

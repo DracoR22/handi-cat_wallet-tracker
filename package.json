@@ -9,6 +9,7 @@
     "start:test": "tsc && node ./dist/src/test.js",
     "postinstall": "tsc",
     "db:push": "prisma db push",
+    "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev --skip-seed",
     "db:backup": "npx ts-node scripts/backup-db.ts",
