@@ -37,37 +37,52 @@ export class SendTransactionMsgHandler {
 
     const walletName = await this.prismaWalletRepository.getUserWalletNameById(chatId, message.owner)
 
-    if (message.platform === 'raydium' || message.platform === 'jupiter') {
-      let tokenMarketCap = message.swappedTokenMc
+    try {
+      if (message.platform === 'raydium' || message.platform === 'jupiter') {
+        let tokenMarketCap = message.swappedTokenMc
 
-      // Check if the market cap is below 1000 and adjust if necessary
-      if (tokenMarketCap && tokenMarketCap < 1000) {
-        console.log('MC ADJUSTED')
-        tokenMarketCap *= 1000
+        // Check if the market cap is below 1000 and adjust if necessary
+        if (tokenMarketCap && tokenMarketCap < 1000) {
+          console.log('MC ADJUSTED')
+          tokenMarketCap *= 1000
+        }
+
+        const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
+
+        const messageText = this.txMessages.sendTxMessage(
+          message,
+          Number(solPrice),
+          formattedMarketCap,
+          walletName?.name,
+        )
+        return this.bot.sendMessage(chatId, messageText, {
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+          reply_markup: TX_SUB_MENU,
+        })
+      } else if (message.platform === 'pumpfun') {
+        // const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
+        // let tokenMarketCap = tokenInfo?.market_cap
+        const tokenInfo = await this.tokenPrices.pumpFunTokenInfo(tokenToMc)
+        let tokenMarketCap = tokenInfo?.usd_market_cap
+
+        const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
+
+        const messageText = this.txMessages.sendTxMessage(
+          message,
+          Number(solPrice),
+          formattedMarketCap,
+          walletName?.name,
+        )
+        return this.bot.sendMessage(chatId, messageText, {
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+          reply_markup: TX_SUB_MENU,
+        })
       }
-
-      const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
-
-      const messageText = this.txMessages.sendTxMessage(message, Number(solPrice), formattedMarketCap, walletName?.name)
-      return this.bot.sendMessage(chatId, messageText, {
-        parse_mode: 'HTML',
-        disable_web_page_preview: true,
-        reply_markup: TX_SUB_MENU,
-      })
-    } else if (message.platform === 'pumpfun') {
-      // const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
-      // let tokenMarketCap = tokenInfo?.market_cap
-      const tokenInfo = await this.tokenPrices.pumpFunTokenInfo(tokenToMc)
-      let tokenMarketCap = tokenInfo?.usd_market_cap
-
-      const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
-
-      const messageText = this.txMessages.sendTxMessage(message, Number(solPrice), formattedMarketCap, walletName?.name)
-      return this.bot.sendMessage(chatId, messageText, {
-        parse_mode: 'HTML',
-        disable_web_page_preview: true,
-        reply_markup: TX_SUB_MENU,
-      })
+    } catch (error) {
+      console.log('error sending tx message to user:', chatId)
+      return
     }
 
     return

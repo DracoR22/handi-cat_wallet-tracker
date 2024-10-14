@@ -1,0 +1,15 @@
+export const BANNED_WALLETS = [
+  'Btsrm71PfnarCXnPoYEfzSN5fMzSBBvuAa8BfKaPms77',
+  '5dGt7jiHSwxpA4Vxy32ebTGH9ektSjQU2WtEGJvtimWW',
+  'J2sBPuDo51RYAGyZGdaTA6tX1Tf3pg6vAEzwxuVZq5Zt',
+  'GMoCaqq3KPJKdgepeeX5bhn9m9ZJNCxHJ7Vv1jEMEyRW',
+  'D1A7WmFdR7KBZkhaA9xn1Yy1V1yhqbLiAsP8AHrwwcWw',
+  'DRx8KG7a51iqE8FwM3JV81iuS7G5qVx8LgSM8frCNjPU',
+  'yAijHymDVQR4h7RnniMjEdCUYKmgon982swKk4XUrvg',
+  '7KugXgWXyJFoiEK6nwnhTg2ZccyFej9me691p987oVgx',
+  'GK3Ge2VHd3yXrMAVCQagHUyX3WPL22AuibBNshAX6kQo',
+  '8MGx47G52nQxNg13yfauU3Wgqs9ZmZUZLYEWYeBSHuAi',
+  'BknsbG6gHXuGrGixPBpoduVsmyHT5aWY3V8CU1GgPG64',
+  '7rW8s68pm1bZM8DgMhRkNXfPA3TBB4VN9bQ3zbetVNtX',
+  '2RUhxXX9zdZpLhQbAFjgFcQEGstjr2CZmhZkPkBFYh1T',
+]
