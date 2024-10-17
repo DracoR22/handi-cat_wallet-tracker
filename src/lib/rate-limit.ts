@@ -8,6 +8,7 @@ import { RateLimitMessages } from '../bot/messages/rate-limit-messages'
 import { TxPerSecondCapInterface } from '../types/general-interfaces'
 import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED, MAX_TPS_FOR_BAN, WALLET_SLEEP_TIME } from '../constants/handi-cat'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
+import { BANNED_WALLETS } from '../constants/banned-wallets'
 
 export class RateLimit {
   private rateLimitMessages: RateLimitMessages
@@ -50,7 +51,7 @@ export class RateLimit {
       if (tps >= MAX_TPS_FOR_BAN) {
         excludedWallets.set(wallet.address, true)
         console.log(`Wallet ${wallet.address} has been banned.`)
-
+        BANNED_WALLETS.add(wallet.address)
         for (const user of wallet.userWallets) {
           this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id, 'BANNED') // update database
           bot.sendMessage(user.userId, this.rateLimitMessages.walletWasBanned(wallet.address), { parse_mode: 'HTML' })

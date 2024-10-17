@@ -10,6 +10,7 @@ import { AddWalletMessage } from '../messages/add-wallet-messages'
 import { UserPlan } from '../../lib/user-plan'
 import { PrismaUserRepository } from '../../repositories/prisma/user'
 import { GeneralMessages } from '../messages/general-messages'
+import { BANNED_WALLETS } from '../../constants/banned-wallets'
 
 export class AddCommand {
   private prismaWalletRepository: PrismaWalletRepository
@@ -81,18 +82,19 @@ export class AddCommand {
         const [walletAddress, walletName] = entry.split(' ')
 
         // check for bot wallets
-        if (walletAddress.includes('orc')) {
-          return this.bot.sendMessage(message.chat.id, this.generalMessages.sendBotWalletError(), {
-            parse_mode: 'HTML',
-            reply_markup: SUB_MENU,
-          })
-        } else if (walletAddress.includes('pump')) {
+        if (BANNED_WALLETS.has(walletAddress)) {
           return this.bot.sendMessage(message.chat.id, this.generalMessages.sendBotWalletError(), {
             parse_mode: 'HTML',
             reply_markup: SUB_MENU,
           })
         }
 
+        if (walletAddress.includes('orc') || walletAddress.includes('pump')) {
+          return this.bot.sendMessage(message.chat.id, this.generalMessages.sendBotWalletError(), {
+            parse_mode: 'HTML',
+            reply_markup: SUB_MENU,
+          })
+        }
         // check if user can add a wallet inside their plan limits
         const planWallets = await this.userPlan.getUserPlanWallets(userId)
         const userWallets = await this.prismaWalletRepository.getUserWallets(userId)

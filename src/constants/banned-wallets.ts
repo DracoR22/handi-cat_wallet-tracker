@@ -1,4 +1,4 @@
-export const BANNED_WALLETS = [
+export const BANNED_WALLETS = new Set([
   'Btsrm71PfnarCXnPoYEfzSN5fMzSBBvuAa8BfKaPms77',
   '5dGt7jiHSwxpA4Vxy32ebTGH9ektSjQU2WtEGJvtimWW',
   'J2sBPuDo51RYAGyZGdaTA6tX1Tf3pg6vAEzwxuVZq5Zt',
@@ -12,4 +12,9 @@ export const BANNED_WALLETS = [
   'BknsbG6gHXuGrGixPBpoduVsmyHT5aWY3V8CU1GgPG64',
   '7rW8s68pm1bZM8DgMhRkNXfPA3TBB4VN9bQ3zbetVNtX',
   '2RUhxXX9zdZpLhQbAFjgFcQEGstjr2CZmhZkPkBFYh1T',
-]
+  '2RtBqccr8gKUA9AKhFanjFohA1hWfHJFctERJXSgr2H5',
+  'JD1pR975CjoaMiwptJHV8PBm2uYch8QX3JYHXGwVA5XJ',
+  '77YYNo19CqBrPFvykViFJBLWNzHUi2rFPFY4oftufn4H',
+  'FkjycgAwikUmzCmX5w1Hhfvs2BZdVvuY5AXjm2X8xqeB',
+  'H7Btw4CgBqfbFNvu8ySAwMw8okPmD8ghFWi3rvdRXQT8',
+])

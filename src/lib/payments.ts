@@ -72,6 +72,8 @@ export class Payments {
 
         const parsedDate = format(subscription.subscriptionCurrentPeriodEnd!, 'MM/dd/yyyy')
 
+        // TODO: resume paused wallets
+
         return { success: true, message: PaymentsMessageEnum.PLAN_UPGRADED, subscriptionEnd: parsedDate }
       } catch (error) {
         console.log('ERROR', error)
