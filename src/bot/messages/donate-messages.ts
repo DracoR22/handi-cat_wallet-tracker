@@ -1,7 +1,7 @@
 export class DonateMessages {
   constructor() {}
 
-  public donateMessage(): string {
+  public donateMessage(userWallet?: string | undefined): string {
     const messageText = `
 ⭐ <b>Support the future of Handi Cat</b>
 
@@ -12,6 +12,8 @@ Every donation helps keep the bot running and contributes to new features 🐱�
 No donation is too small, and every bit of support is appreciated!
 
 You can make a donation just by transfering sufficient <b>SOL</b> to your Handi Cat wallet and selecting one of the options below
+
+Your wallet: <code>${userWallet ? userWallet : ''}</code>
 `
 
     return messageText

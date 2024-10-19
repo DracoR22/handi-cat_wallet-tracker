@@ -96,7 +96,7 @@ export class CallbackQueryHandler {
           await this.upgradePlanHandler.upgradePlan(message, 'WHALE')
           break
         case 'donate':
-          this.donateCommand.donateCommandHandler(message)
+          await this.donateCommand.donateCommandHandler(message)
           break
         case 'my_wallet':
           this.myWalletCommand.myWalletCommandHandler(message)
