@@ -5,15 +5,15 @@ export class DonateMessages {
     const messageText = `
 ⭐ <b>Support the future of Handi Cat</b>
 
-With your support, we can continue improving, expanding our features, and ensuring the best experience possible for all users.
-
 Every donation helps keep the bot running and contributes to new features 🐱✨
 
 No donation is too small, and every bit of support is appreciated!
 
-You can make a donation just by transfering sufficient <b>SOL</b> to your Handi Cat wallet and selecting one of the options below
+To donate:
+1️⃣ Send any amount of <b>SOL</b> to your <b>Handi Cat wallet</b>.
+2️⃣ Select one of the <b>options</b> below or simply <b>type</b> the amount you'd like to donate (e.g., for 0.01 SOL, just type "0.01").
 
-Your wallet: <code>${userWallet ? userWallet : ''}</code>
+<b>Your Handi Cat wallet:</b> <code>${userWallet ? userWallet : ''}</code>
 `
 
     return messageText
