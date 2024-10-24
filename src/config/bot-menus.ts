@@ -31,13 +31,16 @@ export const createTxSubMenu = (tokenSymbol: string, tokenMint: string) => {
     inline_keyboard: [
       [
         {
-          text: `🐸 Buy on PepeBoost: ${tokenSymbol}`,
-          url: `https://t.me/pepeboost_sol_bot?start=ref_03pbvu_ca_${tokenMint}`,
+          text: `🐴 Buy on Trojan: ${tokenSymbol}`,
+          url: `https://t.me/solana_trojanbot?start=r-handicatbt-${tokenMint}`,
         },
       ],
       [
         { text: `🐶 BonkBot: ${tokenSymbol}`, url: `https://t.me/bonkbot_bot?start=ref_3au54_ca_${tokenMint}` },
-        { text: `🥷🏻 Shuriken: ${tokenSymbol}`, url: `https://t.me/ShurikenTradeBot?start=qt-handi_cat-${tokenMint}` },
+        {
+          text: `🐸 PepeBoost: ${tokenSymbol}`,
+          url: `https://t.me/pepeboost_sol_bot?start=ref_03pbvu_ca_${tokenMint}`,
+        },
       ],
     ],
   }

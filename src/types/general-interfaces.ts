@@ -9,6 +9,7 @@ export interface NativeParserInterface {
   balanceChange: string | number | undefined
   signature: string
   swappedTokenMc: number | null | undefined
+  solPrice: string
   tokenTransfers: {
     tokenInSymbol: string
     tokenOutSymbol: string

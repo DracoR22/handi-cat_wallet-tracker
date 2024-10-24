@@ -1,7 +1,6 @@
-import { connection } from '../providers/solana'
 import { TokenParser } from './token-parser'
 import { TokenUtils } from '../lib/token-utils'
-import { ParsedTransactionWithMeta } from '@solana/web3.js'
+import { Connection, ParsedTransactionWithMeta } from '@solana/web3.js'
 import { SwapType } from '../types/swap-types'
 import { FormatNumbers } from '../lib/format-numbers'
 import { NativeParserInterface } from '../types/general-interfaces'
@@ -10,11 +9,15 @@ export class TransactionParser {
   private formatNumbers: FormatNumbers
   private tokenUtils: TokenUtils
   private tokenParser: TokenParser
-  constructor(private transactionSignature: string) {
+  constructor(
+    private transactionSignature: string,
+    private connection: Connection,
+  ) {
+    this.tokenUtils = new TokenUtils(this.connection)
+    this.connection = connection
     this.transactionSignature = this.transactionSignature
     this.formatNumbers = new FormatNumbers()
-    this.tokenUtils = new TokenUtils()
-    this.tokenParser = new TokenParser(connection)
+    this.tokenParser = new TokenParser(this.connection)
   }
 
   public async parseNative(
@@ -99,6 +102,8 @@ export class TransactionParser {
       return
     }
 
+    const solPrice = await this.tokenUtils.getSolPriceNative()
+
     // FOR RAYDIUM TRANSACTIONS
     if (transactions.length > 1) {
       // TOKEN OUT
@@ -120,7 +125,6 @@ export class TransactionParser {
       const formattedAmountOut = this.formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
       const formattedAmountIn = this.formatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
 
-      // TODO: Check if SOL change works and OWNER
       owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
       amountOut =
         cleanedTokenOutSymbol === 'SOL'
@@ -160,6 +164,7 @@ export class TransactionParser {
         balanceChange: nativeBalance?.balanceChange,
         signature: this.transactionSignature,
         swappedTokenMc: tokenMc,
+        solPrice: solPrice || '',
         tokenTransfers: {
           tokenInSymbol: tokenIn,
           tokenInMint: tokenInMint,
@@ -207,6 +212,7 @@ export class TransactionParser {
         balanceChange: nativeBalance?.balanceChange,
         signature: this.transactionSignature,
         swappedTokenMc: null,
+        solPrice: solPrice || '',
         tokenTransfers: {
           tokenInSymbol: tokenIn,
           tokenInMint: nativeBalance?.type === 'sell' ? 'So11111111111111111111111111111111111111112' : tokenInMint,

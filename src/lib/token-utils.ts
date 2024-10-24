@@ -1,5 +1,4 @@
 import { AccountInfo, Connection, ParsedTransactionWithMeta, PublicKey, SystemProgram } from '@solana/web3.js'
-import { connection } from '../providers/solana'
 // @ts-expect-error
 import { getAccount } from '@solana/spl-token'
 import { TokenListProvider } from '@solana/spl-token-registry'
@@ -12,11 +11,13 @@ import { ParsedTxInfo } from '../types/general-interfaces'
 dotenv.config()
 
 export class TokenUtils {
-  constructor() {}
+  constructor(private connection: Connection) {
+    this.connection = connection
+  }
   public async getTokenMintAddress(tokenAddress: string) {
     try {
       const tokenPublicKey = new PublicKey(tokenAddress)
-      const accountInfo = await getAccount(connection, tokenPublicKey)
+      const accountInfo = await getAccount(this.connection, tokenPublicKey)
       return accountInfo.mint.toBase58()
     } catch (error) {
       console.log(`Error fetching mint address for token ${tokenAddress}:`, error)
@@ -113,7 +114,7 @@ export class TokenUtils {
     try {
       const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
 
-      const accountInfo = await connection.getAccountInfo(id)
+      const accountInfo = await this.connection.getAccountInfo(id)
 
       if (accountInfo === null) {
         console.log('get pool info error')
@@ -139,7 +140,7 @@ export class TokenUtils {
 
   public async getTokenBalance(tokenAccountAddress: PublicKey) {
     try {
-      const tokenBalance = await connection.getTokenAccountBalance(tokenAccountAddress)
+      const tokenBalance = await this.connection.getTokenAccountBalance(tokenAccountAddress)
       return tokenBalance.value.amount
     } catch (error) {
       console.log('Error fetching token balance:', error)
@@ -212,7 +213,7 @@ export class TokenUtils {
   public async getTokenMktCap(tokenPrice: number, tokenMint: string) {
     try {
       const mintPublicKey = new PublicKey(tokenMint)
-      const tokenSupply = await connection.getTokenSupply(mintPublicKey)
+      const tokenSupply = await this.connection.getTokenSupply(mintPublicKey)
       const supplyValue = tokenSupply.value.uiAmount
 
       if (!supplyValue) {

@@ -1,5 +1,4 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { TokenUtils } from '../../lib/token-utils'
 import { TokenPrices } from '../../lib/token-prices-api'
 import { FormatNumbers } from '../../lib/format-numbers'
 import { createTxSubMenu } from '../../config/bot-menus'
@@ -8,14 +7,13 @@ import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
 import { NativeParserInterface } from '../../types/general-interfaces'
 
 export class SendTransactionMsgHandler {
-  private tokenUtils: TokenUtils
   private txMessages: TxMessages
   private tokenPrices: TokenPrices
   private formatNumbers: FormatNumbers
   private prismaWalletRepository: PrismaWalletRepository
   constructor(private bot: TelegramBot) {
     this.bot = bot
-    this.tokenUtils = new TokenUtils()
+
     this.txMessages = new TxMessages()
     this.tokenPrices = new TokenPrices()
     this.formatNumbers = new FormatNumbers()
@@ -23,12 +21,6 @@ export class SendTransactionMsgHandler {
   }
 
   public async send(message: NativeParserInterface, chatId: string) {
-    const solPrice = await this.tokenUtils.getSolPriceNative()
-
-    if (!solPrice) {
-      return
-    }
-
     const tokenToMc = message.type === 'buy' ? message.tokenTransfers.tokenInMint : message.tokenTransfers.tokenOutMint
     const tokenToMcSymbol =
       message.type === 'buy' ? message.tokenTransfers.tokenInSymbol : message.tokenTransfers.tokenOutSymbol
@@ -49,12 +41,7 @@ export class SendTransactionMsgHandler {
 
         const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
 
-        const messageText = this.txMessages.sendTxMessage(
-          message,
-          Number(solPrice),
-          formattedMarketCap,
-          walletName?.name,
-        )
+        const messageText = this.txMessages.sendTxMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',
           disable_web_page_preview: true,
@@ -68,21 +55,19 @@ export class SendTransactionMsgHandler {
 
         const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
 
-        const messageText = this.txMessages.sendTxMessage(
-          message,
-          Number(solPrice),
-          formattedMarketCap,
-          walletName?.name,
-        )
+        const messageText = this.txMessages.sendTxMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',
           disable_web_page_preview: true,
           reply_markup: TX_SUB_MENU,
         })
       }
-    } catch (error) {
-      console.log('error sending tx message to user:', chatId)
-      return
+    } catch (error: any) {
+      if (error.response && error.response.statusCode === 403) {
+        console.log(`User ${chatId} has blocked the bot or chat no longer exists`)
+      } else {
+        console.log(`Failed to send message to ${chatId}:`, error)
+      }
     }
 
     return

@@ -1,5 +1,4 @@
-import { PublicKey } from '@solana/web3.js'
-import { connection } from '../providers/solana'
+import { Connection, PublicKey } from '@solana/web3.js'
 import { ValidTransactions } from './valid-transactions'
 import EventEmitter from 'events'
 import { TransactionParser } from '../parsers/transaction-parser'
@@ -19,7 +18,7 @@ export class WatchTransaction extends EventEmitter {
   // private trackedWallets: Set<string>
 
   private rateLimit: RateLimit
-  constructor() {
+  constructor(private connection: Connection) {
     super()
 
     this.subscriptions = new Map()
@@ -28,7 +27,9 @@ export class WatchTransaction extends EventEmitter {
 
     // this.trackedWallets = new Set()
 
-    this.rateLimit = new RateLimit()
+    this.rateLimit = new RateLimit(this.connection)
+
+    this.connection = connection
   }
 
   public async watchSocket(wallets: WalletWithUsers[]): Promise<void> {
@@ -49,7 +50,7 @@ export class WatchTransaction extends EventEmitter {
         this.walletTransactions.set(walletAddress, { count: 0, startTime: Date.now() })
 
         // Start real-time log
-        const subscriptionId = connection.onLogs(
+        const subscriptionId = this.connection.onLogs(
           publicKey,
           async (logs, ctx) => {
             // Exclude wallets that have reached the limit
@@ -93,7 +94,7 @@ export class WatchTransaction extends EventEmitter {
             }
 
             // Parse transaction
-            const transactionParser = new TransactionParser(transactionSignature)
+            const transactionParser = new TransactionParser(transactionSignature, this.connection)
             const parsed = await transactionParser.parseNative(transactionDetails, isValidTransaction.swap)
 
             if (!parsed) {
@@ -108,7 +109,11 @@ export class WatchTransaction extends EventEmitter {
             const activeUsers = wallet.userWallets.filter((w) => w.handiCatStatus === 'ACTIVE')
             for (const user of activeUsers) {
               console.log('Users:', user)
-              await sendMessageHandler.send(parsed, user.userId)
+              try {
+                await sendMessageHandler.send(parsed, user.userId)
+              } catch (error) {
+                console.log(`Error sending message to user ${user.userId}`)
+              }
             }
           },
           'confirmed',
@@ -125,7 +130,7 @@ export class WatchTransaction extends EventEmitter {
 
   private async getParsedTransaction(transactionSignature: string) {
     try {
-      const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
+      const transactionDetails = await this.connection.getParsedTransactions([transactionSignature], {
         maxSupportedTransactionVersion: 0,
       })
 

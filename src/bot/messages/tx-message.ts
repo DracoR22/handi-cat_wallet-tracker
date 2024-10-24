@@ -5,7 +5,6 @@ export class TxMessages {
 
   public sendTxMessage(
     message: NativeParserInterface,
-    solPrice: number,
     tokenMarketCap?: string | undefined,
     walletName?: string,
   ): string {
@@ -23,6 +22,8 @@ export class TxMessages {
     const solscanTxUrl = `https://solscan.io/tx/${message.signature}`
     const tokenInMint = message.tokenTransfers.tokenInMint
     const tokenOutMint = message.tokenTransfers.tokenOutMint
+
+    const solPrice = Number(message.solPrice)
 
     const amountInUsd = message.type === 'buy' ? Number(amountOut) * solPrice : Number(amountIn) * solPrice
     const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)

@@ -1,5 +1,4 @@
-import { PublicKey } from '@solana/web3.js'
-import { connection } from '../providers/solana'
+import { Connection, PublicKey } from '@solana/web3.js'
 
 import { SubscriptionPlan } from '@prisma/client'
 import { MAX_FREE_DAILY_MESSAGES } from '../constants/pricing'
@@ -14,9 +13,11 @@ export class RateLimit {
   private rateLimitMessages: RateLimitMessages
   private prismaWalletRepository: PrismaWalletRepository
 
-  constructor() {
+  constructor(private connection: Connection) {
     this.rateLimitMessages = new RateLimitMessages()
     this.prismaWalletRepository = new PrismaWalletRepository()
+
+    this.connection = connection
   }
 
   public async last5MinutesTxs(walletAddress: string) {
@@ -26,7 +27,7 @@ export class RateLimit {
     const fiveMinutesAgo = currentTime - 1 * 60 * 1000
 
     // Fetch recent transaction signatures for the given wallet
-    const signatures = await connection.getSignaturesForAddress(new PublicKey(walletAddress), {
+    const signatures = await this.connection.getSignaturesForAddress(new PublicKey(walletAddress), {
       limit: MAX_5_MIN_TXS_ALLOWED,
     })
 

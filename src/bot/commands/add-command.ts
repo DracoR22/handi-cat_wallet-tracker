@@ -15,7 +15,6 @@ import { BANNED_WALLETS } from '../../constants/banned-wallets'
 export class AddCommand {
   private prismaWalletRepository: PrismaWalletRepository
   private trackWallets: TrackWallets
-  private rateLimit: RateLimit
   private addWalletMessage: AddWalletMessage
   private userPlan: UserPlan
   private generalMessages: GeneralMessages
@@ -25,7 +24,6 @@ export class AddCommand {
     this.prismaWalletRepository = new PrismaWalletRepository()
 
     this.trackWallets = new TrackWallets()
-    this.rateLimit = new RateLimit()
     this.addWalletMessage = new AddWalletMessage()
     this.userPlan = new UserPlan()
     this.generalMessages = new GeneralMessages()

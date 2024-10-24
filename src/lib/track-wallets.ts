@@ -15,7 +15,7 @@ export class TrackWallets {
 
   constructor() {
     this.prismaWalletRepository = new PrismaWalletRepository()
-    this.walletWatcher = new WatchTransaction()
+    this.walletWatcher = new WatchTransaction(connection)
 
     this.walletsState = []
   }
