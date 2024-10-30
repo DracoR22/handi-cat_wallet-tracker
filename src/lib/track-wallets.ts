@@ -30,20 +30,25 @@ export class TrackWallets {
         const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === refetchedWallet.address)
 
         if (existingWalletIndex !== -1) {
-          if (refetchedWallet.userWallets.length === 0) {
-            walletsArray.splice(existingWalletIndex, 1)
+          const subscriptionId = this.walletWatcher.subscriptions.get(refetchedWallet.address)
+          if (subscriptionId) {
+            // Remove the onLogs listener for the current subscription ID
+            await connection.removeOnLogsListener(subscriptionId)
+            // Delete the subscription from the map after listener removal
             this.walletWatcher.subscriptions.delete(refetchedWallet.address)
-            return await this.updateWallets(walletsArray!)
-          } else {
-            // Replace the existing wallet with the refetched one
-            walletsArray[existingWalletIndex] = refetchedWallet
-            this.walletWatcher.subscriptions.delete(refetchedWallet.address)
-            return await this.updateWallets(walletsArray!)
           }
+
+          if (refetchedWallet.userWallets.length === 0) {
+            // Remove the wallet completely if no userWallets remain
+            walletsArray.splice(existingWalletIndex, 1)
+          } else {
+            // Update the wallet with the new userWallets if users remain
+            walletsArray[existingWalletIndex] = refetchedWallet
+          }
+
+          return await this.updateWallets(walletsArray!)
         }
       }
-
-      return
     } else if (event === 'create' && walletId) {
       console.log('EVENT IS CREATE')
       const refetchedWallet = await this.prismaWalletRepository.getWalletByIdForArray(walletId)
