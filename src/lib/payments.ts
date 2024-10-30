@@ -4,7 +4,7 @@ import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, SOURCE_CODE_PRICE, WHALE_PLAN_FEE } from 
 import { HANDI_CAT_WALLET_ADDRESS } from '../constants/handi-cat'
 import { connection } from '../providers/solana'
 import { PrismaUserRepository } from '../repositories/prisma/user'
-import { SubscriptionPlan, User, UserSubscription } from '@prisma/client'
+import { PromotionType, SubscriptionPlan, User, UserSubscription } from '@prisma/client'
 import { PrismaSubscriptionRepository } from '../repositories/prisma/subscription'
 import { PaymentsMessageEnum } from '../types/messages-types'
 import { format } from 'date-fns'
@@ -125,6 +125,56 @@ export class Payments {
     }
 
     console.log('BALANCE BELOW AMT', donationAmt * 1e9)
+    return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE }
+  }
+
+  public async chargePromotion(
+    userId: string,
+    promotionAmt: number,
+    promotionType: PromotionType,
+  ): Promise<{ success: boolean; message: PaymentsMessageEnum }> {
+    const user = await this.prismaUserRepository.getById(userId)
+
+    if (!user) {
+      return { success: false, message: PaymentsMessageEnum.NO_USER_FOUND }
+    }
+
+    const userPublicKey = new PublicKey(user.personalWalletPubKey)
+    const balance = await this.userBalances.userPersonalSolBalance(user.personalWalletPubKey)
+
+    console.log('BALANCE:', balance)
+
+    if (balance === undefined) {
+      return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE }
+    }
+
+    if (balance >= promotionAmt) {
+      try {
+        const transaction = await this.createTransaction(userPublicKey, promotionAmt * 1e9)
+        const userKeypair = await this.getKeypairFromPrivateKey(user.personalWalletPrivKey)
+        // console.log('USER_PAIR', userKeypair)
+
+        // Sign and send the transaction
+        let signature = await connection.sendTransaction(transaction, [userKeypair])
+        console.log('Transaction signature:', signature)
+
+        const { message: promMessage, success } = await this.prismaSubscriptionRepository.buyPromotion(
+          userId,
+          promotionType,
+        )
+
+        if (promMessage === 'Non-stackable promotion already purchased') {
+          return { success: false, message: PaymentsMessageEnum.USER_ALREADY_PAID }
+        }
+
+        return { success: true, message: PaymentsMessageEnum.TRANSACTION_SUCCESS }
+      } catch (error) {
+        console.log('ERROR', error)
+        return { success: false, message: PaymentsMessageEnum.INTERNAL_ERROR }
+      }
+    }
+
+    console.log('BALANCE BELOW AMT', promotionAmt * 1e9)
     return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE }
   }
 

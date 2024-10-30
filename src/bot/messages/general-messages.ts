@@ -13,6 +13,11 @@ Get real time activity notifications for any wallet you add!
 You can track up to ${MAX_FREE_WALLETS} wallets for free ✨
 
 🆙 For more features, you can upgrade to PRO, which allows tracking ${MAX_HOBBY_WALLETS}+ wallets.
+
+🎉 <b>LIMITED-TIME OFFER (24hrs)</b>🎉
+For a <b>One-Time</b> payment of only <b>0.1 SOL</b>, track up to <b>**50 wallets LIFETIME**</b>
+
+Don’t miss out on this exclusive deal to supercharge your wallet tracking without any monthly subscriptions!
 `
 
     return messageText

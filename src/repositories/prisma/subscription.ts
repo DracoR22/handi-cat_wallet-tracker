@@ -1,8 +1,35 @@
-import { SubscriptionPlan } from '@prisma/client'
+import { PromotionType, SubscriptionPlan } from '@prisma/client'
 import prisma from './prisma'
 
 export class PrismaSubscriptionRepository {
   constructor() {}
+
+  public async getUserPlanWallets(userId: string) {
+    // Fetch user subscription and promotions in a single query
+    const userData = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        userSubscription: {
+          select: {
+            plan: true,
+            isCanceled: true,
+            subscriptionCurrentPeriodEnd: true,
+          },
+        },
+        userPromotions: {
+          select: {
+            promotion: {
+              select: {
+                type: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return userData
+  }
 
   public async getUserSubscription(userId: string) {
     const userSubscription = await prisma.userSubscription.findUnique({
@@ -81,5 +108,54 @@ export class PrismaSubscriptionRepository {
     })
 
     return canceledSubscription
+  }
+
+  public async buyPromotion(
+    userId: string,
+    promotionType: PromotionType,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      // Find the promotion by type
+      const promotion = await prisma.promotion.findFirst({
+        where: { type: promotionType },
+        select: { id: true, isActive: true, isStackable: true },
+      })
+
+      if (!promotion) {
+        console.log('Promotion not found')
+        return { success: false, message: 'Promotion not found' }
+      }
+
+      // Check if user already owns this promotion
+      const existingUserPromotion = await prisma.userPromotion.findFirst({
+        where: { userId, promotionId: promotion.id },
+      })
+
+      // If the promotion is not stackable and already exists for the user, return an error
+      if (existingUserPromotion && !promotion.isStackable) {
+        console.log('User already purchased this non-stackable promotion')
+        return { success: false, message: 'Non-stackable promotion already purchased' }
+      }
+
+      // Optionally, check if promotion is expired
+      if (!promotion.isActive) {
+        console.log('Promotion has expired')
+        return { success: false, message: 'Promotion has expired' }
+      }
+
+      // Create the user promotion record
+      await prisma.userPromotion.create({
+        data: {
+          userId,
+          promotionId: promotion.id,
+        },
+      })
+
+      console.log(`PROMOTION ${promotionType} was purchased by ${userId}`)
+      return { success: true, message: 'Promotion purchased successfully' }
+    } catch (error) {
+      console.error('Failed to purchase promotion:', error)
+      return { success: false, message: 'Error purchasing promotion' }
+    }
   }
 }

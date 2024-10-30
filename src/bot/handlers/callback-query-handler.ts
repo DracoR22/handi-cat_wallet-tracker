@@ -12,6 +12,8 @@ import { DonateCommand } from '../commands/donate-command'
 import { DonateHandler } from './donate-handler'
 import { SettingsCommand } from '../commands/settings-command'
 import { UpdateBotStatusHandler } from './update-bot-status-handler'
+import { PromotionHandler } from './promotion-handler'
+import { HALLOWEEN_PROMOTION } from '../../constants/promotions'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -27,6 +29,7 @@ export class CallbackQueryHandler {
 
   private upgradePlanHandler: UpgradePlanHandler
   private donateHandler: DonateHandler
+  private promotionHandler: PromotionHandler
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
@@ -43,6 +46,7 @@ export class CallbackQueryHandler {
 
     this.upgradePlanHandler = new UpgradePlanHandler(this.bot)
     this.donateHandler = new DonateHandler(this.bot)
+    this.promotionHandler = new PromotionHandler(this.bot)
   }
 
   public call() {
@@ -101,6 +105,9 @@ export class CallbackQueryHandler {
         case 'my_wallet':
           this.myWalletCommand.myWalletCommandHandler(message)
           break
+        case 'buy_promotion':
+          this.promotionHandler.buyPromotion(message, HALLOWEEN_PROMOTION.price, HALLOWEEN_PROMOTION.type)
+          break
         case 'back_to_main_menu':
           const messageText = this.generalMessages.sendStartMessage()
 
@@ -112,6 +119,7 @@ export class CallbackQueryHandler {
             chat_id: chatId,
             message_id: message.message_id,
             reply_markup: START_MENU,
+            parse_mode: 'HTML',
           })
           break
         default:

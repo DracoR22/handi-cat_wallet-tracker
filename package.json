@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "tsc && node ./dist/src/main.js",
     "start:test": "tsc && node ./dist/src/test.js",
-    "postinstall": "tsc",
+    "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",

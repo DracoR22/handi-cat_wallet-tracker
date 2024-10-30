@@ -6,4 +6,5 @@ export enum PaymentsMessageEnum {
   DONATION_MADE,
   INTERNAL_ERROR,
   USER_ALREADY_PAID,
+  TRANSACTION_SUCCESS,
 }

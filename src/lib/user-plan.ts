@@ -8,9 +8,9 @@ export class UserPlan {
   }
 
   public async getUserPlanWallets(userId: string): Promise<number> {
-    const userSubscription = await this.prismaSubscriptionRepository.getUserSubscription(userId)
+    const userData = await this.prismaSubscriptionRepository.getUserPlanWallets(userId)
 
-    const plan = userSubscription?.plan || 'FREE'
+    const plan = userData?.userSubscription?.plan || 'FREE'
 
     const planWalletsKey: { [key: string]: number } = {
       FREE: MAX_FREE_WALLETS,
@@ -19,7 +19,11 @@ export class UserPlan {
       WHALE: MAX_WHALE_WALLETS,
     }
 
-    const planWallets = planWalletsKey[plan]
+    // TODO: make this more flexible
+    const planWallets =
+      userData?.userPromotions && userData.userPromotions[0]?.promotion.type === 'UPGRADE_TO_50_WALLETS'
+        ? 50
+        : planWalletsKey[plan]
 
     return planWallets
   }

@@ -5,7 +5,6 @@ import { TokenListProvider } from '@solana/spl-token-registry'
 
 import axios from 'axios'
 import { PoolInfoLayout, SqrtPriceMath } from '@raydium-io/raydium-sdk'
-import { SwapType } from '../types/swap-types'
 import dotenv from 'dotenv'
 import { ParsedTxInfo } from '../types/general-interfaces'
 dotenv.config()
