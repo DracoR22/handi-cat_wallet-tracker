@@ -32,14 +32,18 @@ export class TrackWallets {
         if (existingWalletIndex !== -1) {
           if (refetchedWallet.userWallets.length === 0) {
             walletsArray.splice(existingWalletIndex, 1)
+            this.walletWatcher.subscriptions.delete(refetchedWallet.address)
+            return await this.updateWallets(walletsArray!)
           } else {
             // Replace the existing wallet with the refetched one
             walletsArray[existingWalletIndex] = refetchedWallet
+            this.walletWatcher.subscriptions.delete(refetchedWallet.address)
+            return await this.updateWallets(walletsArray!)
           }
         }
       }
 
-      await this.updateWallets(walletsArray!)
+      return
     } else if (event === 'create' && walletId) {
       console.log('EVENT IS CREATE')
       const refetchedWallet = await this.prismaWalletRepository.getWalletByIdForArray(walletId)
@@ -47,15 +51,20 @@ export class TrackWallets {
       if (refetchedWallet) {
         const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === refetchedWallet.address)
 
+        // if wallet is already in database
         if (existingWalletIndex !== -1) {
-          // Replace the existing wallet with the refetched one
           walletsArray[existingWalletIndex] = refetchedWallet
+
+          this.walletWatcher.subscriptions.delete(refetchedWallet.address)
+          // console.log('NEW USERSS', walletsArray[existingWalletIndex])
+          return await this.updateWallets(walletsArray!)
         } else {
-          walletsArray.push(refetchedWallet) // If the wallet is not already in the array, push it
+          walletsArray.push(refetchedWallet)
+          return await this.updateWallets(walletsArray!)
         }
       }
 
-      await this.updateWallets(walletsArray!)
+      return
     } else if (event === 'update' && userId) {
       walletsToFetch = await this.prismaWalletRepository.getUserWalletsWithUserIds(userId)
       walletsToFetch?.forEach((fetchedWallet) => {
@@ -85,7 +94,7 @@ export class TrackWallets {
 
       walletsArray?.push(...allWallets!)
       // console.log('WALLETS ARRAY:', walletsArray)
-      await this.walletWatcher.watchSocket(walletsArray!)
+      return await this.walletWatcher.watchSocket(walletsArray!)
     }
 
     return
@@ -106,7 +115,7 @@ export class TrackWallets {
               await this.setupWalletWatcher({ event: 'create', walletId: createdWalletId })
             } else if (event.action === 'delete') {
               const deletedWalletId = event.deleted.walletId
-              await this.stopWatchingWallet(event.deleted.walletId)
+              // await this.stopWatchingWallet(event.deleted.walletId)
               await this.setupWalletWatcher({ event: 'delete', walletId: deletedWalletId })
             } else if (event.action === 'update') {
               const updatedUserId = event.after.userId

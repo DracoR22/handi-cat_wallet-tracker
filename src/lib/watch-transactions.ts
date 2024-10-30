@@ -108,7 +108,7 @@ export class WatchTransaction extends EventEmitter {
 
             const activeUsers = wallet.userWallets.filter((w) => w.handiCatStatus === 'ACTIVE')
             for (const user of activeUsers) {
-              console.log('Users:', user)
+              console.log('Users:', wallet.userWallets)
               try {
                 await sendMessageHandler.send(parsed, user.userId)
               } catch (error) {
