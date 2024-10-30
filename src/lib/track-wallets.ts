@@ -71,13 +71,32 @@ export class TrackWallets {
 
       return
     } else if (event === 'update' && userId) {
+      // Fetch all wallets related to the updated user ID
       walletsToFetch = await this.prismaWalletRepository.getUserWalletsWithUserIds(userId)
-      walletsToFetch?.forEach((fetchedWallet) => {
+
+      walletsToFetch?.forEach(async (fetchedWallet) => {
         const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === fetchedWallet.address)
+
         if (existingWalletIndex !== -1) {
+          const subscriptionId = this.walletWatcher.subscriptions.get(fetchedWallet.address)
+
+          if (subscriptionId) {
+            // Remove the onLogs listener for the current subscription ID
+            await connection.removeOnLogsListener(subscriptionId)
+            // Delete the subscription from the map after listener removal
+            this.walletWatcher.subscriptions.delete(fetchedWallet.address)
+          }
+
+          // Update the wallet in the array with the latest fetched data
           walletsArray[existingWalletIndex] = fetchedWallet
+        } else {
+          // Add the wallet if it’s not already in the array
+          walletsArray.push(fetchedWallet)
         }
       })
+
+      // Reinitialize watching with the updated wallets array
+      await this.updateWallets(walletsArray!)
     } else if (event === 'initial') {
       const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
 
