@@ -40,7 +40,7 @@ export class WatchTransaction extends EventEmitter {
 
         // Check if a subscription already exists for this wallet address
         if (this.subscriptions.has(walletAddress)) {
-          console.log(`Already watching for: ${walletAddress}`)
+          // console.log(`Already watching for: ${walletAddress}`)
           continue // Skip re-subscribing
         }
 
