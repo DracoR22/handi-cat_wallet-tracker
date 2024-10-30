@@ -160,4 +160,29 @@ export class PrismaUserRepository {
       return { status: 'error', message: 'An error occurred while updating handi cat status', changedStatus: 'NONE' }
     }
   }
+
+  public async showUserPrivateKey(userId: string) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          personalWalletPrivKey: true,
+        },
+      })
+
+      if (!user) {
+        console.log('Failed to retrieve user private key')
+        return
+      }
+
+      const trimmedPrivateKey = user.personalWalletPrivKey.replace(/=*$/, '')
+
+      return trimmedPrivateKey
+    } catch (error) {
+      console.log('SHOW_PRIVATE_KEY_ERROR')
+      return
+    }
+  }
 }

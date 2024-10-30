@@ -18,4 +18,5 @@ export const BANNED_WALLETS = new Set([
   'FkjycgAwikUmzCmX5w1Hhfvs2BZdVvuY5AXjm2X8xqeB',
   'H7Btw4CgBqfbFNvu8ySAwMw8okPmD8ghFWi3rvdRXQT8',
   'ToP2RcWXPNWWWGJ6W6BSnWwGvkThNiHYS6dTaHTTZHN',
+  'JD25qVdtd65FoiXNmR89JjmoJdYk9sjYQeSTZAALFiMy ',
 ])
