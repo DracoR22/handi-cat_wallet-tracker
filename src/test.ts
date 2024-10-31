@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { connection } from './providers/solana'
+import { UserPlan } from './lib/user-plan'
 
 export const test = async (transactionSignature: string) => {
   const transactions: any = []
@@ -60,4 +61,4 @@ const tokenTest = async (mintStr: string) => {
 }
 
 // test('ALkw5MXZkn4S5r1yrb2HaJHqYSM5d4JxPTLWAp1iP8q7BLiuvQUDXsdM7h5gF3uUDrpdV6z6agb1QQ6qLf1DZrG')
-tokenTest('RBqNPm9H4ved3oBhWxXpnzhpj22sc5skxYsRXPdpump')
+// tokenTest('RBqNPm9H4ved3oBhWxXpnzhpj22sc5skxYsRXPdpump')

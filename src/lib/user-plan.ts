@@ -12,18 +12,24 @@ export class UserPlan {
 
     const plan = userData?.userSubscription?.plan || 'FREE'
 
-    const planWalletsKey: { [key: string]: number } = {
+    // Define wallet limits for each plan
+    const planWalletsConfig: { [key: string]: number } = {
       FREE: MAX_FREE_WALLETS,
       HOBBY: MAX_HOBBY_WALLETS,
       PRO: MAX_PRO_WALLETS,
       WHALE: MAX_WHALE_WALLETS,
     }
 
-    // TODO: make this more flexible
-    const planWallets =
-      userData?.userPromotions && userData.userPromotions[0]?.promotion.type === 'UPGRADE_TO_50_WALLETS'
-        ? 50
-        : planWalletsKey[plan]
+    // Determine if the user qualifies for a promotion
+    const getPromotionWallets = (userPromotions: any[]): number | null => {
+      if (userPromotions && userPromotions.some((promo) => promo.promotion.type === 'UPGRADE_TO_50_WALLETS')) {
+        return 50
+      }
+      return null
+    }
+
+    // Calculate the wallet limit, considering promotions if applicable
+    const planWallets = getPromotionWallets(userData?.userPromotions!) ?? planWalletsConfig[plan]
 
     return planWallets
   }

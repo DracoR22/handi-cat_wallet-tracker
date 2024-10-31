@@ -105,6 +105,9 @@ export class CallbackQueryHandler {
         case 'my_wallet':
           this.myWalletCommand.myWalletCommandHandler(message)
           break
+        case 'show_private_key':
+          this.myWalletCommand.showPrivateKeyHandler(message)
+          break
         case 'buy_promotion':
           this.promotionHandler.buyPromotion(message, HALLOWEEN_PROMOTION.price, HALLOWEEN_PROMOTION.type)
           break
