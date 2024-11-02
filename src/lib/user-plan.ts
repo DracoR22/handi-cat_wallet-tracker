@@ -21,7 +21,7 @@ export class UserPlan {
     }
 
     // Determine if the user qualifies for a promotion
-    const getPromotionWallets = (userPromotions: any[]): number | null => {
+    const getPromotionWallets = (userPromotions: any[] | undefined): number | null => {
       if (userPromotions && userPromotions.some((promo) => promo.promotion.type === 'UPGRADE_TO_50_WALLETS')) {
         return 50
       }
@@ -29,7 +29,7 @@ export class UserPlan {
     }
 
     // Calculate the wallet limit, considering promotions if applicable
-    const planWallets = getPromotionWallets(userData?.userPromotions!) ?? planWalletsConfig[plan]
+    const planWallets = getPromotionWallets(userData?.userPromotions) ?? planWalletsConfig[plan]
 
     return planWallets
   }

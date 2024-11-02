@@ -104,9 +104,9 @@ export class TransactionParser {
 
     const solPrice = await this.tokenUtils.getSolPriceNative()
 
-    // FOR RAYDIUM TRANSACTIONS
+    // for raydium transactions
     if (transactions.length > 1) {
-      // TOKEN OUT
+      // token out
       const tokenOutMint = await this.tokenUtils.getTokenMintAddress(transactions[0]?.info.destination)
       if (tokenOutMint === null) {
         return
@@ -114,7 +114,7 @@ export class TransactionParser {
       const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
       const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '')
 
-      // TOKEN IN
+      // token in
       const tokenInMint = await this.tokenUtils.getTokenMintAddress(raydiumTransfer.info.source)
       if (tokenInMint === null) {
         return
@@ -176,9 +176,9 @@ export class TransactionParser {
       }
     }
 
-    // FOR PUMP FUN TRANSACTIONS
+    // for pump fun transactions
     if (transactions.length === 1 || transactions.length[0]?.info?.amount === transactions[1]?.info?.amount) {
-      // TOKEN OUT
+      // token out
       const tokenOutMint = await this.tokenUtils.getTokenMintAddressWithFallback(transactions)
       if (tokenOutMint === null) {
         return
@@ -186,7 +186,7 @@ export class TransactionParser {
       const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
       const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '')
 
-      // TOKEN IN
+      // token in
       const tokenInMint = await this.tokenUtils.getTokenMintAddressWithFallback(transactions)
       if (tokenInMint === null) {
         return

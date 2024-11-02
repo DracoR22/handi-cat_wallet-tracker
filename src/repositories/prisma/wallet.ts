@@ -1,5 +1,5 @@
 import { WalletStatus } from '@prisma/client'
-import prisma from './prisma'
+import prisma from '../../providers/prisma'
 import { WalletWithUsers } from '../../types/swap-types'
 
 export class PrismaWalletRepository {

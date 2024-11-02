@@ -61,6 +61,15 @@ export class SendTransactionMsgHandler {
           disable_web_page_preview: true,
           reply_markup: TX_SUB_MENU,
         })
+      } else if (message.platform === 'mint_pumpfun') {
+        // new!
+        const messageText = this.txMessages.sendMintTokenMessage(message, walletName?.name)
+
+        return this.bot.sendMessage(chatId, messageText, {
+          parse_mode: 'HTML',
+          disable_web_page_preview: true,
+          reply_markup: TX_SUB_MENU,
+        })
       }
     } catch (error: any) {
       if (error.response && error.response.statusCode === 403) {

@@ -1,5 +1,5 @@
 import { PromotionType, SubscriptionPlan } from '@prisma/client'
-import prisma from './prisma'
+import prisma from '../../providers/prisma'
 
 export class PrismaSubscriptionRepository {
   constructor() {}

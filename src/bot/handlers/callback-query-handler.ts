@@ -13,7 +13,7 @@ import { DonateHandler } from './donate-handler'
 import { SettingsCommand } from '../commands/settings-command'
 import { UpdateBotStatusHandler } from './update-bot-status-handler'
 import { PromotionHandler } from './promotion-handler'
-import { HALLOWEEN_PROMOTION } from '../../constants/promotions'
+import { GET_50_WALLETS_PROMOTION } from '../../constants/promotions'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -109,7 +109,7 @@ export class CallbackQueryHandler {
           this.myWalletCommand.showPrivateKeyHandler(message)
           break
         case 'buy_promotion':
-          this.promotionHandler.buyPromotion(message, HALLOWEEN_PROMOTION.price, HALLOWEEN_PROMOTION.type)
+          this.promotionHandler.buyPromotion(message, GET_50_WALLETS_PROMOTION.price, GET_50_WALLETS_PROMOTION.type)
           break
         case 'back_to_main_menu':
           const messageText = this.generalMessages.sendStartMessage()

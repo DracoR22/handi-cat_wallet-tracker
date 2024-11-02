@@ -43,6 +43,8 @@ export class PromotionHandler {
         `
 😸 Promotion purchased!
 
+Thank you for your purchase
+
 You now will be able to track up to 50 wallets at the same time forever! ✨
 `,
         {
