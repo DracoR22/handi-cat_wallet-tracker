@@ -95,7 +95,7 @@ export class WatchTransaction extends EventEmitter {
 
             // Parse transaction
             const transactionParser = new TransactionParser(transactionSignature, this.connection)
-            const parsed = await transactionParser.parseNative(transactionDetails, isValidTransaction.swap)
+            const parsed = await transactionParser.parseRpc(transactionDetails, isValidTransaction.swap)
 
             if (!parsed) {
               return
@@ -107,12 +107,19 @@ export class WatchTransaction extends EventEmitter {
             const sendMessageHandler = new SendTransactionMsgHandler(bot)
 
             const activeUsers = wallet.userWallets.filter((w) => w.handiCatStatus === 'ACTIVE')
-            for (const user of activeUsers) {
-              console.log('Users:', user)
-              try {
-                await sendMessageHandler.send(parsed, user.userId)
-              } catch (error) {
-                console.log(`Error sending message to user ${user.userId}`)
+            // just in case, somehow sometimes I get duplicated users here, I should probably address this in the track wallets function instead
+            const uniqueActiveUsers = Array.from(new Set(activeUsers.map((user) => user.userId))).map((userId) =>
+              activeUsers.find((user) => user.userId === userId),
+            )
+
+            for (const user of uniqueActiveUsers) {
+              if (user) {
+                console.log('Users:', user)
+                try {
+                  await sendMessageHandler.send(parsed, user.userId)
+                } catch (error) {
+                  console.log(`Error sending message to user ${user.userId}`)
+                }
               }
             }
           },

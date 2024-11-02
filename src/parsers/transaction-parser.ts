@@ -20,7 +20,7 @@ export class TransactionParser {
     this.tokenParser = new TokenParser(this.connection)
   }
 
-  public async parseNative(
+  public async parseRpc(
     transactionDetails: (ParsedTransactionWithMeta | null)[],
     swap: SwapType,
   ): Promise<NativeParserInterface | undefined> {
