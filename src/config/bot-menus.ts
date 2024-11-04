@@ -3,7 +3,7 @@ import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, WHALE_PLAN_FEE } from '../constants/prici
 
 export const START_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
-    [{ text: '🌟 Buy Limited-Time Offer', callback_data: 'buy_promotion' }],
+    // [{ text: '🌟 Buy Limited-Time Offer', callback_data: 'buy_promotion' }],
     [
       { text: '🔮 Add', callback_data: 'add' },
       { text: '👀 Manage', callback_data: 'manage' },

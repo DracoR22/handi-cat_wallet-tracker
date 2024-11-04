@@ -29,6 +29,11 @@ export class SendTransactionMsgHandler {
 
     const walletName = await this.prismaWalletRepository.getUserWalletNameById(chatId, message.owner)
 
+    if (!walletName?.address || !message.owner) {
+      console.log('Address not found in user wallets')
+      return
+    }
+
     try {
       if (message.platform === 'raydium' || message.platform === 'jupiter') {
         let tokenMarketCap = message.swappedTokenMc

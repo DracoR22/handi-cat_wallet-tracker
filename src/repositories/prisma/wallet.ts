@@ -288,6 +288,7 @@ export class PrismaWalletRepository {
       },
       select: {
         name: true,
+        address: true,
       },
     })
 

@@ -19,8 +19,6 @@ Get real time activity notifications for any wallet you add!
 You can track up to ${MAX_FREE_WALLETS} wallets for free ✨
 
 🆙 For more features, you can upgrade to PRO, which allows tracking ${MAX_HOBBY_WALLETS}+ wallets.
-
-${promText}
 `
 
     return messageText
