@@ -27,7 +27,7 @@ export class WatchTransaction extends EventEmitter {
 
     // this.trackedWallets = new Set()
 
-    this.rateLimit = new RateLimit(this.connection)
+    this.rateLimit = new RateLimit(this.connection, this.subscriptions)
 
     this.connection = connection
   }
