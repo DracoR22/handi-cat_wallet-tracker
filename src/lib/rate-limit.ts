@@ -53,12 +53,12 @@ export class RateLimit {
       console.log(`TPS for wallet ${wallet.address}: ${tps.toFixed(2)}`)
 
       if (tps >= MAX_TPS_FOR_BAN) {
-        // excludedWallets.set(wallet.address, true)
-        const subscriptionId = this.subscriptions.get(wallet.address)
-        if (subscriptionId) {
-          await this.connection.removeOnLogsListener(subscriptionId)
-          this.subscriptions.delete(wallet.address)
-        }
+        excludedWallets.set(wallet.address, true)
+        // const subscriptionId = this.subscriptions.get(wallet.address)
+        // if (subscriptionId) {
+        //   await this.connection.removeOnLogsListener(subscriptionId)
+        //   this.subscriptions.delete(wallet.address)
+        // }
         console.log(`Wallet ${wallet.address} has been banned.`)
         BANNED_WALLETS.add(wallet.address)
         for (const user of wallet.userWallets) {
