@@ -94,7 +94,7 @@ export class TokenUtils {
     }
   }
 
-  public async getSolPriceGecko(): Promise<number | undefined> {
+  public async getSolPriceGecko(): Promise<string | undefined> {
     try {
       const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd')
 
@@ -102,7 +102,7 @@ export class TokenUtils {
 
       const solanaPrice = data.solana.usd
 
-      return solanaPrice
+      return String(solanaPrice)
     } catch (error) {
       console.log('GET_SOL_PRICE_ERROR')
       return

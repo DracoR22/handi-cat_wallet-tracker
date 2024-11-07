@@ -138,7 +138,7 @@ export class WatchTransaction extends EventEmitter {
 
   private async getParsedTransaction(transactionSignature: string) {
     try {
-      const transactionDetails = await connection2.getParsedTransactions([transactionSignature], {
+      const transactionDetails = await this.connection.getParsedTransactions([transactionSignature], {
         maxSupportedTransactionVersion: 0,
       })
 
