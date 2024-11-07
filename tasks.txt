@@ -1,3 +1,4 @@
 - add minted token message (done)
 - when banning a wallet then ban all user wallets with the same address
 - fix the update event in TrackWallets class (done)
+- exclude banned wallets from logs at runtime

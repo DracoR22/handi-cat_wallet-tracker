@@ -19,11 +19,13 @@ export class SubscriptionMessages {
     const messageText = `
 Current plan: ${subscriptionPlan === 'FREE' ? `😿 <b>${subscriptionPlan}</b>` : `😺 <b>${subscriptionPlan}</b>`}
 
+⚠️ <b>Important:</b> Plans are <b>one-time payments</b> for <b>lifetime access</b>. There are <u>no recurring fees</u>.
+
 These are the plans available:
 
-<b>HOBBY</b>: ${MAX_HOBBY_WALLETS} wallets - ${HOBBY_PLAN_FEE / 1e9} <b>SOL</b> / month
-<b>PRO</b>: ${MAX_PRO_WALLETS} wallets - ${PRO_PLAN_FEE / 1e9} <b>SOL</b> / month
-<b>WHALE</b>: ${MAX_WHALE_WALLETS} wallets - ${WHALE_PLAN_FEE / 1e9} <b>SOL</b> / month
+<b>HOBBY</b>: ${MAX_HOBBY_WALLETS} <b>LIFETIME</b> wallets - ${HOBBY_PLAN_FEE / 1e9} <b>SOL</b> 
+<b>PRO</b>: ${MAX_PRO_WALLETS} <b>LIFETIME</b> wallets - ${PRO_PLAN_FEE / 1e9} <b>SOL</b> 
+<b>WHALE</b>: ${MAX_WHALE_WALLETS} <b>LIFETIME</b> wallets - ${WHALE_PLAN_FEE / 1e9} <b>SOL</b> 
 
 How can you upgrade your plan?
 

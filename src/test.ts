@@ -3,6 +3,7 @@ import { connection } from './providers/solana'
 import { UserPlan } from './lib/user-plan'
 import { ValidTransactions } from './lib/valid-transactions'
 import { TokenUtils } from './lib/token-utils'
+import { PublicKey } from '@solana/web3.js'
 
 export const test = async (transactionSignature: string) => {
   const transactions: any = []
@@ -55,5 +56,15 @@ export const test = async (transactionSignature: string) => {
   console.log('BALANCE CHANGEEE: ', nativeBalance)
 }
 
-test('5vSMSzEFSGgXm3DnD8zxUrdECFx86oujsNb4XognXAj9aTF7T7VAHJEszrNMcNz6SqENJRSpPAinZHvpD9qTkFWb')
+// test('5vSMSzEFSGgXm3DnD8zxUrdECFx86oujsNb4XognXAj9aTF7T7VAHJEszrNMcNz6SqENJRSpPAinZHvpD9qTkFWb')
 // 39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg
+
+export const tes2 = async () => {
+  const id = new PublicKey('5qEDi4FfY8NYTrFDgaTvU3HXNP8NazwmVtQBD3WNBBin')
+
+  const accountInfo = await connection.getAccountInfo(id)
+
+  console.log('account info', accountInfo)
+}
+
+tes2()

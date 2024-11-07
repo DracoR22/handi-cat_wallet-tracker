@@ -41,7 +41,7 @@ export class Payments {
     const userPublicKey = new PublicKey(user.personalWalletPubKey)
     const balance = await this.userBalances.userPersonalSolBalance(user.personalWalletPubKey)
     console.log('BALANCE:', balance)
-    if (balance === undefined) {
+    if (!balance) {
       return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
     }
 
@@ -53,7 +53,7 @@ export class Payments {
 
     const planFee = planFees[plan]
 
-    if (planFee === undefined) {
+    if (!planFee) {
       return { success: false, message: PaymentsMessageEnum.INVALID_PLAN, subscriptionEnd: null }
     }
     console.log(planFee)
@@ -81,8 +81,12 @@ export class Payments {
       }
     }
 
-    // switch back user plan to FREE if the dont have any balance
-    await this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE')
+    const currentSubscription = user.userSubscription?.plan
+
+    // create a free subscription of they dont have balance and subscription
+    if (!currentSubscription) {
+      await this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE')
+    }
     return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
   }
 

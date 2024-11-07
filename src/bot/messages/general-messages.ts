@@ -18,7 +18,8 @@ Get real time activity notifications for any wallet you add!
 
 You can track up to ${MAX_FREE_WALLETS} wallets for free ✨
 
-🆙 For more features, you can upgrade to PRO, which allows tracking ${MAX_HOBBY_WALLETS}+ wallets.
+👑 Upgrade to track up to <b>${MAX_WHALE_WALLETS}</b> wallets with a <b>LIFETIME</b> plan!  
+No recurring fees — pay once, and enjoy forever. 🐾
 `
 
     return messageText
@@ -36,9 +37,7 @@ You can track up to ${MAX_FREE_WALLETS} wallets for free ✨
     const messageText = `
 😸 Success! Your plan has been upgraded to <b>${plan}</b>.
 
-You can now track up to <b>${planWallet}</b> wallets at the time
-
-Your plan will be renewed at <b>${subscriptionEnd}</b>
+You can now track up to <b>${planWallet}</b> wallets at the time!
 `
 
     return messageText

@@ -10,10 +10,10 @@ export const START_MENU: InlineKeyboardMarkup = {
     ],
     [
       { text: '👛 My Wallet', callback_data: 'my_wallet' },
-      { text: '👑 Upgrade', callback_data: 'upgrade' },
+      { text: '❤️ Donate', callback_data: 'donate' },
       { text: '⚙️ Settings', callback_data: 'settings' },
     ],
-    [{ text: '❤️ Donate', callback_data: 'donate' }],
+    [{ text: '👑 Upgrade', callback_data: 'upgrade' }],
     // [{ text: '💎 PRO', callback_data: 'pro' }, { text: '👛 My Wallet', callback_data: 'my_wallet' }],
     // [{ text: '🔗 Links', callback_data: 'links' }, { text: '💱 SELL', callback_data: 'sell' }],
   ],
@@ -64,19 +64,19 @@ export const UPGRADE_PLAN_SUB_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
     [
       {
-        text: `BUY HOBBY ${HOBBY_PLAN_FEE / 1e9} SOL /m`,
+        text: `BUY HOBBY ${HOBBY_PLAN_FEE / 1e9} SOL`,
         callback_data: 'upgrade_hobby',
       },
     ],
     [
       {
-        text: `BUY PRO ${PRO_PLAN_FEE / 1e9} SOL /m`,
+        text: `BUY PRO ${PRO_PLAN_FEE / 1e9} SOL`,
         callback_data: 'upgrade_pro',
       },
     ],
     [
       {
-        text: `BUY WHALE ${WHALE_PLAN_FEE / 1e9} SOL /m`,
+        text: `BUY WHALE ${WHALE_PLAN_FEE / 1e9} SOL`,
         callback_data: 'upgrade_whale',
       },
     ],
