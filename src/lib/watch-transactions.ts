@@ -6,6 +6,7 @@ import { SendTransactionMsgHandler } from '../bot/handlers/send-tx-msg-handler'
 import { bot } from '../providers/telegram'
 import { WalletWithUsers } from '../types/swap-types'
 import { RateLimit } from './rate-limit'
+import { connection2 } from '../providers/solana'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -137,7 +138,7 @@ export class WatchTransaction extends EventEmitter {
 
   private async getParsedTransaction(transactionSignature: string) {
     try {
-      const transactionDetails = await this.connection.getParsedTransactions([transactionSignature], {
+      const transactionDetails = await connection2.getParsedTransactions([transactionSignature], {
         maxSupportedTransactionVersion: 0,
       })
 

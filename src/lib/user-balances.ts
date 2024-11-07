@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
-import { connection } from '../providers/solana'
+import { connection, connection2 } from '../providers/solana'
 
 export class UserBalances {
   constructor() {}
@@ -10,7 +10,7 @@ export class UserBalances {
       const publicKey = new PublicKey(walletAddress)
 
       // Fetch the balance
-      const balance = await connection.getBalance(publicKey)
+      const balance = await connection2.getBalance(publicKey)
 
       // Convert lamports to SOL (1 SOL = 10^9 lamports)
       const solBalance = balance / 1_000_000_000

@@ -18,7 +18,7 @@ Get real time activity notifications for any wallet you add!
 
 You can track up to ${MAX_FREE_WALLETS} wallets for free ✨
 
-👑 Upgrade to track up to <b>${MAX_WHALE_WALLETS}</b> wallets with a <b>LIFETIME</b> plan!  
+🆙 Upgrade to track up to <b>${MAX_WHALE_WALLETS}</b> wallets with a <b>LIFETIME</b> plan!  
 No recurring fees — pay once, and enjoy forever. 🐾
 `
 

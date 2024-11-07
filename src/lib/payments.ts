@@ -2,7 +2,7 @@ import { Keypair, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { UserBalances } from './user-balances'
 import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, SOURCE_CODE_PRICE, WHALE_PLAN_FEE } from '../constants/pricing'
 import { HANDI_CAT_WALLET_ADDRESS } from '../constants/handi-cat'
-import { connection } from '../providers/solana'
+import { connection, connection2 } from '../providers/solana'
 import { PrismaUserRepository } from '../repositories/prisma/user'
 import { PromotionType, SubscriptionPlan, User, UserSubscription } from '@prisma/client'
 import { PrismaSubscriptionRepository } from '../repositories/prisma/subscription'
@@ -65,7 +65,7 @@ export class Payments {
         // console.log('USER_PAIR', userKeypair)
 
         // Sign and send the transaction
-        let signature = await connection.sendTransaction(transaction, [userKeypair])
+        let signature = await connection2.sendTransaction(transaction, [userKeypair])
         console.log('Transaction signature:', signature)
 
         const subscription = await this.prismaSubscriptionRepository.updateUserSubscription(user.id, plan)
@@ -159,7 +159,7 @@ export class Payments {
         // console.log('USER_PAIR', userKeypair)
 
         // Sign and send the transaction
-        let signature = await connection.sendTransaction(transaction, [userKeypair])
+        let signature = await connection2.sendTransaction(transaction, [userKeypair])
         console.log('Transaction signature:', signature)
 
         const { message: promMessage, success } = await this.prismaSubscriptionRepository.buyPromotion(
