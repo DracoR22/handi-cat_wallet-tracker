@@ -70,7 +70,7 @@ export class WatchTransaction extends EventEmitter {
 
             // new approach!! lets see if we can keep this
             if (!isRelevant) {
-              console.log('TRANSACTION IS NOT DEFI', logs.signature)
+              console.log('TRANSACTION IS NOT DEFI')
               return
             }
 

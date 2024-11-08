@@ -26,7 +26,8 @@ export class TxMessages {
     const solPrice = Number(message.solPrice)
 
     const amountInUsd = message.type === 'buy' ? Number(amountOut) * solPrice : Number(amountIn) * solPrice
-    const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
+    // const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
+    const fixedUsdAmount = undefined
 
     const tokenMintToTrack = message.type === 'buy' ? tokenInMint : tokenOutMint
 

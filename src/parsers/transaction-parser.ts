@@ -102,7 +102,9 @@ export class TransactionParser {
       return
     }
 
-    const solPrice = await this.tokenUtils.getSolPriceNative()
+    // const solPrice = await this.tokenUtils.getSolPriceNative()
+
+    const solPrice = ''
 
     // for raydium transactions
     if (transactions.length > 1) {
