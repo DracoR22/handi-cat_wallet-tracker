@@ -70,7 +70,7 @@ export class WatchTransaction extends EventEmitter {
 
             // new approach!! lets see if we can keep this
             if (!isRelevant) {
-              console.log('TRANSACTION IS NOT DEFI')
+              console.log('TRANSACTION IS NOT DEFI', logs.signature)
               return
             }
 
@@ -164,7 +164,6 @@ export class WatchTransaction extends EventEmitter {
   }
 
   private isRelevantTransaction(logs: Logs): { isRelevant: boolean; swap: SwapType } {
-    // Guard clause for empty logs
     if (!logs.logs || logs.logs.length === 0) {
       return { isRelevant: false, swap: null }
     }
@@ -172,7 +171,6 @@ export class WatchTransaction extends EventEmitter {
     // Join logs into a single string for searching
     const logString = logs.logs.join(' ')
 
-    // Check programs one by one and return the first match
     if (logString.includes(PUMP_FUN_TOKEN_MINT_AUTH)) {
       return { isRelevant: true, swap: 'mint_pumpfun' }
     }
