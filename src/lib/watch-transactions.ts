@@ -1,12 +1,18 @@
-import { Connection, PublicKey } from '@solana/web3.js'
+import { Connection, PublicKey, LogsFilter, Logs } from '@solana/web3.js'
 import { ValidTransactions } from './valid-transactions'
 import EventEmitter from 'events'
 import { TransactionParser } from '../parsers/transaction-parser'
 import { SendTransactionMsgHandler } from '../bot/handlers/send-tx-msg-handler'
 import { bot } from '../providers/telegram'
-import { WalletWithUsers } from '../types/swap-types'
+import { SwapType, WalletWithUsers } from '../types/swap-types'
 import { RateLimit } from './rate-limit'
 import { connection2 } from '../providers/solana'
+import {
+  JUPITER_PROGRAM_ID,
+  PUMP_FUN_PROGRAM_ID,
+  PUMP_FUN_TOKEN_MINT_AUTH,
+  RAYDIUM_PROGRAM_ID,
+} from '../config/program-ids'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -60,6 +66,14 @@ export class WatchTransaction extends EventEmitter {
               return
             }
 
+            const { isRelevant, swap } = this.isRelevantTransaction(logs)
+
+            // new approach!! lets see if we can keep this
+            if (!isRelevant) {
+              console.log('TRANSACTION IS NOT DEFI')
+              return
+            }
+
             // check txs per second
             const walletData = this.walletTransactions.get(walletAddress)
             if (!walletData) {
@@ -83,20 +97,20 @@ export class WatchTransaction extends EventEmitter {
             }
 
             // Find all programIds involved in the transaction
-            const programIds = transactionDetails[0]?.transaction.message.accountKeys
-              .map((key) => key.pubkey)
-              .filter((pubkey) => pubkey !== undefined)
-            const validTransactions = new ValidTransactions(programIds)
-            const isValidTransaction = validTransactions.getDefiTransaction()
+            // const programIds = transactionDetails[0]?.transaction.message.accountKeys
+            //   .map((key) => key.pubkey)
+            //   .filter((pubkey) => pubkey !== undefined)
+            // const validTransactions = new ValidTransactions(programIds)
+            // const isValidTransaction = validTransactions.getDefiTransaction()
 
-            if (!isValidTransaction.valid) {
-              console.log('TRANSACTION IS NOT DEFI TRANSACTION')
-              return
-            }
+            // if (!isValidTransaction.valid) {
+            //   console.log('TRANSACTION IS NOT DEFI TRANSACTION')
+            //   return
+            // }
 
             // Parse transaction
             const transactionParser = new TransactionParser(transactionSignature, this.connection)
-            const parsed = await transactionParser.parseRpc(transactionDetails, isValidTransaction.swap)
+            const parsed = await transactionParser.parseRpc(transactionDetails, swap)
 
             if (!parsed) {
               return
@@ -147,5 +161,31 @@ export class WatchTransaction extends EventEmitter {
       console.log('GET_PARSED_TRANSACTIONS_ERROR', error)
       return
     }
+  }
+
+  private isRelevantTransaction(logs: Logs): { isRelevant: boolean; swap: SwapType } {
+    // Guard clause for empty logs
+    if (!logs.logs || logs.logs.length === 0) {
+      return { isRelevant: false, swap: null }
+    }
+
+    // Join logs into a single string for searching
+    const logString = logs.logs.join(' ')
+
+    // Check programs one by one and return the first match
+    if (logString.includes(PUMP_FUN_TOKEN_MINT_AUTH)) {
+      return { isRelevant: true, swap: 'mint_pumpfun' }
+    }
+    if (logString.includes(PUMP_FUN_PROGRAM_ID)) {
+      return { isRelevant: true, swap: 'pumpfun' }
+    }
+    if (logString.includes(RAYDIUM_PROGRAM_ID)) {
+      return { isRelevant: true, swap: 'raydium' }
+    }
+    if (logString.includes(JUPITER_PROGRAM_ID)) {
+      return { isRelevant: true, swap: 'jupiter' }
+    }
+
+    return { isRelevant: false, swap: null }
   }
 }
