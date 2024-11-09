@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { connection, connection2 } from './providers/solana'
+import { connection } from './providers/solana'
 import { UserPlan } from './lib/user-plan'
 import { ValidTransactions } from './lib/valid-transactions'
 import { TokenUtils } from './lib/token-utils'
@@ -38,26 +38,26 @@ function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: Swap
   return { isRelevant: false, program: null }
 }
 
-export const test2 = async () => {
-  const walletAddress = 'CRVidEDtEUTYZisCxBZkpELzhQc9eauMLR3FWg74tReL'
+// export const test2 = async () => {
+//   const walletAddress = 'CRVidEDtEUTYZisCxBZkpELzhQc9eauMLR3FWg74tReL'
 
-  const publicKey = new PublicKey(walletAddress)
+//   const publicKey = new PublicKey(walletAddress)
 
-  const subscriptionId = connection2.onLogs(
-    publicKey,
-    async (logs, ctx) => {
-      const { isRelevant, program } = isRelevantTransaction(logs)
+//   const subscriptionId = connection2.onLogs(
+//     publicKey,
+//     async (logs, ctx) => {
+//       const { isRelevant, program } = isRelevantTransaction(logs)
 
-      if (!isRelevant) {
-        console.log('NO RELEVANT', logs.signature)
-        return
-      }
+//       if (!isRelevant) {
+//         console.log('NO RELEVANT', logs.signature)
+//         return
+//       }
 
-      console.log('YES ITS RELEVANT', logs.signature)
-      console.log('Program:', program)
-    },
-    'confirmed',
-  )
-}
+//       console.log('YES ITS RELEVANT', logs.signature)
+//       console.log('Program:', program)
+//     },
+//     'confirmed',
+//   )
+// }
 
-test2()
+// test2()
