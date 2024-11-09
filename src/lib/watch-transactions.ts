@@ -6,7 +6,6 @@ import { SendTransactionMsgHandler } from '../bot/handlers/send-tx-msg-handler'
 import { bot } from '../providers/telegram'
 import { SwapType, WalletWithUsers } from '../types/swap-types'
 import { RateLimit } from './rate-limit'
-import { connection2 } from '../providers/solana'
 import {
   JUPITER_PROGRAM_ID,
   PUMP_FUN_PROGRAM_ID,
