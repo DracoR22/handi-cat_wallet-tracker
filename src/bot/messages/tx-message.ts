@@ -26,8 +26,7 @@ export class TxMessages {
     const solPrice = Number(message.solPrice)
 
     const amountInUsd = message.type === 'buy' ? Number(amountOut) * solPrice : Number(amountIn) * solPrice
-    // const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
-    const fixedUsdAmount = undefined
+    const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
 
     const tokenMintToTrack = message.type === 'buy' ? tokenInMint : tokenOutMint
 
@@ -41,13 +40,13 @@ export class TxMessages {
       : ''
 
     const messageText = `
-      ${message.type === 'buy' ? '🟢' : '🔴'} <a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a> on ${message.platform!.toUpperCase()}
-      <b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
-      💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' && fixedUsdAmount ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' && fixedUsdAmount ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a>
+${message.type === 'buy' ? '🟢' : '🔴'} <a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a> on ${message.platform!.toUpperCase()}
+<b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
+💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' && fixedUsdAmount ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' && fixedUsdAmount ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a>
       
-      ${marketCapText}
-      <code>${tokenMintToTrack}</code>
-      `
+${marketCapText}
+<code>${tokenMintToTrack}</code>
+`
     return messageText
   }
 

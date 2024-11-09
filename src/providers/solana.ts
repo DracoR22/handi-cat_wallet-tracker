@@ -9,5 +9,5 @@ const ALCHEMY_NETWORK = `https://solana-mainnet.g.alchemy.com/v2/${process.env.A
 const CHAINSTACK_NETWORK = `https://solana-mainnet.core.chainstack.com/${process.env.CHAINSTACK_API_KEY2}`
 const CHAINSTACK_NETWORK2 = `https://solana-mainnet.core.chainstack.com/${process.env.CHAINSTACK_API_KEY2}`
 
-export const connection = new Connection(CHAINSTACK_NETWORK, 'confirmed')
+export const connection = new Connection(HELIUS_NETWORK, 'confirmed')
 // export const connection2 = new Connection(CHAINSTACK_NETWORK2, 'confirmed')
