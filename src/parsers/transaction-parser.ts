@@ -5,6 +5,8 @@ import { SwapType } from '../types/swap-types'
 import { FormatNumbers } from '../lib/format-numbers'
 import { NativeParserInterface } from '../types/general-interfaces'
 
+export let cachedUsdSolPrice = ''
+
 export class TransactionParser {
   private formatNumbers: FormatNumbers
   private tokenUtils: TokenUtils
