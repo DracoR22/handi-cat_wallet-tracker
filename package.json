@@ -14,6 +14,7 @@
     "db:migrate": "prisma migrate dev --skip-seed",
     "db:backup": "npx ts-node scripts/backup-db.ts",
     "db:seed": "npx ts-node scripts/seed-db.ts",
+    "wallets:cleanup": "npx ts-node scripts/cleanup-wallets.ts",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"  --ignore-path .gitignore",
     "format:check": "pnpm format --check",
     "format:write": "pnpm format --write"
