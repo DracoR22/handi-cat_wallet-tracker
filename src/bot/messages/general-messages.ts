@@ -27,7 +27,7 @@ Don’t miss out on this exclusive deal to supercharge your wallet tracking with
 
 Get real time activity notifications for any wallet you add!
 
-You are currently tracking <b>${user?._count.userWallets || 0} / ${planWallets[plan]}</b> ✨
+You are currently tracking <b>${user?._count.userWallets || 0} / ${planWallets[plan]} wallets</b> ✨
 
 🆙 Upgrade for a <b>LIFETIME</b> plan to track up to <b>${MAX_WHALE_WALLETS}</b> wallets — one-time payment, no recurring fees! 🐾  
 
