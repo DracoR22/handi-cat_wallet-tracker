@@ -14,6 +14,7 @@ import { SettingsCommand } from '../commands/settings-command'
 import { UpdateBotStatusHandler } from './update-bot-status-handler'
 import { PromotionHandler } from './promotion-handler'
 import { GET_50_WALLETS_PROMOTION } from '../../constants/promotions'
+import { PrismaUserRepository } from '../../repositories/prisma/user'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -24,6 +25,8 @@ export class CallbackQueryHandler {
   private donateCommand: DonateCommand
   private settingsCommand: SettingsCommand
   private updateBotStatusHandler: UpdateBotStatusHandler
+
+  private prismaUserRepository: PrismaUserRepository
 
   private generalMessages: GeneralMessages
 
@@ -41,6 +44,8 @@ export class CallbackQueryHandler {
     this.donateCommand = new DonateCommand(this.bot)
     this.settingsCommand = new SettingsCommand(this.bot)
     this.updateBotStatusHandler = new UpdateBotStatusHandler(this.bot)
+
+    this.prismaUserRepository = new PrismaUserRepository()
 
     this.generalMessages = new GeneralMessages()
 
@@ -112,7 +117,8 @@ export class CallbackQueryHandler {
           this.promotionHandler.buyPromotion(message, GET_50_WALLETS_PROMOTION.price, GET_50_WALLETS_PROMOTION.type)
           break
         case 'back_to_main_menu':
-          const messageText = this.generalMessages.sendStartMessage()
+          const user = await this.prismaUserRepository.getById(userId)
+          const messageText = this.generalMessages.sendStartMessage(user)
 
           // reset any flags
           userExpectingWalletAddress[Number(chatId)] = false
