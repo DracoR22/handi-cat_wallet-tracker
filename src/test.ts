@@ -11,6 +11,7 @@ import {
   RAYDIUM_PROGRAM_ID,
 } from './config/program-ids'
 import { SwapType } from './types/swap-types'
+import { PrismaUserRepository } from './repositories/prisma/user'
 
 function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: SwapType } {
   // Guard clause for empty logs

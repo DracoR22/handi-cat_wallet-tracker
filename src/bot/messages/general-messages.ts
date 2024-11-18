@@ -1,10 +1,21 @@
 import { SubscriptionPlan } from '@prisma/client'
 import { MAX_FREE_WALLETS, MAX_HOBBY_WALLETS, MAX_PRO_WALLETS, MAX_WHALE_WALLETS } from '../../constants/pricing'
+import { UserPlan } from '../../lib/user-plan'
+import { UserPrisma } from '../../types/prisma-types'
 
 export class GeneralMessages {
   constructor() {}
 
-  public sendStartMessage(): string {
+  public sendStartMessage(user: UserPrisma): string {
+    const plan = user?.userSubscription?.plan || 'FREE'
+
+    const planWallets: { [key: string]: number } = {
+      FREE: MAX_FREE_WALLETS,
+      HOBBY: MAX_HOBBY_WALLETS,
+      PRO: MAX_PRO_WALLETS,
+      WHALE: MAX_WHALE_WALLETS,
+    }
+
     const promText = `
 🎉 <b>LIMITED-TIME OFFER (24hrs)</b>🎉
 For a <b>One-Time</b> payment of only <b>0.1 SOL</b>, track up to <b>**50 wallets LIFETIME**</b>
@@ -16,13 +27,12 @@ Don’t miss out on this exclusive deal to supercharge your wallet tracking with
 
 Get real time activity notifications for any wallet you add!
 
-You can track up to ${MAX_FREE_WALLETS} wallets for free ✨
+You are currently tracking <b>${user?._count.userWallets || 0} / ${planWallets[plan]}</b> ✨
 
-🆙 Upgrade to track up to <b>${MAX_WHALE_WALLETS}</b> wallets with a <b>LIFETIME</b> plan!  
-No recurring fees — pay once, and enjoy forever. 🐾
+🆙 Upgrade for a <b>LIFETIME</b> plan to track up to <b>${MAX_WHALE_WALLETS}</b> wallets — one-time payment, no recurring fees! 🐾  
 
 ⚠️ <b>Note for Free Users:</b>  
-To ensure smooth performance for everyone, free wallets may be cleaned up periodically. Consider upgrading to retain all your tracked wallets and enjoy uninterrupted service! 🚀
+To ensure smooth performance for everyone, free wallets may be cleaned up periodically. Consider upgrading to retain all your tracked wallets! 🚀
 `
 
     return messageText

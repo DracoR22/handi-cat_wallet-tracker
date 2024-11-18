@@ -41,6 +41,11 @@ export class PrismaUserRepository {
             plan: true,
           },
         },
+        _count: {
+          select: {
+            userWallets: true,
+          },
+        },
       },
     })
 

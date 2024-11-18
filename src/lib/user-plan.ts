@@ -12,7 +12,6 @@ export class UserPlan {
 
     const plan = userData?.userSubscription?.plan || 'FREE'
 
-    // Define wallet limits for each plan
     const planWalletsConfig: { [key: string]: number } = {
       FREE: MAX_FREE_WALLETS,
       HOBBY: MAX_HOBBY_WALLETS,

@@ -17,3 +17,16 @@ export type UserWithSubscriptionPlan = {
     plan: SubscriptionPlan
   } | null
 }
+
+export type UserPrisma = {
+  userSubscription: {
+    plan: SubscriptionPlan
+  } | null
+  id: string
+  hasDonated: boolean
+  personalWalletPubKey: string
+  personalWalletPrivKey: string
+  _count: {
+    userWallets: number
+  }
+} | null

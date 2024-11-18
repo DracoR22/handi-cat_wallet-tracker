@@ -26,12 +26,12 @@ export class StartCommand {
         return
       }
 
-      const messageText = this.generalMessages.sendStartMessage()
-
-      this.bot.sendMessage(chatId, messageText, { reply_markup: START_MENU, parse_mode: 'HTML' })
-
       // Find existing user
       const user = await this.prismaUserRepository.getById(userId)
+
+      const messageText = this.generalMessages.sendStartMessage(user)
+
+      this.bot.sendMessage(chatId, messageText, { reply_markup: START_MENU, parse_mode: 'HTML' })
 
       // Create new user
       if (!user) {
