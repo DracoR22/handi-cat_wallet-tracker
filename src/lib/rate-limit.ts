@@ -10,14 +10,12 @@ import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { BANNED_WALLETS } from '../constants/banned-wallets'
 
 export class RateLimit {
-  private rateLimitMessages: RateLimitMessages
   private prismaWalletRepository: PrismaWalletRepository
 
   constructor(
     private connection: Connection,
     private subscriptions: Map<string, number>,
   ) {
-    this.rateLimitMessages = new RateLimitMessages()
     this.prismaWalletRepository = new PrismaWalletRepository()
 
     this.connection = connection
@@ -63,7 +61,7 @@ export class RateLimit {
         BANNED_WALLETS.add(wallet.address)
         for (const user of wallet.userWallets) {
           this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id, 'BANNED') // update database
-          bot.sendMessage(user.userId, this.rateLimitMessages.walletWasBanned(wallet.address), { parse_mode: 'HTML' })
+          bot.sendMessage(user.userId, RateLimitMessages.walletWasBanned(wallet.address), { parse_mode: 'HTML' })
         }
       }
 
@@ -73,7 +71,7 @@ export class RateLimit {
 
         for (const user of wallet.userWallets) {
           this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id, 'SPAM_PAUSED') // update database
-          bot.sendMessage(user.userId, this.rateLimitMessages.walletWasPaused(wallet.address), { parse_mode: 'HTML' })
+          bot.sendMessage(user.userId, RateLimitMessages.walletWasPaused(wallet.address), { parse_mode: 'HTML' })
         }
 
         setTimeout(() => {
@@ -81,7 +79,7 @@ export class RateLimit {
 
           for (const user of wallet.userWallets) {
             this.prismaWalletRepository.resumeUserWallet(user.userId, wallet.id) // update database
-            bot.sendMessage(user.userId, this.rateLimitMessages.walletWasResumed(wallet.address), {
+            bot.sendMessage(user.userId, RateLimitMessages.walletWasResumed(wallet.address), {
               parse_mode: 'HTML',
             })
           }

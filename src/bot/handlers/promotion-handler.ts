@@ -7,11 +7,9 @@ import { INSUFFICIENT_BALANCE_SUB_MENU, SUB_MENU } from '../../config/bot-menus'
 
 export class PromotionHandler {
   private payments: Payments
-  private generalMessages: GeneralMessages
   constructor(private bot: TelegramBot) {
     this.bot = bot
     this.payments = new Payments()
-    this.generalMessages = new GeneralMessages()
   }
 
   public async buyPromotion(message: TelegramBot.Message, promotionPrice: number, promotionType: PromotionType) {
@@ -25,7 +23,7 @@ export class PromotionHandler {
     )
 
     if (paymentMessage === PaymentsMessageEnum.INSUFFICIENT_BALANCE) {
-      this.bot.editMessageText(this.generalMessages.sendInsufficientBalanceMessage(), {
+      this.bot.editMessageText(GeneralMessages.insufficientBalanceMessage, {
         chat_id: chatId,
         message_id: message.message_id,
         reply_markup: INSUFFICIENT_BALANCE_SUB_MENU,
@@ -55,7 +53,7 @@ You now will be able to track up to 50 wallets at the same time forever! ✨
         },
       )
     } else {
-      this.bot.editMessageText(this.generalMessages.sendGeneralMessageError(), {
+      this.bot.editMessageText(GeneralMessages.generalMessageError, {
         chat_id: chatId,
         message_id: message.message_id,
         reply_markup: SUB_MENU,

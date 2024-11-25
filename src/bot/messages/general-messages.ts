@@ -6,7 +6,7 @@ import { UserPrisma } from '../../types/prisma-types'
 export class GeneralMessages {
   constructor() {}
 
-  public sendStartMessage(user: UserPrisma): string {
+  static startMessage(user: UserPrisma): string {
     const plan = user?.userSubscription?.plan || 'FREE'
 
     const planWallets: { [key: string]: number } = {
@@ -38,7 +38,7 @@ To ensure smooth performance for everyone, free wallets may be cleaned up period
     return messageText
   }
 
-  public sendPlanUpgradedMessage(plan: SubscriptionPlan, subscriptionEnd: string): string {
+  static planUpgradedMessage(plan: SubscriptionPlan, subscriptionEnd: string): string {
     const planWallets: { [key: string]: number } = {
       HOBBY: MAX_HOBBY_WALLETS,
       PRO: MAX_PRO_WALLETS,
@@ -56,17 +56,13 @@ You can now track up to <b>${planWallet}</b> wallets at the time!
     return messageText
   }
 
-  public sendInsufficientBalanceMessage(): string {
-    const messageText = `
+  static insufficientBalanceMessage: string = `
 😿 Ooops it seems that you don't have sufficient balance to perform this transaction.
 
 You can try by adding some <b>SOL</b> to your Handi Cat personal wallet 😺
 `
 
-    return messageText
-  }
-
-  public sendUserAlreadyPaidMessage(action: 'CODE' | 'PLAN'): string {
+  static userAlreadyPaidMessage(action: 'CODE' | 'PLAN'): string {
     const messageText = `
 🤝 You already purchased this ${action.toLowerCase()} 
 `
@@ -74,11 +70,7 @@ You can try by adding some <b>SOL</b> to your Handi Cat personal wallet 😺
     return messageText
   }
 
-  public sendWalletLimitMessageError(
-    walletName: string | undefined,
-    walletAddress: string,
-    planWallets: number,
-  ): string {
+  static walletLimitMessageError(walletName: string | undefined, walletAddress: string, planWallets: number): string {
     const messageText = `
 😾 Could not add wallet: <code>${walletName ? walletName : walletAddress}</code>, 
 
@@ -90,8 +82,7 @@ You can try by upgrading your <b>plan</b> for more wallets 💎
     return messageText
   }
 
-  public sendGeneralMessageError(): string {
-    const messageText = `
+  static generalMessageError: string = `
 😿 Ooops it seems that something went wrong while processing the transaction.
 
 You probaly don't have sufficient balance in your wallet
@@ -99,14 +90,7 @@ You probaly don't have sufficient balance in your wallet
 Maybe try adding some <b>SOL</b> to your Handi Cat personal wallet 😺
 `
 
-    return messageText
-  }
-
-  public sendBotWalletError(): string {
-    const messageText = `
+  static botWalletError: string = `
 😿 Oops! it seems that this wallet has been banned due to too many tps
 `
-
-    return messageText
-  }
 }

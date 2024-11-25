@@ -3,14 +3,7 @@ import { WalletDetails } from '../../lib/wallet-details'
 import { UserWallet } from '../../types/prisma-types'
 
 export class ManageMessages {
-  private walletDetails: WalletDetails
-  constructor() {
-    this.walletDetails = new WalletDetails()
-  }
-
-  public async sendManageMessage(userWallets: UserWallet[], walletsAmt: number) {
-    // const s = await this.walletDetails.getWalletPNL('CwiiPtoSZTeiPXXa2U95NUFX8kVhKAqTNwqfDkXAqgRj')
-    // console.log('DATA', s)
+  static manageMessage(userWallets: UserWallet[], walletsAmt: number) {
     const messageText = `
 <b>Your wallets: ${userWallets.length} / ${walletsAmt}</b>
 

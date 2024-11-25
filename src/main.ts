@@ -7,6 +7,9 @@ import express, { Express } from 'express'
 import { DeleteCommand } from './bot/commands/delete-command'
 import { TrackWallets } from './lib/track-wallets'
 import { CronJobs } from './lib/cron-jobs'
+import { ASCII_TEXT } from './constants/handi-cat'
+import chalk from 'chalk'
+import gradient from 'gradient-string'
 
 dotenv.config()
 
@@ -33,7 +36,9 @@ class Main {
     this.addCommand = new AddCommand(bot)
     this.deleteCommand = new DeleteCommand(bot)
 
-    this.app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`))
+    this.app.listen(PORT, () =>
+      console.log(`${chalk.bold.white.bgMagenta(`Server running on http://localhost:${PORT}`)}`),
+    )
   }
 
   setupRoutes() {
@@ -59,6 +64,9 @@ class Main {
   }
 
   public async init(): Promise<void> {
+    const gradientText = gradient.retro
+    console.log(gradientText(ASCII_TEXT))
+
     // bot
     this.callbackQueryHandler.call()
     this.startCommand.start()

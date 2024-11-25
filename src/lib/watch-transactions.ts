@@ -12,6 +12,7 @@ import {
   PUMP_FUN_TOKEN_MINT_AUTH,
   RAYDIUM_PROGRAM_ID,
 } from '../config/program-ids'
+import chalk from 'chalk'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -50,7 +51,7 @@ export class WatchTransaction extends EventEmitter {
           continue // Skip re-subscribing
         }
 
-        console.log(`Watching transactions for wallet: ${walletAddress}`)
+        console.log(chalk.greenBright(`Watching transactions for wallet: `) + chalk.yellowBright.bold(walletAddress))
 
         // Initialize transaction count and timestamp
         this.walletTransactions.set(walletAddress, { count: 0, startTime: Date.now() })
@@ -142,14 +143,16 @@ export class WatchTransaction extends EventEmitter {
 
         // Store subscription ID
         this.subscriptions.set(wallet.address, subscriptionId)
-        console.log(`Subscribed to logs with subscription ID: ${subscriptionId}`)
+        console.log(
+          chalk.greenBright(`Subscribed to logs with subscription ID: `) + chalk.yellowBright.bold(subscriptionId),
+        )
       }
     } catch (error) {
       console.error('Error in watchSocket:', error)
     }
   }
 
-  private async getParsedTransaction(transactionSignature: string) {
+  public async getParsedTransaction(transactionSignature: string) {
     try {
       const transactionDetails = await this.connection.getParsedTransactions([transactionSignature], {
         maxSupportedTransactionVersion: 0,
@@ -176,11 +179,11 @@ export class WatchTransaction extends EventEmitter {
     if (logString.includes(PUMP_FUN_PROGRAM_ID)) {
       return { isRelevant: true, swap: 'pumpfun' }
     }
-    if (logString.includes(RAYDIUM_PROGRAM_ID)) {
-      return { isRelevant: true, swap: 'raydium' }
-    }
     if (logString.includes(JUPITER_PROGRAM_ID)) {
       return { isRelevant: true, swap: 'jupiter' }
+    }
+    if (logString.includes(RAYDIUM_PROGRAM_ID)) {
+      return { isRelevant: true, swap: 'raydium' }
     }
 
     return { isRelevant: false, swap: null }

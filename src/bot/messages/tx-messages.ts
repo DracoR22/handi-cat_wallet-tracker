@@ -3,7 +3,7 @@ import { NativeParserInterface } from '../../types/general-interfaces'
 export class TxMessages {
   constructor() {}
 
-  public sendTxMessage(
+  static txMadeMessage(
     message: NativeParserInterface,
     tokenMarketCap?: string | undefined,
     walletName?: string,
@@ -50,7 +50,7 @@ ${marketCapText}
     return messageText
   }
 
-  public sendMintTokenMessage(message: NativeParserInterface, walletName?: string): string {
+  static tokenMintedMessage(message: NativeParserInterface, walletName?: string): string {
     const owner = message.owner
     const amountOut = message.tokenTransfers.tokenAmountOut
     const tokenOut = message.tokenTransfers.tokenOutSymbol

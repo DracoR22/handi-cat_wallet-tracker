@@ -8,17 +8,13 @@ import { PaymentsMessageEnum } from '../../types/messages-types'
 import { GeneralMessages } from '../messages/general-messages'
 
 export class DonateCommand {
-  private donateMessages: DonateMessages
   private prismaUserRepository: PrismaUserRepository
   private payments: Payments
-  private generalMessages: GeneralMessages
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
-    this.donateMessages = new DonateMessages()
     this.prismaUserRepository = new PrismaUserRepository()
     this.payments = new Payments()
-    this.generalMessages = new GeneralMessages()
   }
 
   public async donateCommandHandler(msg: TelegramBot.Message) {
@@ -47,17 +43,17 @@ export class DonateCommand {
       const { message: paymentMessage, success } = await this.payments.chargeDonation(String(msg.chat.id), amount)
 
       if (paymentMessage === PaymentsMessageEnum.INSUFFICIENT_BALANCE) {
-        this.bot.sendMessage(msg.chat.id, this.generalMessages.sendInsufficientBalanceMessage(), {
+        this.bot.sendMessage(msg.chat.id, GeneralMessages.insufficientBalanceMessage, {
           reply_markup: SUB_MENU,
           parse_mode: 'HTML',
         })
       } else if (paymentMessage === PaymentsMessageEnum.DONATION_MADE) {
-        this.bot.sendMessage(msg.chat.id, this.donateMessages.sendDonationMadeMessage(), {
+        this.bot.sendMessage(msg.chat.id, DonateMessages.donationMadeMessage, {
           reply_markup: SUB_MENU,
           parse_mode: 'HTML',
         })
       } else {
-        this.bot.sendMessage(msg.chat.id, this.generalMessages.sendGeneralMessageError(), {
+        this.bot.sendMessage(msg.chat.id, GeneralMessages.generalMessageError, {
           reply_markup: SUB_MENU,
           parse_mode: 'HTML',
         })
@@ -68,7 +64,7 @@ export class DonateCommand {
 
     this.bot.once('message', listener)
 
-    const messageText = this.donateMessages.donateMessage(userWallet)
+    const messageText = DonateMessages.donateMessage(userWallet)
 
     this.bot.editMessageText(messageText, {
       chat_id: msg.chat.id,

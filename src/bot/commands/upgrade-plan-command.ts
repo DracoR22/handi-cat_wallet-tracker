@@ -4,12 +4,10 @@ import { UPGRADE_PLAN_SUB_MENU } from '../../config/bot-menus'
 import { PrismaUserRepository } from '../../repositories/prisma/user'
 
 export class UpgradePlanCommand {
-  private subscriptionMessages: SubscriptionMessages
   private prismaUserRepository: PrismaUserRepository
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
-    this.subscriptionMessages = new SubscriptionMessages()
     this.prismaUserRepository = new PrismaUserRepository()
   }
 
@@ -18,7 +16,7 @@ export class UpgradePlanCommand {
 
     const user = await this.prismaUserRepository.getUserPlan(userId)
 
-    const messageText = this.subscriptionMessages.sendUpgradeProMessage(user)
+    const messageText = SubscriptionMessages.upgradeProMessage(user)
 
     this.bot.editMessageText(messageText, {
       chat_id: msg.chat.id,

@@ -2,19 +2,17 @@ import TelegramBot from 'node-telegram-bot-api'
 import { TokenPrices } from '../../lib/token-prices-api'
 import { FormatNumbers } from '../../lib/format-numbers'
 import { createTxSubMenu } from '../../config/bot-menus'
-import { TxMessages } from '../messages/tx-message'
+import { TxMessages } from '../messages/tx-messages'
 import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
 import { NativeParserInterface } from '../../types/general-interfaces'
 
 export class SendTransactionMsgHandler {
-  private txMessages: TxMessages
   private tokenPrices: TokenPrices
   private formatNumbers: FormatNumbers
   private prismaWalletRepository: PrismaWalletRepository
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
-    this.txMessages = new TxMessages()
     this.tokenPrices = new TokenPrices()
     this.formatNumbers = new FormatNumbers()
     this.prismaWalletRepository = new PrismaWalletRepository()
@@ -46,7 +44,7 @@ export class SendTransactionMsgHandler {
 
         const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
 
-        const messageText = this.txMessages.sendTxMessage(message, formattedMarketCap, walletName?.name)
+        const messageText = TxMessages.txMadeMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',
           disable_web_page_preview: true,
@@ -60,7 +58,7 @@ export class SendTransactionMsgHandler {
 
         const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
 
-        const messageText = this.txMessages.sendTxMessage(message, formattedMarketCap, walletName?.name)
+        const messageText = TxMessages.txMadeMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',
           disable_web_page_preview: true,
@@ -68,7 +66,7 @@ export class SendTransactionMsgHandler {
         })
       } else if (message.platform === 'mint_pumpfun') {
         // new!
-        const messageText = this.txMessages.sendMintTokenMessage(message, walletName?.name)
+        const messageText = TxMessages.tokenMintedMessage(message, walletName?.name)
 
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',

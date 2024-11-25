@@ -1,19 +1,17 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
-import { DeleteWalletMessage } from '../messages/delete-wallet-message'
 import { SUB_MENU } from '../../config/bot-menus'
 import { PublicKey } from '@solana/web3.js'
 import { TrackWallets } from '../../lib/track-wallets'
 import { userExpectingWalletAddress } from '../../constants/flags'
+import { WalletMessages } from '../messages/wallet-messages'
 
 export class DeleteCommand {
   private prismaWalletRepository: PrismaWalletRepository
-  private deleteWalletMessage: DeleteWalletMessage
   private trackWallets: TrackWallets
   constructor(private bot: TelegramBot) {
     this.bot = bot
     this.prismaWalletRepository = new PrismaWalletRepository()
-    this.deleteWalletMessage = new DeleteWalletMessage()
     this.trackWallets = new TrackWallets()
   }
 
@@ -32,7 +30,7 @@ export class DeleteCommand {
   }
 
   private delete({ message, isButton }: { message: TelegramBot.Message; isButton: boolean }) {
-    const deleteMessage = this.deleteWalletMessage.sendDeleteWalletMessage()
+    const deleteMessage = WalletMessages.deleteWalletMessage
     if (isButton) {
       this.bot.editMessageText(deleteMessage, {
         chat_id: message.chat.id,

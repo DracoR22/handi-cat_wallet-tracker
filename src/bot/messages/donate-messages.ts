@@ -1,7 +1,7 @@
 export class DonateMessages {
   constructor() {}
 
-  public donateMessage(userWallet?: string | undefined): string {
+  static donateMessage(userWallet?: string | undefined): string {
     const messageText = `
 ⭐ <b>Support the future of Handi Cat</b>
 
@@ -19,8 +19,7 @@ To donate:
     return messageText
   }
 
-  public sendDonationMadeMessage(): string {
-    const messageText = `
+  static donationMadeMessage: string = `
 😸 <b>Success!</b> Thank you for your generous donation! 🎉
 
 Your support helps keep Handi Cat growing and improving, allowing us to bring you exciting new features and better services.
@@ -29,7 +28,4 @@ Every donation makes a difference, and we are incredibly grateful for your contr
 
 🚀 Stay tuned for more updates and features, and thank you for being a part of our journey! 🐾
 `
-
-    return messageText
-  }
 }

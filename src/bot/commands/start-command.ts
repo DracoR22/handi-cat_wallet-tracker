@@ -6,12 +6,9 @@ import { GeneralMessages } from '../messages/general-messages'
 export class StartCommand {
   private prismaUserRepository: PrismaUserRepository
 
-  private generalMessages: GeneralMessages
   constructor(private bot: TelegramBot) {
     this.bot = bot
     this.prismaUserRepository = new PrismaUserRepository()
-
-    this.generalMessages = new GeneralMessages()
   }
 
   public start() {
@@ -29,7 +26,7 @@ export class StartCommand {
       // Find existing user
       const user = await this.prismaUserRepository.getById(userId)
 
-      const messageText = this.generalMessages.sendStartMessage(user)
+      const messageText = GeneralMessages.startMessage(user)
 
       this.bot.sendMessage(chatId, messageText, { reply_markup: START_MENU, parse_mode: 'HTML' })
 

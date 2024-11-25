@@ -69,7 +69,10 @@ export class TransactionParser {
         }
       })
 
+      // console.log('transaction', transactions)
+
       const nativeBalance = this.tokenUtils.calculateNativeBalanceChanges(transactionDetails)
+      // console.log('native balance', nativeBalance)
 
       if (!preBalances || !postBalances) {
         console.log('No balance information available')

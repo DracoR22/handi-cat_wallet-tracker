@@ -13,7 +13,7 @@ export class SettingsCommand {
   public async settingsCommandHandler(msg: TelegramBot.Message) {
     const userId = msg.chat.id.toString()
 
-    const messageText = this.userSettingsMessages.sendSettingsMessage()
+    const messageText = UserSettingsMessages.settingsMessage
 
     const sendMessage = this.bot.editMessageText(messageText, {
       chat_id: msg.chat.id,

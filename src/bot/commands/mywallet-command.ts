@@ -1,14 +1,14 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { PrismaUserRepository } from '../../repositories/prisma/user'
-import { MyWalletMessages } from '../messages/mywallet-message'
 import { SUB_MENU, USER_WALLET_SUB_MENU } from '../../config/bot-menus'
+import { WalletMessages } from '../messages/wallet-messages'
 
 export class MyWalletCommand {
   private prismaUserRepository: PrismaUserRepository
-  private myWalletMessages: MyWalletMessages
+  private walletMessages: WalletMessages
   constructor(private bot: TelegramBot) {
     this.prismaUserRepository = new PrismaUserRepository()
-    this.myWalletMessages = new MyWalletMessages()
+    this.walletMessages = new WalletMessages()
 
     this.bot = bot
   }
@@ -21,7 +21,7 @@ export class MyWalletCommand {
       return
     }
 
-    const messageText = await this.myWalletMessages.sendMyWalletMessage(userPersonalWallet)
+    const messageText = await this.walletMessages.sendMyWalletMessage(userPersonalWallet)
 
     const sendMessage = this.bot.editMessageText(messageText, {
       chat_id: msg.chat.id,

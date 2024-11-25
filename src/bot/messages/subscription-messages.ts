@@ -11,7 +11,7 @@ import { UserWithSubscriptionPlan } from '../../types/prisma-types'
 export class SubscriptionMessages {
   constructor() {}
 
-  public sendUpgradeProMessage(user: UserWithSubscriptionPlan | null): string {
+  static upgradeProMessage(user: UserWithSubscriptionPlan | null): string {
     const subscriptionExists = user?.userSubscription ? true : false
 
     const subscriptionPlan = subscriptionExists ? user?.userSubscription?.plan : 'FREE'

@@ -28,8 +28,6 @@ export class CallbackQueryHandler {
 
   private prismaUserRepository: PrismaUserRepository
 
-  private generalMessages: GeneralMessages
-
   private upgradePlanHandler: UpgradePlanHandler
   private donateHandler: DonateHandler
   private promotionHandler: PromotionHandler
@@ -46,8 +44,6 @@ export class CallbackQueryHandler {
     this.updateBotStatusHandler = new UpdateBotStatusHandler(this.bot)
 
     this.prismaUserRepository = new PrismaUserRepository()
-
-    this.generalMessages = new GeneralMessages()
 
     this.upgradePlanHandler = new UpgradePlanHandler(this.bot)
     this.donateHandler = new DonateHandler(this.bot)
@@ -118,7 +114,7 @@ export class CallbackQueryHandler {
           break
         case 'back_to_main_menu':
           const user = await this.prismaUserRepository.getById(userId)
-          const messageText = this.generalMessages.sendStartMessage(user)
+          const messageText = GeneralMessages.startMessage(user)
 
           // reset any flags
           userExpectingWalletAddress[Number(chatId)] = false

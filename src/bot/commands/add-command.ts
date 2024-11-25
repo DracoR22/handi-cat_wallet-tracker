@@ -6,7 +6,7 @@ import { userExpectingWalletAddress } from '../../constants/flags'
 import { TrackWallets } from '../../lib/track-wallets'
 import { RateLimit } from '../../lib/rate-limit'
 import { MAX_5_MIN_TXS_ALLOWED } from '../../constants/handi-cat'
-import { AddWalletMessage } from '../messages/add-wallet-messages'
+import { WalletMessages } from '../messages/wallet-messages'
 import { UserPlan } from '../../lib/user-plan'
 import { PrismaUserRepository } from '../../repositories/prisma/user'
 import { GeneralMessages } from '../messages/general-messages'
@@ -15,18 +15,14 @@ import { BANNED_WALLETS } from '../../constants/banned-wallets'
 export class AddCommand {
   private prismaWalletRepository: PrismaWalletRepository
   private trackWallets: TrackWallets
-  private addWalletMessage: AddWalletMessage
   private userPlan: UserPlan
-  private generalMessages: GeneralMessages
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
     this.prismaWalletRepository = new PrismaWalletRepository()
 
     this.trackWallets = new TrackWallets()
-    this.addWalletMessage = new AddWalletMessage()
     this.userPlan = new UserPlan()
-    this.generalMessages = new GeneralMessages()
   }
 
   public addCommandHandler() {
@@ -44,7 +40,7 @@ export class AddCommand {
   }
 
   private add({ message, isButton }: { message: TelegramBot.Message; isButton: boolean }) {
-    const addMessage = this.addWalletMessage.sendAddWalletMessage()
+    const addMessage = WalletMessages.addWalletMessage
     if (isButton) {
       this.bot.editMessageText(addMessage, {
         chat_id: message.chat.id,
@@ -81,14 +77,14 @@ export class AddCommand {
 
         // check for bot wallets
         if (BANNED_WALLETS.has(walletAddress)) {
-          return this.bot.sendMessage(message.chat.id, this.generalMessages.sendBotWalletError(), {
+          return this.bot.sendMessage(message.chat.id, GeneralMessages.botWalletError, {
             parse_mode: 'HTML',
             reply_markup: SUB_MENU,
           })
         }
 
         if (walletAddress.includes('orc') || walletAddress.includes('pump')) {
-          return this.bot.sendMessage(message.chat.id, this.generalMessages.sendBotWalletError(), {
+          return this.bot.sendMessage(message.chat.id, GeneralMessages.botWalletError, {
             parse_mode: 'HTML',
             reply_markup: SUB_MENU,
           })
@@ -100,7 +96,7 @@ export class AddCommand {
         if (userWallets && userWallets.length >= planWallets) {
           return this.bot.sendMessage(
             message.chat.id,
-            this.generalMessages.sendWalletLimitMessageError(walletName, walletAddress, planWallets),
+            GeneralMessages.walletLimitMessageError(walletName, walletAddress, planWallets),
             { parse_mode: 'HTML', reply_markup: UPGRADE_PLAN_SUB_MENU },
           )
         }

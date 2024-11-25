@@ -25,7 +25,7 @@ export class ManageCommand {
 
     const planWallets = await this.userPlan.getUserPlanWallets(userId)
 
-    const messageText = await this.manageMessages.sendManageMessage(userWallets || [], planWallets)
+    const messageText = ManageMessages.manageMessage(userWallets || [], planWallets)
 
     this.bot.editMessageText(messageText, {
       chat_id: msg.chat.id,
