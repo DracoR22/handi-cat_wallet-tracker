@@ -115,7 +115,6 @@ export class PrismaSubscriptionRepository {
     promotionType: PromotionType,
   ): Promise<{ success: boolean; message: string }> {
     try {
-      // Find the promotion by type
       const promotion = await prisma.promotion.findFirst({
         where: { type: promotionType },
         select: { id: true, isActive: true, isStackable: true },
@@ -126,24 +125,20 @@ export class PrismaSubscriptionRepository {
         return { success: false, message: 'Promotion not found' }
       }
 
-      // Check if user already owns this promotion
       const existingUserPromotion = await prisma.userPromotion.findFirst({
         where: { userId, promotionId: promotion.id },
       })
 
-      // If the promotion is not stackable and already exists for the user, return an error
       if (existingUserPromotion && !promotion.isStackable) {
         console.log('User already purchased this non-stackable promotion')
         return { success: false, message: 'Non-stackable promotion already purchased' }
       }
 
-      // Optionally, check if promotion is expired
       if (!promotion.isActive) {
         console.log('Promotion has expired')
         return { success: false, message: 'Promotion has expired' }
       }
 
-      // Create the user promotion record
       await prisma.userPromotion.create({
         data: {
           userId,

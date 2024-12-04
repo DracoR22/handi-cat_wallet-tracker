@@ -39,6 +39,7 @@ export class PrismaUserRepository {
         userSubscription: {
           select: {
             plan: true,
+            subscriptionCurrentPeriodEnd: true,
           },
         },
         _count: {
@@ -187,6 +188,26 @@ export class PrismaUserRepository {
       return trimmedPrivateKey
     } catch (error) {
       console.log('SHOW_PRIVATE_KEY_ERROR')
+      return
+    }
+  }
+
+  public async getFreeUsers() {
+    try {
+      const freeUsers = await prisma.user.findMany({
+        where: {
+          AND: [
+            {
+              OR: [{ userSubscription: null }, { userSubscription: { plan: 'FREE' } }],
+            },
+            { userPromotions: { none: {} } },
+          ],
+        },
+      })
+
+      return freeUsers
+    } catch (error) {
+      console.log('GET_FREE_USERS_ERROR')
       return
     }
   }

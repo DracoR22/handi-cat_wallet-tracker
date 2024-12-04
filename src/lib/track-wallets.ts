@@ -124,7 +124,6 @@ export class TrackWallets {
 
   public async listenForDatabaseChanges(): Promise<void> {
     while (true) {
-      // Infinite loop to keep the process running
       try {
         const stream = await this.prismaWalletRepository.pulseWallet()
 
@@ -150,7 +149,6 @@ export class TrackWallets {
         }
       } catch (error: any) {
         console.error('Connection lost. Attempting to reconnect...', error.message)
-        // Wait before retrying (e.g., 5 seconds)
         await new Promise((resolve) => setTimeout(resolve, 5000))
       }
     }

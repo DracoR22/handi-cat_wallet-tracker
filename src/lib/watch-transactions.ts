@@ -68,7 +68,6 @@ export class WatchTransaction extends EventEmitter {
 
             const { isRelevant, swap } = this.isRelevantTransaction(logs)
 
-            // new approach!! lets see if we can keep this
             if (!isRelevant) {
               console.log('TRANSACTION IS NOT DEFI')
               return

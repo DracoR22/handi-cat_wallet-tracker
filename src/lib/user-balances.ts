@@ -6,13 +6,11 @@ export class UserBalances {
 
   public async userPersonalSolBalance(walletAddress: string): Promise<number | undefined> {
     try {
-      // Create a PublicKey object from the wallet address
       const publicKey = new PublicKey(walletAddress)
 
-      // Fetch the balance
       const balance = await connection.getBalance(publicKey)
 
-      // Convert lamports to SOL (1 SOL = 10^9 lamports)
+      // Convert lamports to SOL
       const solBalance = balance / 1_000_000_000
 
       // console.log(`Balance: ${solBalance} SOL`);

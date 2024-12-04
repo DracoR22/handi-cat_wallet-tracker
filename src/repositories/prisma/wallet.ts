@@ -41,7 +41,6 @@ export class PrismaWalletRepository {
           return linkUserToWallet
         }
 
-        // If the link already exists, return a meaningful message or the existing link
         return userWalletLink
       }
 
@@ -166,7 +165,6 @@ export class PrismaWalletRepository {
       },
     })
 
-    // Return the wallet if found, otherwise return null
     return userWallet ? userWallet.wallet : null
   }
 
@@ -195,7 +193,7 @@ export class PrismaWalletRepository {
               handiCatStatus: {
                 not: 'PAUSED',
               },
-            }, // This will filter wallets that have at least one related UserWallet
+            },
           },
         },
         include: {

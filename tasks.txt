@@ -1,4 +1,3 @@
-- add minted token message (done)
-- when banning a wallet then ban all user wallets with the same address
-- fix the update event in TrackWallets class (done)
-- exclude banned wallets from logs at runtime
+- fix bullshit re-fething wallets code I wrote in track-wallets.ts
+- fix update events not working at all specially when changing bot status in settings command
+- exclude banned wallets from logs at runtime, there is a problem caused by the mess in update events

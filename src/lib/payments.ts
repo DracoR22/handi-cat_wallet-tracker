@@ -82,9 +82,12 @@ export class Payments {
     }
 
     const currentSubscription = user.userSubscription?.plan
+    const subscriptionExpired = user.userSubscription?.subscriptionCurrentPeriodEnd
 
-    // create a free subscription of they dont have balance and subscription
-    if (!currentSubscription) {
+    const today = new Date()
+
+    // create a free subscription if they dont have balance and subscription or if it expired
+    if (!currentSubscription || (subscriptionExpired && new Date(subscriptionExpired) <= today)) {
       await this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE')
     }
     return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }

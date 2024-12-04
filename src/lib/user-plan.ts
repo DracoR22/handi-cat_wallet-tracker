@@ -27,7 +27,6 @@ export class UserPlan {
       return null
     }
 
-    // Calculate the wallet limit, considering promotions if applicable
     const planWallets = getPromotionWallets(userData?.userPromotions) ?? planWalletsConfig[plan]
 
     return planWallets

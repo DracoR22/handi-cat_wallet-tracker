@@ -24,31 +24,32 @@ class Main {
   private addCommand: AddCommand
   private deleteCommand: DeleteCommand
   constructor(private app: Express = express()) {
-    this.app.use(express.json({ limit: '50mb' }))
-
+    this.setupMiddleware()
     this.setupRoutes()
+
+    // services
     this.cronJobs = new CronJobs()
-
     this.trackWallets = new TrackWallets()
-
     this.callbackQueryHandler = new CallbackQueryHandler(bot)
     this.startCommand = new StartCommand(bot)
     this.addCommand = new AddCommand(bot)
     this.deleteCommand = new DeleteCommand(bot)
 
-    this.app.listen(PORT, () =>
-      console.log(`${chalk.bold.white.bgMagenta(`Server running on http://localhost:${PORT}`)}`),
-    )
+    this.startServer()
   }
 
-  setupRoutes() {
+  private setupMiddleware(): void {
+    this.app.use(express.json({ limit: '50mb' }))
+  }
+
+  private setupRoutes() {
     // Default endpoint
     this.app.get('/', async (req, res) => {
       try {
         res.status(200).send('Hello world')
       } catch (error) {
         console.error('Default route error', error)
-        res.status(500).send('Error processing default rpute')
+        res.status(500).send('Error processing default route')
       }
     })
     this.app.post(`/webhook/telegram`, async (req, res) => {
@@ -61,6 +62,12 @@ class Main {
         res.status(500).send('Error processing update')
       }
     })
+  }
+
+  private startServer(): void {
+    this.app.listen(PORT, () =>
+      console.log(`${chalk.bold.white.bgMagenta(`Server running on http://localhost:${PORT}`)}`),
+    )
   }
 
   public async init(): Promise<void> {

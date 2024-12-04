@@ -1,3 +1,5 @@
+// this class is no longer being used, im using walletWatcher.isRelevantTransaction instead
+
 import { PublicKey } from '@solana/web3.js'
 import { SwapType } from '../types/swap-types'
 import {
