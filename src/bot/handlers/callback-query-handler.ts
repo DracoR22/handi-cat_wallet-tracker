@@ -3,7 +3,7 @@ import { AddCommand } from '../commands/add-command'
 import { START_MENU, SUB_MENU } from '../../config/bot-menus'
 import { ManageCommand } from '../commands/manage-command'
 import { DeleteCommand } from '../commands/delete-command'
-import { adminExpectingMessage, userExpectingDonation, userExpectingWalletAddress } from '../../constants/flags'
+import { userExpectingDonation, userExpectingWalletAddress } from '../../constants/flags'
 import { MyWalletCommand } from '../commands/mywallet-command'
 import { GeneralMessages } from '../messages/general-messages'
 import { UpgradePlanCommand } from '../commands/upgrade-plan-command'
@@ -117,7 +117,6 @@ export class CallbackQueryHandler {
           const messageText = GeneralMessages.startMessage(user)
 
           // reset any flags
-          adminExpectingMessage[Number(chatId)] = false
           userExpectingWalletAddress[Number(chatId)] = false
           userExpectingDonation[Number(chatId)] = false
 
