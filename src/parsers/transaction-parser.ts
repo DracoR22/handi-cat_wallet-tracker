@@ -27,7 +27,7 @@ export class TransactionParser {
     swap: SwapType,
   ): Promise<NativeParserInterface | undefined> {
     try {
-      if (transactionDetails === undefined) {
+      if (!transactionDetails || !transactionDetails[0]) {
         console.log('Transaction not found or invalid.')
         return
       }
@@ -49,11 +49,11 @@ export class TransactionParser {
 
       const signerAccountAddress = signerAccount?.pubkey.toString()
 
-      const preBalances = transactionDetails[0]?.meta?.preBalances
-      const postBalances = transactionDetails[0]?.meta?.postBalances
+      const preBalances = transactionDetails[0].meta?.preBalances
+      const postBalances = transactionDetails[0].meta?.postBalances
 
       // Transaction Metadata
-      transactionDetails[0]?.meta?.innerInstructions?.forEach((i: any) => {
+      transactionDetails[0].meta?.innerInstructions?.forEach((i: any) => {
         // raydium
         i.instructions.forEach((r: any) => {
           if (r.parsed?.type === 'transfer' && r.parsed.info.amount !== undefined) {
@@ -63,7 +63,7 @@ export class TransactionParser {
       })
 
       // pumpfun
-      transactionDetails[0]?.transaction.message.instructions.map((instruction: any) => {
+      transactionDetails[0].transaction.message.instructions.map((instruction: any) => {
         if (transactions.length <= 1 && instruction && instruction.parsed !== undefined) {
           parsedInfos.push(instruction.parsed)
         }
