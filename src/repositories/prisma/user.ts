@@ -144,7 +144,7 @@ export class PrismaUserRepository {
       }
 
       // all wallets will have the same status
-      const currentStatus = userWallets[0].handiCatStatus
+      const currentStatus = userWallets[0]?.handiCatStatus
       const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
 
       await prisma.userWallet.updateMany({

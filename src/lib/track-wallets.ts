@@ -73,6 +73,34 @@ export class TrackWallets {
       // Fetch all wallets related to the updated user ID
       walletsToFetch = await this.prismaWalletRepository.getUserWalletsWithUserIds(userId)
 
+      if (!walletsToFetch) {
+        return
+      }
+
+      // handle banned wallets
+      const userWallets = walletsToFetch.map((w) => w.userWallets).flat()
+      const bannedWallets = userWallets.filter((w) => w.status === 'BANNED')
+
+      if (bannedWallets && bannedWallets.length > 0) {
+        for (const bannedWallet of bannedWallets) {
+          const subscriptionId = this.walletWatcher.subscriptions.get(bannedWallet.address)
+
+          if (subscriptionId) {
+            try {
+              console.log(`Removing listener for BANNED wallet: ${bannedWallet.address}`)
+              await connection.removeOnLogsListener(subscriptionId)
+
+              this.walletWatcher.subscriptions.delete(bannedWallet.address)
+              console.log(`Listener and subscription removed for wallet: ${bannedWallet.address}`)
+            } catch (error) {
+              console.log(`Failed to remove listener for wallet: ${bannedWallet.address}`, error)
+            }
+          }
+        }
+
+        return
+      }
+
       walletsToFetch?.forEach(async (fetchedWallet) => {
         const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === fetchedWallet.address)
 

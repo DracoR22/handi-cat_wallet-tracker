@@ -61,6 +61,8 @@ export class RateLimit {
           this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id, 'BANNED') // update database
           bot.sendMessage(user.userId, RateLimitMessages.walletWasBanned(wallet.address), { parse_mode: 'HTML' })
         }
+
+        return true
       }
 
       if (tps >= MAX_TPS_ALLOWED) {
