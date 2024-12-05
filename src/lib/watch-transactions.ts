@@ -66,12 +66,12 @@ export class WatchTransaction extends EventEmitter {
               return
             }
 
-            // const { isRelevant, swap } = this.isRelevantTransaction(logs)
+            const { isRelevant, swap } = this.isRelevantTransaction(logs)
 
-            // if (!isRelevant) {
-            //   console.log('TRANSACTION IS NOT DEFI')
-            //   return
-            // }
+            if (!isRelevant) {
+              console.log('TRANSACTION IS NOT DEFI')
+              return
+            }
 
             // check txs per second
             const walletData = this.walletTransactions.get(walletAddress)
@@ -96,18 +96,16 @@ export class WatchTransaction extends EventEmitter {
             }
 
             // Find all programIds involved in the transaction
-            const programIds = transactionDetails[0]?.transaction.message.accountKeys
-              .map((key) => key.pubkey)
-              .filter((pubkey) => pubkey !== undefined)
-            const validTransactions = new ValidTransactions(programIds)
-            const isValidTransaction = validTransactions.getDefiTransaction()
+            // const programIds = transactionDetails[0]?.transaction.message.accountKeys
+            //   .map((key) => key.pubkey)
+            //   .filter((pubkey) => pubkey !== undefined)
+            // const validTransactions = new ValidTransactions(programIds)
+            // const isValidTransaction = validTransactions.getDefiTransaction()
 
-            if (!isValidTransaction.valid) {
-              console.log('TRANSACTION IS NOT DEFI TRANSACTION')
-              return
-            }
-
-            const swap = isValidTransaction.swap
+            // if (!isValidTransaction.valid) {
+            //   console.log('TRANSACTION IS NOT DEFI TRANSACTION')
+            //   return
+            // }
 
             // Parse transaction
             const transactionParser = new TransactionParser(transactionSignature, this.connection)

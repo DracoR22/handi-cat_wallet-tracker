@@ -11,23 +11,53 @@ import {
   RAYDIUM_PROGRAM_ID,
 } from './config/program-ids'
 import { SwapType } from './types/swap-types'
-import { PrismaUserRepository } from './repositories/prisma/user'
-import { TransactionParser } from './parsers/transaction-parser'
-import { WatchTransaction } from './lib/watch-transactions'
 
-async function isRelevantTransaction() {
-  const watchTransactions = new WatchTransaction(connection)
-  const transactionDetails = await watchTransactions.getParsedTransaction(
-    'P6A1UerB2yumStuKqqcHCJfCnmUqV34sdPXTQEJPqHokT6G2eQTJvovVzVxyZomFz83QMgnyyWs48MFrWzdVg3Q',
-  )
-  const transactionParser = new TransactionParser(
-    'P6A1UerB2yumStuKqqcHCJfCnmUqV34sdPXTQEJPqHokT6G2eQTJvovVzVxyZomFz83QMgnyyWs48MFrWzdVg3Q',
-    connection,
-  )
+function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: SwapType } {
+  // Guard clause for empty logs
+  if (!logs.logs || logs.logs.length === 0) {
+    return { isRelevant: false, program: null }
+  }
 
-  const tx = await transactionParser.parseRpc(transactionDetails!, 'jupiter')
+  // Join logs into a single string for searching
+  const logString = logs.logs.join(' ')
 
-  console.log('TRANSACTION', tx)
+  // Check programs one by one and return the first match
+  if (logString.includes(PUMP_FUN_PROGRAM_ID)) {
+    return { isRelevant: true, program: 'pumpfun' }
+  }
+  if (logString.includes(RAYDIUM_PROGRAM_ID)) {
+    return { isRelevant: true, program: 'raydium' }
+  }
+  if (logString.includes(JUPITER_PROGRAM_ID)) {
+    return { isRelevant: true, program: 'jupiter' }
+  }
+  if (logString.includes(PUMP_FUN_TOKEN_MINT_AUTH)) {
+    return { isRelevant: true, program: 'mint_pumpfun' }
+  }
+
+  return { isRelevant: false, program: null }
 }
 
-isRelevantTransaction()
+export const test2 = async () => {
+  const walletAddress = 'AsX67niuMc9F91tQFeHvHiUEAnXwam4VoHTbRZ84935W'
+
+  const publicKey = new PublicKey(walletAddress)
+
+  const subscriptionId = connection.onLogs(
+    publicKey,
+    async (logs, ctx) => {
+      const { isRelevant, program } = isRelevantTransaction(logs)
+
+      if (!isRelevant) {
+        console.log('NO RELEVANT', logs.signature)
+        return
+      }
+
+      console.log('YES ITS RELEVANT', logs.signature)
+      console.log('Program:', program)
+    },
+    'confirmed',
+  )
+}
+
+test2()
