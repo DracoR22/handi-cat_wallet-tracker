@@ -252,6 +252,37 @@ export class PrismaWalletRepository {
     }
   }
 
+  public async getBannedUserWalletsWithUserIds(userId: string) {
+    try {
+      const walletsWithUsers = await prisma.wallet.findMany({
+        where: {
+          userWallets: {
+            some: {
+              userId,
+              OR: [{ status: 'BANNED' }, { status: 'SPAM_PAUSED' }, { handiCatStatus: 'PAUSED' }],
+            },
+          },
+        },
+        include: {
+          userWallets: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      return walletsWithUsers
+    } catch (error: any) {
+      console.log('GET_ALL_WALLETS_WITH_USER_IDS_ERROR', error)
+      return
+    }
+  }
+
   public async getWalletByIdForArray(walletId: string): Promise<WalletWithUsers | null> {
     try {
       const walletWithUsers = await prisma.wallet.findUnique({
