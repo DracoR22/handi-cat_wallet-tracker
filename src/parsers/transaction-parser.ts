@@ -219,6 +219,20 @@ export class TransactionParser {
         console.log('OWNER', signerAccountAddress)
         const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`
 
+        let tokenMc: number | null | undefined = null
+
+        // get the token price and market cap for raydium
+        if (transactions.length[0]?.info?.amount !== transactions[1]?.info?.amount) {
+          const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
+
+          const tokenPrice = await this.tokenUtils.getTokenPricePumpFun(tokenToMc)
+
+          if (tokenPrice) {
+            const tokenMarketCap = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc)
+            tokenMc = tokenMarketCap
+          }
+        }
+
         return {
           platform: swap,
           owner: owner,
@@ -226,7 +240,7 @@ export class TransactionParser {
           type: nativeBalance?.type,
           balanceChange: nativeBalance?.balanceChange,
           signature: this.transactionSignature,
-          swappedTokenMc: null,
+          swappedTokenMc: tokenMc,
           solPrice: solPrice || '',
           tokenTransfers: {
             tokenInSymbol: tokenIn,

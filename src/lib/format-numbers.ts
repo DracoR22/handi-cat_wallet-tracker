@@ -28,4 +28,10 @@ export class FormatNumbers {
       return value.toFixed(2)
     }
   }
+
+  static formatTokenPrice(price: number): string {
+    return price.toFixed(8).replace(/^(0\.)(0+)(\d+)/, (_, p1, p2, p3) => {
+      return `0.{${p2.length}}${p3}`
+    })
+  }
 }

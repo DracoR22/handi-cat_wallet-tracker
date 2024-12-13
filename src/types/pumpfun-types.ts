@@ -31,3 +31,12 @@ export type TokenInfoPump = {
   profile_image: string | null
   usd_market_cap: number
 }
+
+export type PumpCurveState = {
+  virtualTokenReserves: bigint
+  virtualSolReserves: bigint
+  realTokenReserves: bigint
+  realSolReserves: bigint
+  tokenTotalSupply: bigint
+  complete: boolean
+}

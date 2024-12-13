@@ -62,7 +62,7 @@ export class RateLimit {
           bot.sendMessage(user.userId, RateLimitMessages.walletWasBanned(wallet.address), { parse_mode: 'HTML' })
         }
 
-        return true
+        // return true
       }
 
       if (tps >= MAX_TPS_ALLOWED) {

@@ -1,4 +1,11 @@
-import { AccountInfo, Connection, ParsedTransactionWithMeta, PublicKey, SystemProgram } from '@solana/web3.js'
+import {
+  AccountInfo,
+  Connection,
+  LAMPORTS_PER_SOL,
+  ParsedTransactionWithMeta,
+  PublicKey,
+  SystemProgram,
+} from '@solana/web3.js'
 // @ts-expect-error
 import { getAccount } from '@solana/spl-token'
 import { TokenListProvider } from '@solana/spl-token-registry'
@@ -7,6 +14,16 @@ import axios from 'axios'
 import { PoolInfoLayout, SqrtPriceMath } from '@raydium-io/raydium-sdk'
 import dotenv from 'dotenv'
 import { ParsedTxInfo } from '../types/general-interfaces'
+import {
+  PUMP_CURVE_STATE_OFFSETS,
+  PUMP_CURVE_STATE_SIGNATURE,
+  PUMP_CURVE_STATE_SIZE,
+  PUMP_CURVE_TOKEN_DECIMALS,
+  PUMP_FUN_PROGRAM_ID,
+} from '../config/program-ids'
+import { PumpCurveState } from '../types/pumpfun-types'
+import { BufferUtils } from './buffer-utils'
+import { FormatNumbers } from './format-numbers'
 dotenv.config()
 
 export class TokenUtils {
@@ -205,8 +222,89 @@ export class TokenUtils {
     return
   }
 
-  public async getTokenPricePumpFun() {
-    // TODO
+  public async getTokenPricePumpFun(tokenAddress: string): Promise<number | null> {
+    const pumpFunProgram = new PublicKey(PUMP_FUN_PROGRAM_ID)
+    const [bondingCurve] = PublicKey.findProgramAddressSync(
+      [Buffer.from('bonding-curve'), new PublicKey(tokenAddress).toBytes()],
+      pumpFunProgram,
+    )
+
+    const curveAddressStr = bondingCurve.toBase58()
+
+    if (!curveAddressStr) return null
+
+    const curveAddress = new PublicKey(curveAddressStr)
+
+    const curveState = await this.getPumpCurveState(curveAddress)
+    if (!curveState) return null
+
+    const tokenPriceSol = this.calculatePumpCurvePrice(curveState)
+
+    // treat this as raydium token
+    if (tokenPriceSol === 0) return null
+
+    const solUsdPrice = await this.getSolPriceNative()
+
+    if (!solUsdPrice) return null
+
+    const tokenPriceUsd = tokenPriceSol * Number(solUsdPrice)
+
+    // const formattedPrice = FormatNumbers.formatTokenPrice(tokenPriceUsd)
+
+    return tokenPriceUsd
+  }
+
+  public async getPumpCurveState(curveAddress: PublicKey): Promise<PumpCurveState | undefined> {
+    const response = await this.connection.getAccountInfo(curveAddress)
+    if (
+      !response ||
+      !response.data ||
+      response.data.byteLength < PUMP_CURVE_STATE_SIGNATURE.byteLength + PUMP_CURVE_STATE_SIZE
+    ) {
+      console.log('unexpected curve state')
+      return
+    }
+
+    const idlSignature = BufferUtils.readBytes(response.data, 0, PUMP_CURVE_STATE_SIGNATURE.byteLength)
+    if (idlSignature?.compare(PUMP_CURVE_STATE_SIGNATURE) !== 0) {
+      console.log('unexpected curve state IDL signature')
+      return
+    }
+
+    return {
+      virtualTokenReserves: BufferUtils.readBigUintLE(
+        response.data,
+        PUMP_CURVE_STATE_OFFSETS.VIRTUAL_TOKEN_RESERVES,
+        8,
+      ),
+      virtualSolReserves: BufferUtils.readBigUintLE(response.data, PUMP_CURVE_STATE_OFFSETS.VIRTUAL_SOL_RESERVES, 8),
+      realTokenReserves: BufferUtils.readBigUintLE(response.data, PUMP_CURVE_STATE_OFFSETS.REAL_TOKEN_RESERVES, 8),
+      realSolReserves: BufferUtils.readBigUintLE(response.data, PUMP_CURVE_STATE_OFFSETS.REAL_SOL_RESERVES, 8),
+      tokenTotalSupply: BufferUtils.readBigUintLE(response.data, PUMP_CURVE_STATE_OFFSETS.TOKEN_TOTAL_SUPPLY, 8),
+      complete: BufferUtils.readBoolean(response.data, PUMP_CURVE_STATE_OFFSETS.COMPLETE, 1),
+    }
+  }
+
+  public calculatePumpCurvePrice(curveState: PumpCurveState): number {
+    if (
+      curveState === null ||
+      typeof curveState !== 'object' ||
+      !(typeof curveState.virtualTokenReserves === 'bigint' && typeof curveState.virtualSolReserves === 'bigint')
+    ) {
+      console.log('curveState must be a PumpCurveState')
+      return 0
+    }
+
+    if (curveState.virtualTokenReserves <= BigInt(0) || curveState.virtualSolReserves <= BigInt(0)) {
+      console.log('curve state contains invalid reserve data')
+      return 0
+    }
+
+    return (
+      Number(curveState.virtualSolReserves) /
+      LAMPORTS_PER_SOL /
+      (Number(curveState.virtualTokenReserves) / 10 ** PUMP_CURVE_TOKEN_DECIMALS)
+    )
   }
 
   public async getTokenMktCap(tokenPrice: number, tokenMint: string) {
