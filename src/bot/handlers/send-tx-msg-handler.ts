@@ -53,16 +53,16 @@ export class SendTransactionMsgHandler {
       } else if (message.platform === 'pumpfun') {
         // const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
         // let tokenMarketCap = tokenInfo?.market_cap
-        // const tokenInfo = await this.tokenPrices.pumpFunTokenInfo(tokenToMc)
-        // let tokenMarketCap = tokenInfo?.usd_market_cap
+        const tokenInfo = await this.tokenPrices.pumpFunTokenInfo(tokenToMc)
+        let tokenMarketCap = tokenInfo?.usd_market_cap
 
-        let tokenMarketCap = message.swappedTokenMc
+        // let tokenMarketCap = message.swappedTokenMc
 
-        // Check if the market cap is below 1000 and adjust if necessary
-        if (tokenMarketCap && tokenMarketCap < 1000) {
-          console.log('MC ADJUSTED')
-          tokenMarketCap *= 1000
-        }
+        // // Check if the market cap is below 1000 and adjust if necessary
+        // if (tokenMarketCap && tokenMarketCap < 1000) {
+        //   console.log('MC ADJUSTED')
+        //   tokenMarketCap *= 1000
+        // }
 
         const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
 

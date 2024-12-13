@@ -221,17 +221,17 @@ export class TransactionParser {
 
         let tokenMc: number | null | undefined = null
 
-        // get the token price and market cap for raydium
-        if (transactions.length[0]?.info?.amount !== transactions[1]?.info?.amount) {
-          const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
+        // get the token price and market cap for pumpfun
+        // if (transactions.length[0]?.info?.amount !== transactions[1]?.info?.amount) {
+        //   const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
 
-          const tokenPrice = await this.tokenUtils.getTokenPricePumpFun(tokenToMc)
+        //   const tokenPrice = await this.tokenUtils.getTokenPricePumpFun(tokenToMc)
 
-          if (tokenPrice) {
-            const tokenMarketCap = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc)
-            tokenMc = tokenMarketCap
-          }
-        }
+        //   if (tokenPrice) {
+        //     const tokenMarketCap = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc)
+        //     tokenMc = tokenMarketCap
+        //   }
+        // }
 
         return {
           platform: swap,
