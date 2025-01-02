@@ -81,7 +81,7 @@ class Main {
     this.deleteCommand.deleteCommandHandler()
 
     // cron jobs
-    // await this.cronJobs.monthlySubscriptionFee()
+    await this.cronJobs.monthlySubscriptionFee()
 
     // setup
     await this.trackWallets.setupWalletWatcher({ event: 'initial' })

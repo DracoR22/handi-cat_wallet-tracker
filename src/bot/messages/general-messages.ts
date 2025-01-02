@@ -29,13 +29,10 @@ Get real time activity notifications for any wallet you add!
 
 You are currently tracking <b>${user?._count.userWallets || 0} / ${planWallets[plan]} wallets</b> ✨
 
+🆙 Click the <b>Upgrade</b> button to unlock more wallet slots and retain your tracked wallets! 
+
 ⚠️ <b>Note for Free Users:</b>  
 To ensure smooth performance for everyone, free wallets may be cleaned up periodically. Consider upgrading to retain all your tracked wallets! 🚀
-
-⚠️ <b>Important Update</b> ⚠️
-This is your LAST CHANCE to get a <b>LIFETIME</b> plan! 🚨 Starting next week, we're switching to a subscription-based model.
-
-🔗 Don't miss out on this opportunity to lock in a lifetime plan before it's gone forever.
 `
 
     return messageText
