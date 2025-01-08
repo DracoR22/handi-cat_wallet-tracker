@@ -13,6 +13,7 @@ import {
   RAYDIUM_PROGRAM_ID,
 } from '../config/program-ids'
 import chalk from 'chalk'
+import { logConnection } from '../providers/solana'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -57,7 +58,7 @@ export class WatchTransaction extends EventEmitter {
         this.walletTransactions.set(walletAddress, { count: 0, startTime: Date.now() })
 
         // Start real-time log
-        const subscriptionId = this.connection.onLogs(
+        const subscriptionId = logConnection.onLogs(
           publicKey,
           async (logs, ctx) => {
             // Exclude wallets that have reached the limit
@@ -69,10 +70,10 @@ export class WatchTransaction extends EventEmitter {
             const { isRelevant, swap } = this.isRelevantTransaction(logs)
 
             if (!isRelevant) {
-              console.log('TRANSACTION IS NOT DEFI')
+              console.log('TRANSACTION IS NOT DEFI', logs.signature)
               return
             }
-
+            console.log('TRANSACTION IS DEFI', logs.signature)
             // check txs per second
             const walletData = this.walletTransactions.get(walletAddress)
             if (!walletData) {
@@ -137,7 +138,7 @@ export class WatchTransaction extends EventEmitter {
               }
             }
           },
-          'confirmed',
+          'processed',
         )
 
         // Store subscription ID
@@ -169,7 +170,6 @@ export class WatchTransaction extends EventEmitter {
       return { isRelevant: false, swap: null }
     }
 
-    // Join logs into a single string for searching
     const logString = logs.logs.join(' ')
 
     if (logString.includes(PUMP_FUN_TOKEN_MINT_AUTH)) {

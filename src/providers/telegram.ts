@@ -15,7 +15,6 @@ const WEBHOOK_URL = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook?url=${A
 // webhook -- comment everything below this line to disable webhook setup
 export const bot = new TelegramBot(BOT_TOKEN ?? '')
 
-// Set the webhook
 bot
   .setWebHook(WEBHOOK_URL)
   .then(() => {

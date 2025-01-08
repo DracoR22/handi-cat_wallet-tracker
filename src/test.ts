@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { connection } from './providers/solana'
+import { connection, logConnection } from './providers/solana'
 import { UserPlan } from './lib/user-plan'
 import { ValidTransactions } from './lib/valid-transactions'
 import { TokenUtils } from './lib/token-utils'
@@ -11,6 +11,7 @@ import {
   RAYDIUM_PROGRAM_ID,
 } from './config/program-ids'
 import { SwapType } from './types/swap-types'
+import chalk from 'chalk'
 
 function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: SwapType } {
   // Guard clause for empty logs
@@ -39,25 +40,47 @@ function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: Swap
 }
 
 export const test2 = async () => {
-  const walletAddress = 'AsX67niuMc9F91tQFeHvHiUEAnXwam4VoHTbRZ84935W'
+  const walletAddresses = ['', '']
 
-  const publicKey = new PublicKey(walletAddress)
+  for (const walletAddress of walletAddresses) {
+    const publicKey = new PublicKey(walletAddress)
+    console.log('watching transactions for: ', publicKey.toBase58())
 
-  const subscriptionId = connection.onLogs(
-    publicKey,
-    async (logs, ctx) => {
-      const { isRelevant, program } = isRelevantTransaction(logs)
+    const subscriptionId = logConnection.onLogs(
+      publicKey,
+      async (logs, ctx) => {
+        console.log(chalk.greenBright(`Log detected for ${walletAddress}: ${logs.signature}`))
+        const { isRelevant, program } = isRelevantTransaction(logs)
 
-      if (!isRelevant) {
-        console.log('NO RELEVANT', logs.signature)
-        return
-      }
+        if (!isRelevant) {
+          console.log(chalk.redBright('NO RELEVANT', logs.signature))
+          return
+        }
 
-      console.log('YES ITS RELEVANT', logs.signature)
-      console.log('Program:', program)
-    },
-    'confirmed',
-  )
+        console.log(chalk.greenBright('YES ITS RELEVANT', logs.signature))
+        console.log('Program:', program)
+      },
+      'processed',
+    )
+  }
 }
 
+export const parseTransactions = async () => {
+  try {
+    const transactionDetails = await connection.getTransaction(
+      'D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff',
+      {
+        maxSupportedTransactionVersion: 0,
+      },
+    )
+
+    console.log(transactionDetails)
+    return transactionDetails
+  } catch (error) {
+    console.log('GET_PARSED_TRANSACTIONS_ERROR', error)
+    return
+  }
+}
+
+// parseTransactions()
 test2()
