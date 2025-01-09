@@ -1,5 +1,5 @@
 import { walletsToTrack } from '../constants/flags'
-import { connection, logConnection } from '../providers/solana'
+import { logConnection } from '../providers/solana'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { SetupWalletWatcherProps } from '../types/general-interfaces'
 import { WalletWithUsers } from '../types/swap-types'
@@ -33,7 +33,7 @@ export class TrackWallets {
           const subscriptionId = this.walletWatcher.subscriptions.get(refetchedWallet.address)
           if (subscriptionId) {
             // Remove the onLogs listener for the current subscription ID
-            await connection.removeOnLogsListener(subscriptionId)
+            await logConnection.removeOnLogsListener(subscriptionId)
             // Delete the subscription from the map after listener removal
             this.walletWatcher.subscriptions.delete(refetchedWallet.address)
           }
@@ -61,7 +61,7 @@ export class TrackWallets {
           walletsArray[existingWalletIndex] = refetchedWallet
           const subscriptionId = this.walletWatcher.subscriptions.get(refetchedWallet.address)
 
-          await connection.removeOnLogsListener(subscriptionId as number)
+          await logConnection.removeOnLogsListener(subscriptionId as number)
           this.walletWatcher.subscriptions.delete(refetchedWallet.address)
         } else {
           walletsArray.push(refetchedWallet)
@@ -109,7 +109,7 @@ export class TrackWallets {
 
           if (subscriptionId) {
             // Remove the onLogs listener for the current subscription ID
-            await connection.removeOnLogsListener(subscriptionId)
+            await logConnection.removeOnLogsListener(subscriptionId)
             // Delete the subscription from the map after listener removal
             this.walletWatcher.subscriptions.delete(fetchedWallet.address)
           }
@@ -184,7 +184,7 @@ export class TrackWallets {
 
   public async stopWatching(): Promise<void> {
     for (const [wallet, subscriptionId] of this.walletWatcher.subscriptions) {
-      connection.removeOnLogsListener(subscriptionId)
+      logConnection.removeOnLogsListener(subscriptionId)
       console.log(`Stopped watching transactions for wallet: ${wallet}`)
     }
     this.walletWatcher.subscriptions.clear()
@@ -202,7 +202,7 @@ export class TrackWallets {
     const subscriptionId = this.walletWatcher.subscriptions.get(walletAddress!.address)
     console.log('LENGTH', walletAddress.userWallets.length)
     if (subscriptionId && walletAddress.userWallets.length < 1) {
-      connection.removeOnLogsListener(subscriptionId)
+      logConnection.removeOnLogsListener(subscriptionId)
       console.log(`Stopped watching transactions for wallet: ${walletAddress!.address}`)
       this.walletWatcher.subscriptions.delete(walletAddress!.address)
     } else {
