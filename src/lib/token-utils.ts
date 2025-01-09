@@ -24,16 +24,15 @@ import {
 import { PumpCurveState } from '../types/pumpfun-types'
 import { BufferUtils } from './buffer-utils'
 import { FormatNumbers } from './format-numbers'
+import { connection } from '../providers/solana'
 dotenv.config()
 
 export class TokenUtils {
-  constructor(private connection: Connection) {
-    this.connection = connection
-  }
+  constructor() {}
   public async getTokenMintAddress(tokenAddress: string) {
     try {
       const tokenPublicKey = new PublicKey(tokenAddress)
-      const accountInfo = await getAccount(this.connection, tokenPublicKey)
+      const accountInfo = await getAccount(connection, tokenPublicKey)
       return accountInfo.mint.toBase58()
     } catch (error) {
       console.log(`Error fetching mint address for token ${tokenAddress}:`, error)
@@ -130,7 +129,7 @@ export class TokenUtils {
     try {
       const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
 
-      const accountInfo = await this.connection.getAccountInfo(id)
+      const accountInfo = await connection.getAccountInfo(id)
 
       if (accountInfo === null) {
         console.log('get pool info error')
@@ -156,7 +155,7 @@ export class TokenUtils {
 
   public async getTokenBalance(tokenAccountAddress: PublicKey) {
     try {
-      const tokenBalance = await this.connection.getTokenAccountBalance(tokenAccountAddress)
+      const tokenBalance = await connection.getTokenAccountBalance(tokenAccountAddress)
       return tokenBalance.value.amount
     } catch (error) {
       console.log('Error fetching token balance:', error)
@@ -176,7 +175,6 @@ export class TokenUtils {
       const priceOfSPLTokenInSOL = wrappedSolBalance / 1_000_000_000 / (splTokenBalance / 1_000_000)
       let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd
 
-      console.log('PRICE IN USD NORMAL', priceOfSPLTokenInUSD)
       console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
       console.log('SOL PRICE TOKEN', priceOfSPLTokenInSOL)
 
@@ -202,7 +200,6 @@ export class TokenUtils {
       const priceOfSPLTokenInSOL = wrappedSolBalance / 1_000_000_000 / (splTokenBalance / 1_000_000)
       let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd
 
-      console.log('PRICE IN USD NORMAL', priceOfSPLTokenInUSD)
       console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
       console.log('SOL PRICE TOKEN', priceOfSPLTokenInSOL)
 
@@ -222,7 +219,7 @@ export class TokenUtils {
     return
   }
 
-  public async getTokenPricePumpFun(tokenAddress: string): Promise<number | null> {
+  public async getTokenPricePumpFun(tokenAddress: string, solPrice: string | undefined): Promise<number | null> {
     const pumpFunProgram = new PublicKey(PUMP_FUN_PROGRAM_ID)
     const [bondingCurve] = PublicKey.findProgramAddressSync(
       [Buffer.from('bonding-curve'), new PublicKey(tokenAddress).toBytes()],
@@ -243,11 +240,10 @@ export class TokenUtils {
     // treat this as raydium token
     if (tokenPriceSol === 0) return null
 
-    const solUsdPrice = await this.getSolPriceNative()
+    const parsedSolPrice = Number(solPrice)
+    const validSolPrice = isNaN(parsedSolPrice) ? 0 : parsedSolPrice
 
-    if (!solUsdPrice) return null
-
-    const tokenPriceUsd = tokenPriceSol * Number(solUsdPrice)
+    const tokenPriceUsd = tokenPriceSol * validSolPrice
 
     // const formattedPrice = FormatNumbers.formatTokenPrice(tokenPriceUsd)
 
@@ -255,7 +251,7 @@ export class TokenUtils {
   }
 
   public async getPumpCurveState(curveAddress: PublicKey): Promise<PumpCurveState | undefined> {
-    const response = await this.connection.getAccountInfo(curveAddress)
+    const response = await connection.getAccountInfo(curveAddress)
     if (
       !response ||
       !response.data ||
@@ -307,11 +303,17 @@ export class TokenUtils {
     )
   }
 
-  public async getTokenMktCap(tokenPrice: number, tokenMint: string) {
+  public async getTokenMktCap(tokenPrice: number, tokenMint: string, isPump: boolean) {
     try {
+      let supplyValue = null
       const mintPublicKey = new PublicKey(tokenMint)
-      const tokenSupply = await this.connection.getTokenSupply(mintPublicKey)
-      const supplyValue = tokenSupply.value.uiAmount
+
+      if (isPump) {
+        supplyValue = 1e9
+      } else {
+        const tokenSupply = await connection.getTokenSupply(mintPublicKey)
+        supplyValue = tokenSupply.value.uiAmount
+      }
 
       if (!supplyValue) {
         return

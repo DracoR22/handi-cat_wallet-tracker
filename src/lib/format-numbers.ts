@@ -19,7 +19,7 @@ export class FormatNumbers {
     return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(scaledAmount)
   }
 
-  public formatMarketCap(value: number): string {
+  static formatPrice(value: number): string {
     if (value >= 1_000_000) {
       return `${(value / 1_000_000).toFixed(2)}M`
     } else if (value >= 1_000) {

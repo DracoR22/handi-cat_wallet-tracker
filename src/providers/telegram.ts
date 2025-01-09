@@ -10,7 +10,7 @@ const APP_URL = process.env.APP_URL
 const WEBHOOK_URL = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook?url=${APP_URL}`
 
 // uncomment this line for local development and comment webhook setup
-// export const bot = new TelegramBot(BOT_TOKEN ?? '', { polling: true })
+// export const bot = new TelegramBot(TEST_BOT_TOKEN ?? '', { polling: true })
 
 // webhook -- comment everything below this line to disable webhook setup
 export const bot = new TelegramBot(BOT_TOKEN ?? '')

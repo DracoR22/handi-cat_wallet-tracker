@@ -8,17 +8,13 @@ import { TxPerSecondCapInterface } from '../types/general-interfaces'
 import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED, MAX_TPS_FOR_BAN, WALLET_SLEEP_TIME } from '../constants/handi-cat'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { BANNED_WALLETS } from '../constants/banned-wallets'
+import { connection } from '../providers/solana'
 
 export class RateLimit {
   private prismaWalletRepository: PrismaWalletRepository
 
-  constructor(
-    private connection: Connection,
-    private subscriptions: Map<string, number>,
-  ) {
+  constructor(private subscriptions: Map<string, number>) {
     this.prismaWalletRepository = new PrismaWalletRepository()
-
-    this.connection = connection
   }
 
   public async last5MinutesTxs(walletAddress: string) {
@@ -27,7 +23,7 @@ export class RateLimit {
     // Calculate the time 5 minutes ago
     const fiveMinutesAgo = currentTime - 1 * 60 * 1000
 
-    const signatures = await this.connection.getSignaturesForAddress(new PublicKey(walletAddress), {
+    const signatures = await connection.getSignaturesForAddress(new PublicKey(walletAddress), {
       limit: MAX_5_MIN_TXS_ALLOWED,
     })
 

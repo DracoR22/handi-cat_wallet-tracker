@@ -1,3 +1,4 @@
+import { FormatNumbers } from '../../lib/format-numbers'
 import { NativeParserInterface } from '../../types/general-interfaces'
 
 export class TxMessages {
@@ -26,7 +27,8 @@ export class TxMessages {
     const solPrice = Number(message.solPrice)
 
     const amountInUsd = message.type === 'buy' ? Number(amountOut) * solPrice : Number(amountIn) * solPrice
-    const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
+    // const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
+    const fixedUsdAmount = FormatNumbers.formatPrice(amountInUsd)
 
     const tokenMintToTrack = message.type === 'buy' ? tokenInMint : tokenOutMint
 
@@ -36,13 +38,13 @@ export class TxMessages {
     const phLink = `<a href="https://photon-sol.tinyastro.io/en/lp/${tokenMintToTrack}">PH</a>`
 
     const marketCapText = tokenMarketCap
-      ? `<b>💣 ${message.type === 'buy' ? tokenIn : tokenOut}</b> | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} | ${beLink} | ${dsLink} | ${phLink}`
+      ? `💣 ${message.type === 'buy' ? `<a href="${solscanTokenInUrl}">#${tokenIn}</a>` : `<a href="${solscanTokenOutUrl}">#${tokenOut}</a>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} | ${beLink} | ${dsLink} | ${phLink}`
       : ''
 
     const messageText = `
 ${message.type === 'buy' ? '🟢' : '🔴'} <a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a> on ${message.platform!.toUpperCase()}
 <b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
-💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' && Number(fixedUsdAmount) > 0 ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' && Number(fixedUsdAmount) > 0 ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a>
+💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' && Number(fixedUsdAmount) > 0 ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' && Number(fixedUsdAmount) > 0 ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a> @$${message.swappedTokenPrice?.toFixed(7)}
       
 ${marketCapText}
 <code>${tokenMintToTrack}</code>

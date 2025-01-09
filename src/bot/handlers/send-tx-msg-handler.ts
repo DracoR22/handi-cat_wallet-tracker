@@ -8,13 +8,11 @@ import { NativeParserInterface } from '../../types/general-interfaces'
 
 export class SendTransactionMsgHandler {
   private tokenPrices: TokenPrices
-  private formatNumbers: FormatNumbers
   private prismaWalletRepository: PrismaWalletRepository
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
     this.tokenPrices = new TokenPrices()
-    this.formatNumbers = new FormatNumbers()
     this.prismaWalletRepository = new PrismaWalletRepository()
   }
 
@@ -42,7 +40,8 @@ export class SendTransactionMsgHandler {
           tokenMarketCap *= 1000
         }
 
-        const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
+        const formattedMarketCap = tokenMarketCap ? FormatNumbers.formatPrice(tokenMarketCap) : undefined
+        const tokenPrice = message.swappedTokenPrice
 
         const messageText = TxMessages.txMadeMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {
@@ -53,18 +52,12 @@ export class SendTransactionMsgHandler {
       } else if (message.platform === 'pumpfun') {
         // const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
         // let tokenMarketCap = tokenInfo?.market_cap
-        const tokenInfo = await this.tokenPrices.pumpFunTokenInfo(tokenToMc)
-        let tokenMarketCap = tokenInfo?.usd_market_cap
+        // const tokenInfo = await this.tokenPrices.pumpFunTokenInfo(tokenToMc)
+        // let tokenMarketCap = tokenInfo?.usd_market_cap
 
-        // let tokenMarketCap = message.swappedTokenMc
+        let tokenMarketCap = message.swappedTokenMc
 
-        // // Check if the market cap is below 1000 and adjust if necessary
-        // if (tokenMarketCap && tokenMarketCap < 1000) {
-        //   console.log('MC ADJUSTED')
-        //   tokenMarketCap *= 1000
-        // }
-
-        const formattedMarketCap = tokenMarketCap ? this.formatNumbers.formatMarketCap(tokenMarketCap) : undefined
+        const formattedMarketCap = tokenMarketCap ? FormatNumbers.formatPrice(tokenMarketCap) : undefined
 
         const messageText = TxMessages.txMadeMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {

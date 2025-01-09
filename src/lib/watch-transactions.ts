@@ -13,7 +13,9 @@ import {
   RAYDIUM_PROGRAM_ID,
 } from '../config/program-ids'
 import chalk from 'chalk'
-import { logConnection } from '../providers/solana'
+import { connection, logConnection } from '../providers/solana'
+import { NativeParserInterface } from '../types/general-interfaces'
+import pLimit from 'p-limit'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -26,7 +28,7 @@ export class WatchTransaction extends EventEmitter {
   // private trackedWallets: Set<string>
 
   private rateLimit: RateLimit
-  constructor(private connection: Connection) {
+  constructor() {
     super()
 
     this.subscriptions = new Map()
@@ -35,9 +37,7 @@ export class WatchTransaction extends EventEmitter {
 
     // this.trackedWallets = new Set()
 
-    this.rateLimit = new RateLimit(this.connection, this.subscriptions)
-
-    this.connection = connection
+    this.rateLimit = new RateLimit(this.subscriptions)
   }
 
   public async watchSocket(wallets: WalletWithUsers[]): Promise<void> {
@@ -70,10 +70,10 @@ export class WatchTransaction extends EventEmitter {
             const { isRelevant, swap } = this.isRelevantTransaction(logs)
 
             if (!isRelevant) {
-              console.log('TRANSACTION IS NOT DEFI', logs.signature)
+              // console.log('TRANSACTION IS NOT DEFI', logs.signature)
               return
             }
-            console.log('TRANSACTION IS DEFI', logs.signature)
+            // console.log('TRANSACTION IS DEFI', logs.signature)
             // check txs per second
             const walletData = this.walletTransactions.get(walletAddress)
             if (!walletData) {
@@ -96,20 +96,8 @@ export class WatchTransaction extends EventEmitter {
               return
             }
 
-            // Find all programIds involved in the transaction
-            // const programIds = transactionDetails[0]?.transaction.message.accountKeys
-            //   .map((key) => key.pubkey)
-            //   .filter((pubkey) => pubkey !== undefined)
-            // const validTransactions = new ValidTransactions(programIds)
-            // const isValidTransaction = validTransactions.getDefiTransaction()
-
-            // if (!isValidTransaction.valid) {
-            //   console.log('TRANSACTION IS NOT DEFI TRANSACTION')
-            //   return
-            // }
-
             // Parse transaction
-            const transactionParser = new TransactionParser(transactionSignature, this.connection)
+            const transactionParser = new TransactionParser(transactionSignature)
             const parsed = await transactionParser.parseRpc(transactionDetails, swap)
 
             if (!parsed) {
@@ -119,24 +107,7 @@ export class WatchTransaction extends EventEmitter {
             console.log(parsed)
 
             // Use bot to send message of transaction
-            const sendMessageHandler = new SendTransactionMsgHandler(bot)
-
-            const activeUsers = wallet.userWallets.filter((w) => w.handiCatStatus === 'ACTIVE')
-            // just in case, somehow sometimes I get duplicated users here, I should probably address this in the track wallets function instead
-            const uniqueActiveUsers = Array.from(new Set(activeUsers.map((user) => user.userId))).map((userId) =>
-              activeUsers.find((user) => user.userId === userId),
-            )
-
-            for (const user of uniqueActiveUsers) {
-              if (user) {
-                console.log('Users:', user)
-                try {
-                  await sendMessageHandler.send(parsed, user.userId)
-                } catch (error) {
-                  console.log(`Error sending message to user ${user.userId}`)
-                }
-              }
-            }
+            await this.sendMessagesToUsers(wallet, parsed)
           },
           'processed',
         )
@@ -154,7 +125,7 @@ export class WatchTransaction extends EventEmitter {
 
   public async getParsedTransaction(transactionSignature: string) {
     try {
-      const transactionDetails = await this.connection.getParsedTransactions([transactionSignature], {
+      const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
         maxSupportedTransactionVersion: 0,
       })
 
@@ -163,6 +134,33 @@ export class WatchTransaction extends EventEmitter {
       console.log('GET_PARSED_TRANSACTIONS_ERROR', error)
       return
     }
+  }
+
+  private async sendMessagesToUsers(wallet: WalletWithUsers, parsed: NativeParserInterface) {
+    const sendMessageHandler = new SendTransactionMsgHandler(bot)
+
+    const activeUsers = wallet.userWallets.filter((w) => w.handiCatStatus === 'ACTIVE')
+    // just in case, somehow sometimes I get duplicated users here, I should probably address this in the track wallets function instead
+    const uniqueActiveUsers = Array.from(new Set(activeUsers.map((user) => user.userId))).map((userId) =>
+      activeUsers.find((user) => user.userId === userId),
+    )
+
+    const limit = pLimit(30)
+
+    const tasks = uniqueActiveUsers.map((user) =>
+      limit(async () => {
+        if (user) {
+          console.log('Users:', user)
+          try {
+            await sendMessageHandler.send(parsed, user.userId)
+          } catch (error) {
+            console.log(`Error sending message to user ${user.userId}:`, error)
+          }
+        }
+      }),
+    )
+
+    await Promise.all(tasks)
   }
 
   private isRelevantTransaction(logs: Logs): { isRelevant: boolean; swap: SwapType } {

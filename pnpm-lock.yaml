@@ -53,6 +53,9 @@ dependencies:
   node-telegram-bot-api:
     specifier: ^0.66.0
     version: 0.66.0(request@2.88.2)
+  p-limit:
+    specifier: 3.0.0
+    version: 3.0.0
 
 devDependencies:
   '@types/express':
@@ -2829,6 +2832,18 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       mimic-fn: 2.1.0
+    dev: false
+
+  /p-limit@3.0.0:
+    resolution: {integrity: sha512-2FnzNu8nBx8Se231yrvScYw34Is5J5MtvKOQt7Lii+DGpM89xnCT7kIH/HJwniNkQpjB7zy/O3LckEfMVqYvFg==}
+    engines: {node: '>=10'}
+    dependencies:
+      p-try: 2.2.0
+    dev: false
+
+  /p-try@2.2.0:
+    resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
+    engines: {node: '>=6'}
     dev: false
 
   /package-json-from-dist@1.0.0:

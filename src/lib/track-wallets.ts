@@ -1,5 +1,5 @@
 import { walletsToTrack } from '../constants/flags'
-import { connection } from '../providers/solana'
+import { connection, logConnection } from '../providers/solana'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { SetupWalletWatcherProps } from '../types/general-interfaces'
 import { WalletWithUsers } from '../types/swap-types'
@@ -15,7 +15,7 @@ export class TrackWallets {
 
   constructor() {
     this.prismaWalletRepository = new PrismaWalletRepository()
-    this.walletWatcher = new WatchTransaction(connection)
+    this.walletWatcher = new WatchTransaction()
 
     this.walletsState = []
   }
@@ -88,7 +88,7 @@ export class TrackWallets {
           if (subscriptionId !== undefined) {
             try {
               console.log(`Removing listener for BANNED wallet: ${bannedWallet.address}`)
-              await connection.removeOnLogsListener(subscriptionId)
+              await logConnection.removeOnLogsListener(subscriptionId)
 
               this.walletWatcher.subscriptions.delete(bannedWallet.address)
               console.log(`Listener and subscription removed for wallet: ${bannedWallet.address}`)

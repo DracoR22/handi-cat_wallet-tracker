@@ -1,5 +1,6 @@
 import { Connection, PublicKey, VersionedTransactionResponse } from '@solana/web3.js'
 import { Collection, Data, Metadata, TokenStandard, Uses, deprecated } from '@metaplex-foundation/mpl-token-metadata'
+import { connection } from '../providers/solana'
 
 interface TokenInfo {
   key: string
@@ -15,14 +16,12 @@ interface TokenInfo {
 }
 
 export class TokenParser {
-  constructor(private connection: Connection) {
-    this.connection = connection
-  }
+  constructor() {}
 
   public async getTokenInfo(tokenMint: string): Promise<TokenInfo> {
     const mintPublicKey = new PublicKey(tokenMint)
     const tokenmetaPubkey = await deprecated.Metadata.getPDA(mintPublicKey)
-    const tokenContent = await Metadata.fromAccountAddress(this.connection, tokenmetaPubkey)
+    const tokenContent = await Metadata.fromAccountAddress(connection, tokenmetaPubkey)
 
     const token = tokenContent.pretty()
     //  console.log('TOKEN', token)

@@ -39,8 +39,10 @@ function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: Swap
   return { isRelevant: false, program: null }
 }
 
+const programIds = [PUMP_FUN_PROGRAM_ID, RAYDIUM_PROGRAM_ID, JUPITER_PROGRAM_ID]
+
 export const test2 = async () => {
-  const walletAddresses = ['', '']
+  const walletAddresses = ['']
 
   for (const walletAddress of walletAddresses) {
     const publicKey = new PublicKey(walletAddress)
@@ -49,7 +51,6 @@ export const test2 = async () => {
     const subscriptionId = logConnection.onLogs(
       publicKey,
       async (logs, ctx) => {
-        console.log(chalk.greenBright(`Log detected for ${walletAddress}: ${logs.signature}`))
         const { isRelevant, program } = isRelevantTransaction(logs)
 
         if (!isRelevant) {
@@ -68,7 +69,7 @@ export const test2 = async () => {
 export const parseTransactions = async () => {
   try {
     const transactionDetails = await connection.getTransaction(
-      'D13jTJYXoQBcRY9AfT5xRtsew7ENgCkNs6mwwwAcUCp4ZZCEM7YwZ7en4tVsoDa7Gu75Jjj2FgLXNUz8Zmgedff',
+      '28AFNwYFCdQTW5suiEr4b6Cj9hmWiGGoPkiNi2MJU8Y7S3G1YzCs8LHq91U37shCEAx1ZWA8jjPugMLGYEjUr5vU',
       {
         maxSupportedTransactionVersion: 0,
       },
@@ -82,5 +83,5 @@ export const parseTransactions = async () => {
   }
 }
 
-// parseTransactions()
-test2()
+parseTransactions()
+// test2()

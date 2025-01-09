@@ -14,17 +14,11 @@ export const START_MENU: InlineKeyboardMarkup = {
       { text: '⚙️ Settings', callback_data: 'settings' },
     ],
     [{ text: '👑 Upgrade', callback_data: 'upgrade' }],
-    // [{ text: '💎 PRO', callback_data: 'pro' }, { text: '👛 My Wallet', callback_data: 'my_wallet' }],
-    // [{ text: '🔗 Links', callback_data: 'links' }, { text: '💱 SELL', callback_data: 'sell' }],
   ],
 }
 
 export const SUB_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [[{ text: '🔙 Back', callback_data: 'back_to_main_menu' }]],
-}
-
-export const TX_SUB_MENU: InlineKeyboardMarkup = {
-  inline_keyboard: [[{ text: 'Buy on GMGN' }]],
 }
 
 export const createTxSubMenu = (tokenSymbol: string, tokenMint: string) => {
