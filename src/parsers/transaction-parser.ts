@@ -113,49 +113,58 @@ export class TransactionParser {
 
       // for raydium transactions
       if (transactions.length > 1) {
-        // let tokenInMint
-        // let tokenOutMint
+        if (nativeBalance?.type === 'sell') {
+          tokenOutMint = await this.tokenUtils.getTokenMintAddress(transactions[0]?.info.destination)
+          tokenInMint = 'So11111111111111111111111111111111111111112'
 
-        // if (nativeBalance?.type === 'buy') {
-        //    tokenInMint = await this.tokenUtils.getTokenMintAddress(transactions[0]?.info.destination)
-        // }
+          if (tokenOutMint === null) return
 
-        const [tokenOutMint, tokenInMint] = await Promise.all([
-          this.tokenUtils.getTokenMintAddress(transactions[0]?.info.destination),
-          this.tokenUtils.getTokenMintAddress(raydiumTransfer.info.source),
-        ])
+          const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
+
+          tokenOut = tokenOutInfo.data.symbol.replace(/\x00/g, '')
+          tokenIn = 'SOL'
+        } else {
+          tokenInMint = await this.tokenUtils.getTokenMintAddress(raydiumTransfer.info.source)
+          tokenOutMint = 'So11111111111111111111111111111111111111112'
+
+          if (tokenInMint === null) return
+
+          const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
+
+          tokenIn = tokenInInfo.data.symbol.replace(/\x00/g, '')
+          tokenOut = 'SOL'
+        }
+
+        // const [tokenOutMint, tokenInMint] = await Promise.all([
+        //   this.tokenUtils.getTokenMintAddress(transactions[0]?.info.destination),
+        //   this.tokenUtils.getTokenMintAddress(raydiumTransfer.info.source),
+        // ])
 
         // console.log('TOKEN OUT MINTTT', tokenOutMint)
         // console.log('TOKEN IN MINTTTT', tokenInMint)
 
-        if (tokenInMint === null || tokenOutMint === null) {
-        }
+        // const [tokenOutInfo, tokenInInfo] = await Promise.all([
+        //   this.tokenParser.getTokenInfo(tokenOutMint),
+        //   this.tokenParser.getTokenInfo(tokenInMint),
+        // ])
 
-        const [tokenOutInfo, tokenInInfo] = await Promise.all([
-          this.tokenParser.getTokenInfo(tokenOutMint),
-          this.tokenParser.getTokenInfo(tokenInMint),
-        ])
+        // // const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
+        // const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '')
 
-        // const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
-        const cleanedTokenOutSymbol = tokenOutInfo.data.symbol.replace(/\x00/g, '')
-
-        // const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
-        const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '')
+        // // const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
+        // const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '')
 
         const formattedAmountOut = this.formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
         const formattedAmountIn = this.formatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
 
         owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
         amountOut =
-          cleanedTokenOutSymbol === 'SOL'
-            ? (Number(transactions[0]?.info?.amount) / 1e9).toFixed(2).toString()
-            : formattedAmountOut
+          tokenOut === 'SOL' ? (Number(transactions[0]?.info?.amount) / 1e9).toFixed(2).toString() : formattedAmountOut
         amountIn =
-          cleanedTokenInSymbol === 'SOL'
-            ? (Number(raydiumTransfer.info.amount) / 1e9).toFixed(2).toString()
-            : formattedAmountIn
-        tokenOut = cleanedTokenOutSymbol
-        tokenIn = cleanedTokenInSymbol
+          tokenIn === 'SOL' ? (Number(raydiumTransfer.info.amount) / 1e9).toFixed(2).toString() : formattedAmountIn
+
+        // tokenOut = cleanedTokenOutSymbol
+        // tokenIn = cleanedTokenInSymbol
 
         let tokenMc: number | null | undefined = null
         let raydiumTokenPrice: number | null | undefined = null
