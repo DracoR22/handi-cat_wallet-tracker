@@ -16,6 +16,8 @@ import chalk from 'chalk'
 import { connection, logConnection } from '../providers/solana'
 import { NativeParserInterface } from '../types/general-interfaces'
 import pLimit from 'p-limit'
+import { TokenUtils } from './token-utils'
+import { CronJobs } from './cron-jobs'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -24,8 +26,6 @@ export class WatchTransaction extends EventEmitter {
 
   private walletTransactions: Map<string, { count: number; startTime: number }>
   private excludedWallets: Map<string, boolean>
-
-  // private trackedWallets: Set<string>
 
   private rateLimit: RateLimit
   constructor() {
@@ -73,10 +73,11 @@ export class WatchTransaction extends EventEmitter {
               // console.log('TRANSACTION IS NOT DEFI', logs.signature)
               return
             }
-            // console.log('TRANSACTION IS DEFI', logs.signature)
+            console.log('TRANSACTION IS DEFI', logs.signature)
             // check txs per second
             const walletData = this.walletTransactions.get(walletAddress)
             if (!walletData) {
+              console.log('NO WALLET DATA')
               return
             }
 
@@ -87,20 +88,26 @@ export class WatchTransaction extends EventEmitter {
               walletData,
             })
 
-            if (isWalletRateLimited) return
+            if (isWalletRateLimited) {
+              console.log('WALLET RATE LIMITED')
+              return
+            }
 
             const transactionSignature = logs.signature
             const transactionDetails = await this.getParsedTransaction(transactionSignature)
 
-            if (!transactionDetails) {
+            if (!transactionDetails || transactionDetails[0] === null) {
+              // console.log('NO TRANSACTION DETAILS')
               return
             }
 
             // Parse transaction
+            const solPriceUsd = CronJobs.getSolPrice()
             const transactionParser = new TransactionParser(transactionSignature)
-            const parsed = await transactionParser.parseRpc(transactionDetails, swap)
+            const parsed = await transactionParser.parseRpc(transactionDetails, swap, solPriceUsd)
 
             if (!parsed) {
+              console.log('NO PARSED')
               return
             }
 
@@ -123,17 +130,41 @@ export class WatchTransaction extends EventEmitter {
     }
   }
 
-  public async getParsedTransaction(transactionSignature: string) {
-    try {
-      const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
-        maxSupportedTransactionVersion: 0,
-      })
+  // public async getParsedTransaction(transactionSignature: string) {
+  //   try {
+  //     const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
+  //       maxSupportedTransactionVersion: 0,
+  //     })
 
-      return transactionDetails
-    } catch (error) {
-      console.log('GET_PARSED_TRANSACTIONS_ERROR', error)
-      return
+  //     return transactionDetails
+  //   } catch (error) {
+  //     console.log('GET_PARSED_TRANSACTIONS_ERROR', error)
+  //     return
+  //   }
+  // }
+
+  public async getParsedTransaction(transactionSignature: string, retries = 4) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
+          maxSupportedTransactionVersion: 0,
+        })
+
+        if (transactionDetails && transactionDetails[0] !== null) {
+          return transactionDetails
+        }
+
+        console.log(`Attempt ${attempt}: No transaction details found for ${transactionSignature}`)
+      } catch (error) {
+        console.error(`Attempt ${attempt}: Error fetching transaction details`, error)
+      }
+
+      // Delay before retrying
+      await new Promise((resolve) => setTimeout(resolve, 1000))
     }
+
+    console.error(`Failed to fetch transaction details after ${retries} retries for signature:`, transactionSignature)
+    return null
   }
 
   private async sendMessagesToUsers(wallet: WalletWithUsers, parsed: NativeParserInterface) {
@@ -154,7 +185,7 @@ export class WatchTransaction extends EventEmitter {
           try {
             await sendMessageHandler.send(parsed, user.userId)
           } catch (error) {
-            console.log(`Error sending message to user ${user.userId}:`, error)
+            console.log(`Error sending message to user ${user.userId}`)
           }
         }
       }),

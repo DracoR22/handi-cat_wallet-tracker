@@ -42,7 +42,11 @@ function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: Swap
 const programIds = [PUMP_FUN_PROGRAM_ID, RAYDIUM_PROGRAM_ID, JUPITER_PROGRAM_ID]
 
 export const test2 = async () => {
-  const walletAddresses = ['']
+  const walletAddresses = [
+    'DfMxre4cKmvogbLrPigxmibVTTQDuzjdXojWzjCXXhzj',
+    'AsX67niuMc9F91tQFeHvHiUEAnXwam4VoHTbRZ84935W',
+    'JDWmTTSZv2wkRkRKkeXa44j8Q7M4SW3XFMwYYBf7hwdi',
+  ]
 
   for (const walletAddress of walletAddresses) {
     const publicKey = new PublicKey(walletAddress)

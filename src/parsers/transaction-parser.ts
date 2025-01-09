@@ -21,6 +21,7 @@ export class TransactionParser {
   public async parseRpc(
     transactionDetails: (ParsedTransactionWithMeta | null)[],
     swap: SwapType,
+    solPriceUsd: string | undefined,
   ): Promise<NativeParserInterface | undefined> {
     try {
       if (transactionDetails === undefined) {
@@ -40,9 +41,16 @@ export class TransactionParser {
       let tokenInMint: string = ''
       let tokenOutMint: string = ''
 
+      // let solPrice: string | undefined = ''
+
       // console.log('PARSED_TRANSACTION:', transactionDetails)
 
       const accountKeys = transactionDetails[0]?.transaction.message.accountKeys
+
+      if (!accountKeys) {
+        console.log('Account keys not found in transaction details.', transactionDetails)
+        return
+      }
 
       const signerAccount = accountKeys!.find((account) => account.signer === true)
 
@@ -104,10 +112,15 @@ export class TransactionParser {
           : transactions[transactions.length - 1]
 
       if (!raydiumTransfer) {
+        console.log('NO RAYDIUM TRANSFER')
         return
       }
 
-      const solPrice = await this.tokenUtils.getSolPriceNative()
+      // solPrice = await this.tokenUtils.getSolPriceGecko()
+
+      // if (!solPrice) {
+      //   solPrice = await this.tokenUtils.getSolPriceNative()
+      // }
 
       // const solPrice = ''
 
@@ -117,7 +130,10 @@ export class TransactionParser {
           tokenOutMint = await this.tokenUtils.getTokenMintAddress(transactions[0]?.info.destination)
           tokenInMint = 'So11111111111111111111111111111111111111112'
 
-          if (tokenOutMint === null) return
+          if (tokenOutMint === null) {
+            console.log('NO TOKEN OUT MINT')
+            return
+          }
 
           const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
 
@@ -127,7 +143,10 @@ export class TransactionParser {
           tokenInMint = await this.tokenUtils.getTokenMintAddress(raydiumTransfer.info.source)
           tokenOutMint = 'So11111111111111111111111111111111111111112'
 
-          if (tokenInMint === null) return
+          if (tokenInMint === null) {
+            console.log('NO TOKEN IN MINT')
+            return
+          }
 
           const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
 
@@ -176,6 +195,7 @@ export class TransactionParser {
           const tokenPrice = await this.tokenUtils.getTokenPriceRaydium(
             transactions,
             nativeBalance?.type as 'buy' | 'sell',
+            Number(solPriceUsd),
           )
 
           const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
@@ -196,7 +216,7 @@ export class TransactionParser {
           signature: this.transactionSignature,
           swappedTokenMc: tokenMc,
           swappedTokenPrice: raydiumTokenPrice,
-          solPrice: solPrice || '',
+          solPrice: solPriceUsd || '',
           tokenTransfers: {
             tokenInSymbol: tokenIn,
             tokenInMint: tokenInMint,
@@ -226,7 +246,10 @@ export class TransactionParser {
           tokenOutMint = await this.tokenUtils.getTokenMintAddressWithFallback(transactions)
           tokenInMint = 'So11111111111111111111111111111111111111112'
 
-          if (tokenOutMint === null) return
+          if (tokenOutMint === null) {
+            console.log('NO TOKEN OUT MINT')
+            return
+          }
 
           const tokenOutInfo = await this.tokenParser.getTokenInfo(tokenOutMint)
 
@@ -236,7 +259,10 @@ export class TransactionParser {
           tokenOutMint = 'So11111111111111111111111111111111111111112'
           tokenInMint = await this.tokenUtils.getTokenMintAddressWithFallback(transactions)
 
-          if (tokenInMint === null) return
+          if (tokenInMint === null) {
+            console.log('NO TOKEN IN MINT')
+            return
+          }
 
           const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
 
@@ -268,7 +294,7 @@ export class TransactionParser {
 
         const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
 
-        const tokenPrice = await this.tokenUtils.getTokenPricePumpFun(tokenToMc, solPrice)
+        const tokenPrice = await this.tokenUtils.getTokenPricePumpFun(tokenToMc, solPriceUsd)
         // console.log('TOKEN PRICE:', tokenPrice)
         if (tokenPrice) {
           const tokenMarketCap = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc, true)
@@ -284,7 +310,7 @@ export class TransactionParser {
           signature: this.transactionSignature,
           swappedTokenMc: tokenMc,
           swappedTokenPrice: tokenPrice,
-          solPrice: solPrice || '',
+          solPrice: solPriceUsd || '',
           tokenTransfers: {
             tokenInSymbol: tokenIn,
             tokenInMint: tokenInMint,
@@ -295,9 +321,8 @@ export class TransactionParser {
           },
         }
       }
-
-      return
     } catch (error) {
+      console.log('TRANSACTION_PARSER_ERROR', error)
       return
     }
   }

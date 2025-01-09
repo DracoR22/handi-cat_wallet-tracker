@@ -82,6 +82,7 @@ class Main {
 
     // cron jobs
     await this.cronJobs.monthlySubscriptionFee()
+    await this.cronJobs.updateSolPrice()
 
     // setup
     await this.trackWallets.setupWalletWatcher({ event: 'initial' })

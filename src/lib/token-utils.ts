@@ -110,7 +110,7 @@ export class TokenUtils {
     }
   }
 
-  public async getSolPriceGecko(): Promise<string | undefined> {
+  static async getSolPriceGecko(): Promise<string | undefined> {
     try {
       const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd')
 
@@ -125,7 +125,7 @@ export class TokenUtils {
     }
   }
 
-  public async getSolPriceNative(): Promise<string | undefined> {
+  static async getSolPriceNative(): Promise<string | undefined> {
     try {
       const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
 
@@ -163,14 +163,18 @@ export class TokenUtils {
     }
   }
 
-  public async getTokenPriceRaydium(txInstructions: ParsedTxInfo[], type: 'buy' | 'sell'): Promise<number | undefined> {
+  public async getTokenPriceRaydium(
+    txInstructions: ParsedTxInfo[],
+    type: 'buy' | 'sell',
+    solPriceInUsd: number,
+  ): Promise<number | undefined> {
     if (type === 'buy') {
       const tokenAccountAddress = new PublicKey(txInstructions[1]!.info.source)
       const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[0]!.info.destination)
 
       const splTokenBalance: any = await this.getTokenBalance(tokenAccountAddress)
       const wrappedSolBalance: any = await this.getTokenBalance(tokenAccountAddressWrappedSol)
-      const solPriceInUsd: any = await this.getSolPriceNative()
+      // const solPriceInUsd: any = await this.getSolPriceNative()
 
       const priceOfSPLTokenInSOL = wrappedSolBalance / 1_000_000_000 / (splTokenBalance / 1_000_000)
       let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd
@@ -195,7 +199,7 @@ export class TokenUtils {
 
       const splTokenBalance: any = await this.getTokenBalance(tokenAccountAddress)
       const wrappedSolBalance: any = await this.getTokenBalance(tokenAccountAddressWrappedSol)
-      const solPriceInUsd: any = await this.getSolPriceNative()
+      // const solPriceInUsd: any = await this.getSolPriceNative()
 
       const priceOfSPLTokenInSOL = wrappedSolBalance / 1_000_000_000 / (splTokenBalance / 1_000_000)
       let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd

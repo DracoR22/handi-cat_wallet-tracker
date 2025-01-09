@@ -3,12 +3,12 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-// Important: If you use any provider other than Helius you will notice some missing notifications
 const SOLANA_NETWORK = clusterApiUrl('mainnet-beta')
 const HELIUS_NETWORK = `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`
 const CHAINSTACK_NETWORK = process.env.CHAINSTACK_API_KEY ?? ''
 const QUICKNODE_NETWORK = process.env.QUICKNODE_API_KEY ?? ''
 
+// I use a separate helius connection to just get the logs cause i found this is the fastest one and will get most of the notifications
 export const logConnection = new Connection(HELIUS_NETWORK, {
   commitment: 'processed',
 })
