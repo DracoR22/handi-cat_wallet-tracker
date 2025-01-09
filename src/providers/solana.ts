@@ -12,4 +12,4 @@ const QUICKNODE_NETWORK = process.env.QUICKNODE_API_KEY ?? ''
 export const logConnection = new Connection(HELIUS_NETWORK, {
   commitment: 'processed',
 })
-export const connection = new Connection(SOLANA_NETWORK, 'confirmed')
+export const connection = new Connection(CHAINSTACK_NETWORK, 'confirmed')
