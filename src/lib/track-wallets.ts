@@ -101,6 +101,12 @@ export class TrackWallets {
         }
       }
 
+      // handle spam paused wallets
+      // const spamPausedWallets = userWallets.filter((w) => w.status === 'SPAM_PAUSED' && w.handiCatStatus !== 'PAUSED')
+      // if (spamPausedWallets && spamPausedWallets.length > 0) {
+      //   return
+      // }
+
       walletsToFetch?.forEach(async (fetchedWallet) => {
         const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === fetchedWallet.address)
 

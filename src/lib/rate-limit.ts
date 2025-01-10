@@ -8,7 +8,7 @@ import { TxPerSecondCapInterface } from '../types/general-interfaces'
 import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED, MAX_TPS_FOR_BAN, WALLET_SLEEP_TIME } from '../constants/handi-cat'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { BANNED_WALLETS } from '../constants/banned-wallets'
-import { connection } from '../providers/solana'
+import { connection, logConnection } from '../providers/solana'
 
 export class RateLimit {
   private prismaWalletRepository: PrismaWalletRepository

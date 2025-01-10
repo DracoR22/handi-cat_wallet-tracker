@@ -67,17 +67,21 @@ export class WatchTransaction extends EventEmitter {
               return
             }
 
+            if (wallet.userWallets[0].status === 'SPAM_PAUSED') {
+              console.log('PAUSED TRANSACTIONS FOR: ', walletAddress)
+              return
+            }
+
             const { isRelevant, swap } = this.isRelevantTransaction(logs)
 
             if (!isRelevant) {
               // console.log('TRANSACTION IS NOT DEFI', logs.signature)
               return
             }
-            console.log('TRANSACTION IS DEFI', logs.signature)
+            // console.log('TRANSACTION IS DEFI', logs.signature)
             // check txs per second
             const walletData = this.walletTransactions.get(walletAddress)
             if (!walletData) {
-              console.log('NO WALLET DATA')
               return
             }
 
@@ -89,7 +93,6 @@ export class WatchTransaction extends EventEmitter {
             })
 
             if (isWalletRateLimited) {
-              console.log('WALLET RATE LIMITED')
               return
             }
 
@@ -97,7 +100,6 @@ export class WatchTransaction extends EventEmitter {
             const transactionDetails = await this.getParsedTransaction(transactionSignature)
 
             if (!transactionDetails || transactionDetails[0] === null) {
-              // console.log('NO TRANSACTION DETAILS')
               return
             }
 
@@ -107,11 +109,11 @@ export class WatchTransaction extends EventEmitter {
             const parsed = await transactionParser.parseRpc(transactionDetails, swap, solPriceUsd)
 
             if (!parsed) {
-              console.log('NO PARSED')
+              // console.log('NO PARSED')
               return
             }
 
-            console.log(parsed)
+            console.log(parsed.description)
 
             // Use bot to send message of transaction
             await this.sendMessagesToUsers(wallet, parsed)
@@ -160,7 +162,7 @@ export class WatchTransaction extends EventEmitter {
       }
 
       // Delay before retrying
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt))
     }
 
     console.error(`Failed to fetch transaction details after ${retries} retries for signature:`, transactionSignature)
