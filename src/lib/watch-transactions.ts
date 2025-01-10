@@ -67,10 +67,10 @@ export class WatchTransaction extends EventEmitter {
               return
             }
 
-            if (wallet.userWallets[0].status === 'SPAM_PAUSED') {
-              console.log('PAUSED TRANSACTIONS FOR: ', walletAddress)
-              return
-            }
+            // if (wallet.userWallets[0].status === 'SPAM_PAUSED') {
+            //   console.log('PAUSED TRANSACTIONS FOR: ', walletAddress)
+            //   return
+            // }
 
             const { isRelevant, swap } = this.isRelevantTransaction(logs)
 

@@ -176,7 +176,8 @@ export class TransactionParser {
         const formattedAmountOut = this.formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
         const formattedAmountIn = this.formatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
 
-        owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
+        // owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
+        owner = signerAccountAddress ? signerAccountAddress : transactions[0]?.info?.authority
         amountOut =
           tokenOut === 'SOL' ? (Number(transactions[0]?.info?.amount) / 1e9).toFixed(2).toString() : formattedAmountOut
         amountIn =
