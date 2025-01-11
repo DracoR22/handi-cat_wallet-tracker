@@ -63,6 +63,10 @@ export class RateLimit {
 
       if (tps >= MAX_TPS_ALLOWED) {
         excludedWallets.set(wallet.address, true)
+        // const subscriptionId = this.subscriptions.get(wallet.address)
+        // if (subscriptionId) {
+        //   logConnection.removeOnLogsListener(subscriptionId)
+        // }
         console.log(`Wallet ${wallet.address} excluded for 2 hours due to high TPS.`)
 
         for (const user of wallet.userWallets) {

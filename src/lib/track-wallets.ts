@@ -85,7 +85,7 @@ export class TrackWallets {
         for (const bannedWallet of bannedWallets) {
           const subscriptionId = this.walletWatcher.subscriptions.get(bannedWallet.address)
 
-          if (subscriptionId !== undefined) {
+          if (subscriptionId) {
             try {
               console.log(`Removing listener for BANNED wallet: ${bannedWallet.address}`)
               await logConnection.removeOnLogsListener(subscriptionId)
@@ -107,28 +107,32 @@ export class TrackWallets {
       //   return
       // }
 
-      walletsToFetch?.forEach(async (fetchedWallet) => {
-        const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === fetchedWallet.address)
+      // const activeWallets = walletsToFetch.filter((w) => w.userWallets)
 
-        if (existingWalletIndex !== -1) {
-          const subscriptionId = this.walletWatcher.subscriptions.get(fetchedWallet.address)
+      // if (!activeWallets) return
 
-          if (subscriptionId) {
-            // Remove the onLogs listener for the current subscription ID
-            await logConnection.removeOnLogsListener(subscriptionId)
-            // Delete the subscription from the map after listener removal
-            this.walletWatcher.subscriptions.delete(fetchedWallet.address)
-          }
+      // activeWallets?.forEach(async (fetchedWallet) => {
+      //   const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === fetchedWallet.address)
 
-          // Update the wallet in the array with the latest fetched data
-          walletsArray[existingWalletIndex] = fetchedWallet
-        } else {
-          // Add the wallet if it’s not already in the array
-          walletsArray.push(fetchedWallet)
-        }
-      })
+      //   if (existingWalletIndex !== -1) {
+      //     const subscriptionId = this.walletWatcher.subscriptions.get(fetchedWallet.address)
 
-      return await this.updateWallets(walletsArray!)
+      //     if (subscriptionId) {
+      //       // Remove the onLogs listener for the current subscription ID
+      //       await logConnection.removeOnLogsListener(subscriptionId)
+      //       // Delete the subscription from the map after listener removal
+      //       this.walletWatcher.subscriptions.delete(fetchedWallet.address)
+      //     }
+
+      //     // Update the wallet in the array with the latest fetched data
+      //     walletsArray[existingWalletIndex] = fetchedWallet
+      //   } else {
+      //     // Add the wallet if it’s not already in the array
+      //     walletsArray.push(fetchedWallet)
+      //   }
+      // })
+
+      // return await this.updateWallets(walletsArray!)
     } else if (event === 'initial') {
       const allWallets = await this.prismaWalletRepository.getAllWalletsWithUserIds()
 

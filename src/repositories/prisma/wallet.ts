@@ -259,7 +259,7 @@ export class PrismaWalletRepository {
           userWallets: {
             some: {
               userId,
-              OR: [{ status: 'BANNED' }, { status: 'SPAM_PAUSED' }, { handiCatStatus: 'PAUSED' }],
+              OR: [{ status: 'BANNED' }, { status: 'SPAM_PAUSED' }, { handiCatStatus: 'PAUSED' }, { status: 'ACTIVE' }],
             },
           },
         },
