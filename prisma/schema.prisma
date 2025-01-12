@@ -38,6 +38,8 @@ model User {
 
   hasDonated              Boolean          @default(false)
 
+  botStatus               HandiCatStatus   @default(ACTIVE)
+
   personalWalletPubKey    String
   personalWalletPrivKey   String
   

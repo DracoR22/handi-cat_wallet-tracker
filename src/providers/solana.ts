@@ -13,3 +13,6 @@ export const logConnection = new Connection(HELIUS_NETWORK, {
   commitment: 'processed',
 })
 export const connection = new Connection(CHAINSTACK_NETWORK, 'confirmed')
+
+// If you are going to use Handi Cat locally you can just use SOLANA_NETWORK for both connections
+// and will work fine if you dont track too many wallets

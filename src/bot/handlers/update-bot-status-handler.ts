@@ -22,13 +22,13 @@ export class UpdateBotStatusHandler {
 ${
   changedStatus === 'PAUSED'
     ? `
-Handi Cat has been paused and you will no longer receive notifications until you resume it!
+✨ Handi Cat has been <u>Paused</u> and you will no longer receive notifications until you resume it!
     
 You can still resume the bot anytime in the settings menu
 `
     : changedStatus === 'ACTIVE'
       ? `
-Handi Cat has been resumed and you will start receiving notifications again!
+✨ Handi Cat has been <u>Resumed</u> and you will start receiving notifications again!
     
 Feel free to adjust your preferences anytime in the settings menu
 `

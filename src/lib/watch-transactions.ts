@@ -18,6 +18,7 @@ import { NativeParserInterface } from '../types/general-interfaces'
 import pLimit from 'p-limit'
 import { TokenUtils } from './token-utils'
 import { CronJobs } from './cron-jobs'
+import { PrismaUserRepository } from '../repositories/prisma/user'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -28,6 +29,8 @@ export class WatchTransaction extends EventEmitter {
   private excludedWallets: Map<string, boolean>
 
   private rateLimit: RateLimit
+
+  private prismaUserRepository: PrismaUserRepository
   constructor() {
     super()
 
@@ -38,6 +41,8 @@ export class WatchTransaction extends EventEmitter {
     // this.trackedWallets = new Set()
 
     this.rateLimit = new RateLimit(this.subscriptions)
+
+    this.prismaUserRepository = new PrismaUserRepository()
   }
 
   public async watchSocket(wallets: WalletWithUsers[]): Promise<void> {
@@ -172,7 +177,12 @@ export class WatchTransaction extends EventEmitter {
   private async sendMessagesToUsers(wallet: WalletWithUsers, parsed: NativeParserInterface) {
     const sendMessageHandler = new SendTransactionMsgHandler(bot)
 
-    const activeUsers = wallet.userWallets.filter((w) => w.handiCatStatus === 'ACTIVE')
+    const pausedUsers = (await this.prismaUserRepository.getPausedUsers(wallet.userWallets.map((w) => w.userId))) || []
+
+    const activeUsers = wallet.userWallets.filter(
+      (w) => !pausedUsers || !pausedUsers.includes(w.userId), // Include only non-paused users
+    )
+
     // just in case, somehow sometimes I get duplicated users here, I should probably address this in the track wallets function instead
     const uniqueActiveUsers = Array.from(new Set(activeUsers.map((user) => user.userId))).map((userId) =>
       activeUsers.find((user) => user.userId === userId),

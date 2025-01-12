@@ -130,37 +130,27 @@ export class PrismaUserRepository {
     userId: string,
   ): Promise<{ status: string; message: string; changedStatus: 'NONE' | 'ACTIVE' | 'PAUSED' }> {
     try {
-      const userWallets = await prisma.userWallet.findMany({
+      const currentStatus = await prisma.user.findFirst({
         where: {
-          userId,
+          id: userId,
         },
         select: {
-          handiCatStatus: true,
+          botStatus: true,
         },
       })
 
-      if (!userWallets) {
-        return { status: 'error', message: 'No wallets found for this user', changedStatus: 'NONE' }
-      }
+      const newStatus = currentStatus?.botStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
 
-      // all wallets will have the same status
-      const currentStatus = userWallets[0]?.handiCatStatus
-      const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
-
-      await prisma.userWallet.updateMany({
+      const updatedStatus = await prisma.user.update({
         where: {
-          userId,
+          id: userId,
         },
         data: {
-          handiCatStatus: newStatus,
+          botStatus: newStatus,
         },
       })
 
-      return {
-        status: 'ok',
-        message: `All wallets from user ${userId}, updated to status: ${newStatus}`,
-        changedStatus: newStatus,
-      }
+      return { status: 'ok', message: 'status updated', changedStatus: newStatus }
     } catch (error) {
       console.log('UPDATE_HANDICAT_STATUS_ERROR', error)
       return { status: 'error', message: 'An error occurred while updating handi cat status', changedStatus: 'NONE' }
@@ -208,6 +198,47 @@ export class PrismaUserRepository {
       return freeUsers
     } catch (error) {
       console.log('GET_FREE_USERS_ERROR')
+      return
+    }
+  }
+
+  public async getPausedUsers(userIds: string[]) {
+    try {
+      const pausedUsers = await prisma.user.findMany({
+        where: {
+          id: {
+            in: userIds,
+          },
+          NOT: {
+            botStatus: 'ACTIVE',
+          },
+        },
+        select: {
+          id: true,
+        },
+      })
+
+      return pausedUsers.map((user) => user.id)
+    } catch (error) {
+      console.log('GET_PAUSED_USERS_ERROR')
+      return
+    }
+  }
+
+  public async getBotStatus(userId: string) {
+    try {
+      const botStatus = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          botStatus: true,
+        },
+      })
+
+      return botStatus
+    } catch (error) {
+      console.log('GET_PAUSED_USERS_ERROR')
       return
     }
   }

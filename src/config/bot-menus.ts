@@ -1,5 +1,6 @@
 import { InlineKeyboardMarkup } from 'node-telegram-bot-api'
 import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, WHALE_PLAN_FEE } from '../constants/pricing'
+import { HandiCatStatus } from '@prisma/client'
 
 export const START_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
@@ -97,16 +98,18 @@ export const INSUFFICIENT_BALANCE_SUB_MENU: InlineKeyboardMarkup = {
   ],
 }
 
-export const USER_SETTINGS_MENU: InlineKeyboardMarkup = {
-  inline_keyboard: [
-    [
-      {
-        text: '⏸️ Pause / resume Handi',
-        callback_data: 'pause-resume-bot',
-      },
+export const USER_SETTINGS_MENU = (botStatus: HandiCatStatus): InlineKeyboardMarkup => {
+  return {
+    inline_keyboard: [
+      [
+        {
+          text: `${botStatus === 'ACTIVE' ? '⏸️ Pause Handi Cat' : '▶️ Resume Handi Cat'}`,
+          callback_data: 'pause-resume-bot',
+        },
+      ],
+      [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
     ],
-    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
-  ],
+  }
 }
 
 export const USER_WALLET_SUB_MENU: InlineKeyboardMarkup = {
