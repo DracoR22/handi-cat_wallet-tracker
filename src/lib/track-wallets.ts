@@ -1,3 +1,4 @@
+import { BANNED_WALLETS } from '../constants/banned-wallets'
 import { walletsToTrack } from '../constants/flags'
 import { logConnection } from '../providers/solana'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
@@ -91,6 +92,7 @@ export class TrackWallets {
               await logConnection.removeOnLogsListener(subscriptionId)
 
               this.walletWatcher.subscriptions.delete(bannedWallet.address)
+              BANNED_WALLETS.add(bannedWallet.address)
               console.log(`Listener and subscription removed for wallet: ${bannedWallet.address}`)
 
               return

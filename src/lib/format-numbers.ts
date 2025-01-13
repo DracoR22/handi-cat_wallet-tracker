@@ -2,19 +2,18 @@ export class FormatNumbers {
   constructor() {}
 
   public formatTokenAmount(amount: number) {
-    console.log('AMOUNT', amount)
+    // console.log('AMOUNT', amount)
     let scaledAmount: number
 
-    if (amount.toString().length > 10) {
-      scaledAmount = amount / 1e9
-    } else if (amount.toString().length === 10) {
-      scaledAmount = amount / 1e8
-    } else if (amount.toString().length <= 9) {
+    if (amount >= 1e9) {
       scaledAmount = amount / 1e6
+    } else if (amount >= 1e8) {
+      scaledAmount = amount / 1e5
+    } else if (amount >= 1e6) {
+      scaledAmount = amount / 1e3
     } else {
       scaledAmount = amount
     }
-
     // Format the scaled amount with maximum two fraction digits
     return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(scaledAmount)
   }

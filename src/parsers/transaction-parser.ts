@@ -5,8 +5,6 @@ import { SwapType } from '../types/swap-types'
 import { FormatNumbers } from '../lib/format-numbers'
 import { NativeParserInterface } from '../types/general-interfaces'
 
-export let cachedUsdSolPrice = ''
-
 export class TransactionParser {
   private formatNumbers: FormatNumbers
   private tokenUtils: TokenUtils
@@ -95,7 +93,11 @@ export class TransactionParser {
 
         const solDifference = (postBalance! - preBalance!) / 1e9 // Convert lamports to SOL
 
-        if (solDifference !== 0 && i === 2 && nativeBalance?.type === 'sell') {
+        if (solDifference < 0 && i === 1 && nativeBalance?.type === 'sell') {
+          totalSolSwapped += Math.abs(solDifference)
+        } else if (solDifference < 0 && i === 2 && nativeBalance?.type === 'sell') {
+          totalSolSwapped += Math.abs(solDifference)
+        } else if (solDifference < 0 && i === 5 && nativeBalance?.type === 'sell') {
           totalSolSwapped += Math.abs(solDifference)
         } else if (solDifference !== 0 && i === 3 && nativeBalance?.type === 'buy') {
           totalSolSwapped += Math.abs(solDifference)

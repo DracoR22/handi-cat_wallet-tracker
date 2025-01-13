@@ -12,6 +12,8 @@ import {
 } from './config/program-ids'
 import { SwapType } from './types/swap-types'
 import chalk from 'chalk'
+import { TokenParser } from './parsers/token-parser'
+import { FormatNumbers } from './lib/format-numbers'
 
 function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: SwapType } {
   // Guard clause for empty logs
@@ -72,15 +74,89 @@ export const test2 = async () => {
 
 export const parseTransactions = async () => {
   try {
-    const transactionDetails = await connection.getTransaction(
-      '28AFNwYFCdQTW5suiEr4b6Cj9hmWiGGoPkiNi2MJU8Y7S3G1YzCs8LHq91U37shCEAx1ZWA8jjPugMLGYEjUr5vU',
+    const transactionDetails = await connection.getParsedTransactions(
+      ['BvD2soJSDVa38xmZbt5ghHJ6KoXykiYVDHQKrJctipMnb6kKjZVfKFJzhi1SghMkbeMKcFSSy5S5yoBKzn4cbYu'],
       {
         maxSupportedTransactionVersion: 0,
       },
     )
 
-    console.log(transactionDetails)
-    return transactionDetails
+    const transactions: any = []
+    const parsedInfos: any[] = []
+
+    if (!transactionDetails) return
+
+    // Transaction Metadata
+    transactionDetails[0]?.meta?.innerInstructions?.forEach((i: any) => {
+      // raydium
+      i.instructions.forEach((r: any) => {
+        if (r.parsed?.type === 'transfer' && r.parsed.info.amount !== undefined) {
+          transactions.push(r.parsed)
+        }
+      })
+    })
+
+    // pumpfun
+    transactionDetails[0]?.transaction.message.instructions.map((instruction: any) => {
+      if (transactions.length <= 1 && instruction && instruction.parsed !== undefined) {
+        parsedInfos.push(instruction.parsed)
+      }
+    })
+
+    const raydiumTransfer =
+      transactions.length > 2
+        ? transactions.find((t: any) => t?.info?.destination === transactions[0]?.info?.source)
+        : transactions[transactions.length - 1]
+
+    if (!raydiumTransfer) {
+      console.log('NO RAYDIUM TRANSFER')
+      return
+    }
+
+    const formatNumbers = new FormatNumbers()
+
+    const formattedAmountIn = formatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
+    const formattedAmountOut = formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
+
+    console.log('amount out', transactions[0]?.info?.amount)
+    console.log('amount in', raydiumTransfer?.info?.amount)
+    console.log('formatted amount in:', formattedAmountIn)
+    console.log('formatted amount out: ', formattedAmountOut)
+
+    const preBalances = transactionDetails[0]?.meta?.preBalances
+    const postBalances = transactionDetails[0]?.meta?.postBalances
+
+    if (!preBalances || !postBalances) {
+      console.log('No balance information available')
+      return
+    }
+
+    let totalSolSwapped = 0
+
+    for (let i = 0; i < preBalances.length; i++) {
+      const preBalance = preBalances[i]
+      const postBalance = postBalances[i]
+
+      console.log(`PRE BALANCE [${i}]: `, preBalance)
+      console.log(`POST BALANCE [${i}]: `, postBalance)
+
+      const solDifference = (postBalance! - preBalance!) / 1e9 // Convert lamports to SOL
+
+      console.log('SOL DIFFERENCE: ', solDifference)
+
+      if (solDifference < 0 && i === 1) {
+        totalSolSwapped += Math.abs(solDifference)
+        // break
+      } else if (solDifference < 0 && i === 2) {
+        totalSolSwapped += Math.abs(solDifference)
+        // break
+      } else if (solDifference < 0 && i === 5) {
+        totalSolSwapped += Math.abs(solDifference)
+        // break
+      }
+    }
+
+    console.log('TOTAL SOL SWAPPED', totalSolSwapped)
   } catch (error) {
     console.log('GET_PARSED_TRANSACTIONS_ERROR', error)
     return

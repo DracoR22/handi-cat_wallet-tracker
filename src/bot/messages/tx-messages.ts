@@ -38,13 +38,13 @@ export class TxMessages {
     const phLink = `<a href="https://photon-sol.tinyastro.io/en/lp/${tokenMintToTrack}">PH</a>`
 
     const marketCapText = tokenMarketCap
-      ? `💣 ${message.type === 'buy' ? `<a href="${solscanTokenInUrl}">#${tokenIn}</a>` : `<a href="${solscanTokenOutUrl}">#${tokenOut}</a>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} | ${beLink} | ${dsLink} | ${phLink}`
+      ? `💣 ${message.type === 'buy' ? `<a href="${solscanTokenInUrl}">#${tokenIn}</a>` : `<a href="${solscanTokenOutUrl}">#${tokenOut}</a>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} • ${beLink} • ${dsLink} • ${phLink}`
       : ''
 
     const messageText = `
 ${message.type === 'buy' ? '🟢' : '🔴'} <a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a> on ${message.platform!.toUpperCase()}
 <b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
-💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' && Number(fixedUsdAmount) > 0 ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' && Number(fixedUsdAmount) > 0 ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a> @$${message.swappedTokenPrice?.toFixed(7)}
+💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a> @$${message.swappedTokenPrice?.toFixed(7)}
       
 ${marketCapText}
 <code>${tokenMintToTrack}</code>
@@ -84,7 +84,7 @@ ${marketCapText}
 <b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
 💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> minted and swapped <b>${amountOut}</b><a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>($${fixedUsdAmount}) <a href="${solscanTokenInUrl}">${tokenIn}</a> 
 
-<b>💣 ${tokenIn}</b>| ${gmgnLink} | ${beLink} | ${dsLink} | ${phLink}
+<b>💣 ${tokenIn}</b>| ${gmgnLink} • ${beLink} • ${dsLink} • ${phLink}
 
 <code>${tokenMintToTrack}</code>   
 `
