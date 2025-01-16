@@ -7,13 +7,16 @@ import { PrismaGroupRepository } from '../../repositories/prisma/group'
 import { CreateUserGroupInterface } from '../../types/general-interfaces'
 import { MAX_USER_GROUPS } from '../../constants/pricing'
 import { userExpectingGroupId } from '../../constants/flags'
+import { PrismaUserRepository } from '../../repositories/prisma/user'
 
 export class GroupsCommand {
   private prismaGroupRepository: PrismaGroupRepository
+  private prismaUserRepository: PrismaUserRepository
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
     this.prismaGroupRepository = new PrismaGroupRepository()
+    this.prismaUserRepository = new PrismaUserRepository()
   }
 
   public async groupsButtonHandler(message: TelegramBot.Message) {
@@ -47,6 +50,16 @@ export class GroupsCommand {
       const groupName = msg.chat.title || 'No group name'
 
       if (!BotMiddleware.isGroup(chatId)) return
+
+      // check if user has send /start before
+      const groupUser = await this.prismaUserRepository.getById(String(chatId))
+
+      if (!groupUser) {
+        this.bot.sendMessage(chatId, GeneralMessages.groupChatNotStarted, {
+          parse_mode: 'HTML',
+        })
+        return
+      }
 
       const isUserPro = await BotMiddleware.isUserPro(userId)
 

@@ -52,7 +52,7 @@ You can upgrade your plan directly from our official bot:
   static userUpgradeGroups = `
 To add <b>Handi Cat</b> to Groups, you need a <b>PRO</b> or <b>WHALE</b> subscription
 
-<b>Click the button below to upgrade your subscription and access to our exclusives features!</b>
+<b>Click the button below to upgrade your subscription and access to our exclusive features!</b>
 `
 
   static userGroupsLimit = `

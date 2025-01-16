@@ -159,7 +159,7 @@ you are not authorized to perform this action.
 `
 
   static deleteGroupMessage = `
-To <b>remove</b> a group from your list, simply send me the <b><u>Group ID</u></b> of the group you'd like to delete.
+To <b>remove</b> a group from your list, simply send me the <u>Group ID</u> of the group you'd like to delete.
 `
 
   static groupDeletedMessage = `
