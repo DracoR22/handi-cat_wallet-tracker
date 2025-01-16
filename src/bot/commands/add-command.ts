@@ -11,6 +11,8 @@ import { UserPlan } from '../../lib/user-plan'
 import { PrismaUserRepository } from '../../repositories/prisma/user'
 import { GeneralMessages } from '../messages/general-messages'
 import { BANNED_WALLETS } from '../../constants/banned-wallets'
+import { BotMiddleware } from '../../config/bot-middleware'
+import { SubscriptionMessages } from '../messages/subscription-messages'
 
 export class AddCommand {
   private prismaWalletRepository: PrismaWalletRepository
@@ -27,9 +29,17 @@ export class AddCommand {
 
   public addCommandHandler() {
     this.bot.onText(/\/add/, async (msg) => {
-      const userId = msg.from?.id
+      const chatId = msg.chat.id
+      const userId = String(msg.from?.id)
 
-      if (!userId) return
+      // check for group chats
+      const groupValidationResult = await BotMiddleware.checkGroupChatRequirements(chatId, userId)
+
+      if (!groupValidationResult.isValid) {
+        return this.bot.sendMessage(chatId, groupValidationResult.message, {
+          parse_mode: 'HTML',
+        })
+      }
 
       this.add({ message: msg, isButton: false })
     })
@@ -41,19 +51,22 @@ export class AddCommand {
 
   private add({ message, isButton }: { message: TelegramBot.Message; isButton: boolean }) {
     try {
+      const userId = message.chat.id.toString()
+
       const addMessage = WalletMessages.addWalletMessage
       if (isButton) {
         this.bot.editMessageText(addMessage, {
           chat_id: message.chat.id,
           message_id: message.message_id,
-          reply_markup: SUB_MENU,
+          reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
           parse_mode: 'HTML',
         })
       } else if (!isButton) {
-        this.bot.sendMessage(message.chat.id, addMessage, { reply_markup: SUB_MENU, parse_mode: 'HTML' })
+        this.bot.sendMessage(message.chat.id, addMessage, {
+          reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
+          parse_mode: 'HTML',
+        })
       }
-
-      const userId = message.chat.id.toString()
 
       userExpectingWalletAddress[Number(userId)] = true
       const listener = async (responseMsg: TelegramBot.Message) => {
@@ -61,6 +74,11 @@ export class AddCommand {
         if (!userExpectingWalletAddress[Number(userId)]) return
 
         const text = responseMsg.text
+
+        if (text?.startsWith('/')) {
+          return
+        }
+
         const walletEntries = text
           ?.split('\n')
           .map((entry) => entry.trim())
@@ -80,14 +98,14 @@ export class AddCommand {
           if (BANNED_WALLETS.has(walletAddress)) {
             return this.bot.sendMessage(message.chat.id, GeneralMessages.botWalletError, {
               parse_mode: 'HTML',
-              reply_markup: SUB_MENU,
+              reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
             })
           }
 
           if (walletAddress.includes('orc') || walletAddress.includes('pump')) {
             return this.bot.sendMessage(message.chat.id, GeneralMessages.botWalletError, {
               parse_mode: 'HTML',
-              reply_markup: SUB_MENU,
+              reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
             })
           }
 
@@ -99,7 +117,10 @@ export class AddCommand {
             return this.bot.sendMessage(
               message.chat.id,
               GeneralMessages.walletLimitMessageError(walletName, walletAddress, planWallets),
-              { parse_mode: 'HTML', reply_markup: UPGRADE_PLAN_SUB_MENU },
+              {
+                parse_mode: 'HTML',
+                reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : UPGRADE_PLAN_SUB_MENU,
+              },
             )
           }
 

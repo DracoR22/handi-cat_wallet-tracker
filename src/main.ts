@@ -10,6 +10,10 @@ import { CronJobs } from './lib/cron-jobs'
 import { ASCII_TEXT } from './constants/handi-cat'
 import chalk from 'chalk'
 import gradient from 'gradient-string'
+import { GroupsCommand } from './bot/commands/groups-command'
+import { HelpCommand } from './bot/commands/help-command'
+import { ManageCommand } from './bot/commands/manage-command'
+import { UpgradePlanCommand } from './bot/commands/upgrade-plan-command'
 
 dotenv.config()
 
@@ -23,6 +27,10 @@ class Main {
   private startCommand: StartCommand
   private addCommand: AddCommand
   private deleteCommand: DeleteCommand
+  private groupsCommand: GroupsCommand
+  private helpCommand: HelpCommand
+  private manageCommand: ManageCommand
+  private upgradePlanCommand: UpgradePlanCommand
   constructor(private app: Express = express()) {
     this.setupMiddleware()
     this.setupRoutes()
@@ -34,6 +42,10 @@ class Main {
     this.startCommand = new StartCommand(bot)
     this.addCommand = new AddCommand(bot)
     this.deleteCommand = new DeleteCommand(bot)
+    this.groupsCommand = new GroupsCommand(bot)
+    this.helpCommand = new HelpCommand(bot)
+    this.manageCommand = new ManageCommand(bot)
+    this.upgradePlanCommand = new UpgradePlanCommand(bot)
 
     this.startServer()
   }
@@ -79,6 +91,10 @@ class Main {
     this.startCommand.start()
     this.addCommand.addCommandHandler()
     this.deleteCommand.deleteCommandHandler()
+    this.groupsCommand.activateGroupCommandHandler()
+    this.helpCommand.groupHelpCommandHandler()
+    this.manageCommand.manageCommandHandler()
+    this.upgradePlanCommand.upgradePlanCommandHandler()
 
     // cron jobs
     await this.cronJobs.monthlySubscriptionFee()

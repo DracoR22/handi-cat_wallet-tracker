@@ -46,6 +46,7 @@ model User {
   userSubscription        UserSubscription?
   userWallets             UserWallet[]
   userPromotions          UserPromotion[]
+  groups                  Group[]
 
   createdAt               DateTime          @default(now())
   updatedAt               DateTime          @updatedAt
@@ -110,6 +111,17 @@ model UserPromotion {
 
   promotionId String 
   promotion    Promotion    @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Group {
+  id String @id
+
+  name String
+
+  userId String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }

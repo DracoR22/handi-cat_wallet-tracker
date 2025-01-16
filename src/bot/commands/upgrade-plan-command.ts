@@ -11,18 +11,35 @@ export class UpgradePlanCommand {
     this.prismaUserRepository = new PrismaUserRepository()
   }
 
-  public async upgradePlanCommandHandler(msg: TelegramBot.Message) {
-    const userId = msg.chat.id.toString()
+  public async upgradePlanCommandHandler() {
+    this.bot.onText(/\/upgrade/, async (msg) => {
+      await this.upgradePlan({ message: msg, isButton: false })
+    })
+  }
+
+  public async upgradePlanButtonHandler(msg: TelegramBot.Message) {
+    await this.upgradePlan({ message: msg, isButton: true })
+  }
+
+  public async upgradePlan({ message, isButton }: { message: TelegramBot.Message; isButton: boolean }) {
+    const userId = message.chat.id.toString()
 
     const user = await this.prismaUserRepository.getUserPlan(userId)
 
     const messageText = SubscriptionMessages.upgradeProMessage(user)
 
-    this.bot.editMessageText(messageText, {
-      chat_id: msg.chat.id,
-      message_id: msg.message_id,
-      reply_markup: UPGRADE_PLAN_SUB_MENU,
-      parse_mode: 'HTML',
-    })
+    if (isButton) {
+      this.bot.editMessageText(messageText, {
+        chat_id: message.chat.id,
+        message_id: message.message_id,
+        reply_markup: UPGRADE_PLAN_SUB_MENU,
+        parse_mode: 'HTML',
+      })
+    } else {
+      this.bot.sendMessage(message.chat.id, messageText, {
+        reply_markup: UPGRADE_PLAN_SUB_MENU,
+        parse_mode: 'HTML',
+      })
+    }
   }
 }

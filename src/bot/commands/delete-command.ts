@@ -5,6 +5,7 @@ import { PublicKey } from '@solana/web3.js'
 import { TrackWallets } from '../../lib/track-wallets'
 import { userExpectingWalletAddress } from '../../constants/flags'
 import { WalletMessages } from '../messages/wallet-messages'
+import { BotMiddleware } from '../../config/bot-middleware'
 
 export class DeleteCommand {
   private prismaWalletRepository: PrismaWalletRepository
@@ -18,8 +19,18 @@ export class DeleteCommand {
   public deleteCommandHandler() {
     this.bot.onText(/\/delete/, async (msg) => {
       const userId = msg.from?.id
+      const chatId = msg.chat.id
 
       if (!userId) return
+
+      // check for group chats
+      const groupValidationResult = await BotMiddleware.checkGroupChatRequirements(chatId, String(userId))
+
+      if (!groupValidationResult.isValid) {
+        return this.bot.sendMessage(chatId, groupValidationResult.message, {
+          parse_mode: 'HTML',
+        })
+      }
 
       this.delete({ message: msg, isButton: false })
     })
@@ -35,11 +46,14 @@ export class DeleteCommand {
       this.bot.editMessageText(deleteMessage, {
         chat_id: message.chat.id,
         message_id: message.message_id,
-        reply_markup: SUB_MENU,
+        reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
         parse_mode: 'HTML',
       })
     } else if (!isButton) {
-      this.bot.sendMessage(message.chat.id, deleteMessage, { reply_markup: SUB_MENU, parse_mode: 'HTML' })
+      this.bot.sendMessage(message.chat.id, deleteMessage, {
+        reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
+        parse_mode: 'HTML',
+      })
     }
 
     const userId = message.chat.id.toString()
@@ -82,7 +96,7 @@ export class DeleteCommand {
         this.bot.sendMessage(
           message.chat.id,
           `🐱 ${deletedCount} ${deletedCount < 2 ? `wallet has been succesfully deleted!` : `wallets have succesfully been deleted!`} you will no longer get notifications for these ${deletedCount < 2 ? `wallet` : `wallets`}`,
-          { reply_markup: SUB_MENU },
+          { reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU },
         )
       }
 

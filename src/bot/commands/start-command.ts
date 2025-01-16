@@ -2,6 +2,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import { START_MENU } from '../../config/bot-menus'
 import { PrismaUserRepository } from '../../repositories/prisma/user'
 import { GeneralMessages } from '../messages/general-messages'
+import { BotMiddleware } from '../../config/bot-middleware'
 
 export class StartCommand {
   private prismaUserRepository: PrismaUserRepository
@@ -17,7 +18,7 @@ export class StartCommand {
       const firstName = msg.from?.first_name || ''
       const lastName = msg.from?.last_name || ''
       const username = msg.from?.username || ''
-      const userId = msg.chat.id.toString()
+      const userId = msg.chat?.id.toString()
 
       if (!userId) {
         return
@@ -28,7 +29,11 @@ export class StartCommand {
 
       const messageText = GeneralMessages.startMessage(user)
 
-      this.bot.sendMessage(chatId, messageText, { reply_markup: START_MENU, parse_mode: 'HTML' })
+      if (BotMiddleware.isGroup(chatId)) {
+        this.bot.sendMessage(chatId, GeneralMessages.startMessageGroup, { parse_mode: 'HTML' })
+      } else {
+        this.bot.sendMessage(chatId, messageText, { reply_markup: START_MENU, parse_mode: 'HTML' })
+      }
 
       // Create new user
       if (!user) {

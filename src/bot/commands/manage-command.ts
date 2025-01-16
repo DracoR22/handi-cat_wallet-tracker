@@ -3,6 +3,7 @@ import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
 import { ManageMessages } from '../messages/manage-messages'
 import { MANAGE_SUB_MENU } from '../../config/bot-menus'
 import { UserPlan } from '../../lib/user-plan'
+import { BotMiddleware } from '../../config/bot-middleware'
 
 export class ManageCommand {
   private prismaWalletRepository: PrismaWalletRepository
@@ -18,8 +19,18 @@ export class ManageCommand {
     this.manageMessages = new ManageMessages()
   }
 
+  public async manageCommandHandler() {
+    this.bot.onText(/\/manage/, async (msg) => {
+      await this.manage({ message: msg, isButton: false })
+    })
+  }
+
   public async manageButtonHandler(msg: TelegramBot.Message) {
-    const userId = msg.chat.id.toString()
+    await this.manage({ message: msg, isButton: true })
+  }
+
+  public async manage({ message, isButton }: { message: TelegramBot.Message; isButton: boolean }) {
+    const userId = message.chat.id.toString()
 
     const userWallets = await this.prismaWalletRepository.getUserWallets(userId)
 
@@ -27,11 +38,18 @@ export class ManageCommand {
 
     const messageText = ManageMessages.manageMessage(userWallets || [], planWallets)
 
-    this.bot.editMessageText(messageText, {
-      chat_id: msg.chat.id,
-      message_id: msg.message_id,
-      reply_markup: MANAGE_SUB_MENU,
-      parse_mode: 'HTML',
-    })
+    if (isButton) {
+      this.bot.editMessageText(messageText, {
+        chat_id: message.chat.id,
+        message_id: message.message_id,
+        reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : MANAGE_SUB_MENU,
+        parse_mode: 'HTML',
+      })
+    } else {
+      this.bot.sendMessage(message.chat.id, messageText, {
+        reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : MANAGE_SUB_MENU,
+        parse_mode: 'HTML',
+      })
+    }
   }
 }

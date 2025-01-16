@@ -1,6 +1,7 @@
 import { InlineKeyboardMarkup } from 'node-telegram-bot-api'
 import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, WHALE_PLAN_FEE } from '../constants/pricing'
 import { HandiCatStatus } from '@prisma/client'
+import { text } from 'stream/consumers'
 
 export const START_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
@@ -13,6 +14,10 @@ export const START_MENU: InlineKeyboardMarkup = {
       { text: '👛 My Wallet', callback_data: 'my_wallet' },
       { text: '❤️ Donate', callback_data: 'donate' },
       { text: '⚙️ Settings', callback_data: 'settings' },
+    ],
+    [
+      { text: '🆕 Groups', callback_data: 'groups' },
+      { text: '🔎 Help', callback_data: 'help' },
     ],
     [{ text: '👑 Upgrade', callback_data: 'upgrade' }],
   ],
@@ -59,19 +64,19 @@ export const UPGRADE_PLAN_SUB_MENU: InlineKeyboardMarkup = {
   inline_keyboard: [
     [
       {
-        text: `BUY HOBBY ${HOBBY_PLAN_FEE / 1e9} SOL`,
+        text: `BUY HOBBY ${HOBBY_PLAN_FEE / 1e9} SOL/m`,
         callback_data: 'upgrade_hobby',
       },
     ],
     [
       {
-        text: `BUY PRO ${PRO_PLAN_FEE / 1e9} SOL`,
+        text: `BUY PRO ${PRO_PLAN_FEE / 1e9} SOL/m`,
         callback_data: 'upgrade_pro',
       },
     ],
     [
       {
-        text: `BUY WHALE ${WHALE_PLAN_FEE / 1e9} SOL`,
+        text: `BUY WHALE ${WHALE_PLAN_FEE / 1e9} SOL/m`,
         callback_data: 'upgrade_whale',
       },
     ],
@@ -87,6 +92,13 @@ export const DONATE_MENU: InlineKeyboardMarkup = {
     [{ text: `💪 ${1.0} SOL`, callback_data: 'donate_action_1.0' }],
     [{ text: `🗿 ${5.0} SOL`, callback_data: 'donate_action_5.0' }],
     [{ text: `🔥 ${10.0} SOL`, callback_data: 'donate_action_10.0' }],
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
+  ],
+}
+
+export const SUGGEST_UPGRADE_SUBMENU: InlineKeyboardMarkup = {
+  inline_keyboard: [
+    [{ text: '👑 Upgrade', callback_data: 'upgrade' }],
     [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
   ],
 }
@@ -118,6 +130,18 @@ export const USER_WALLET_SUB_MENU: InlineKeyboardMarkup = {
       {
         text: '🔑 Show private key',
         callback_data: 'show_private_key',
+      },
+    ],
+    [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],
+  ],
+}
+
+export const GROUPS_MENU: InlineKeyboardMarkup = {
+  inline_keyboard: [
+    [
+      {
+        text: '🗑️ Delete Group',
+        callback_data: 'delete_group',
       },
     ],
     [{ text: '🔙 Back', callback_data: 'back_to_main_menu' }],

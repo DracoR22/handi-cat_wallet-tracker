@@ -3,7 +3,7 @@ import { AddCommand } from '../commands/add-command'
 import { START_MENU, SUB_MENU } from '../../config/bot-menus'
 import { ManageCommand } from '../commands/manage-command'
 import { DeleteCommand } from '../commands/delete-command'
-import { userExpectingDonation, userExpectingWalletAddress } from '../../constants/flags'
+import { userExpectingDonation, userExpectingGroupId, userExpectingWalletAddress } from '../../constants/flags'
 import { MyWalletCommand } from '../commands/mywallet-command'
 import { GeneralMessages } from '../messages/general-messages'
 import { UpgradePlanCommand } from '../commands/upgrade-plan-command'
@@ -15,6 +15,8 @@ import { UpdateBotStatusHandler } from './update-bot-status-handler'
 import { PromotionHandler } from './promotion-handler'
 import { GET_50_WALLETS_PROMOTION } from '../../constants/promotions'
 import { PrismaUserRepository } from '../../repositories/prisma/user'
+import { GroupsCommand } from '../commands/groups-command'
+import { HelpCommand } from '../commands/help-command'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -24,6 +26,9 @@ export class CallbackQueryHandler {
   private upgradePlanCommand: UpgradePlanCommand
   private donateCommand: DonateCommand
   private settingsCommand: SettingsCommand
+  private groupsCommand: GroupsCommand
+  private helpCommand: HelpCommand
+
   private updateBotStatusHandler: UpdateBotStatusHandler
 
   private prismaUserRepository: PrismaUserRepository
@@ -41,6 +46,9 @@ export class CallbackQueryHandler {
     this.upgradePlanCommand = new UpgradePlanCommand(this.bot)
     this.donateCommand = new DonateCommand(this.bot)
     this.settingsCommand = new SettingsCommand(this.bot)
+    this.groupsCommand = new GroupsCommand(this.bot)
+    this.helpCommand = new HelpCommand(this.bot)
+
     this.updateBotStatusHandler = new UpdateBotStatusHandler(this.bot)
 
     this.prismaUserRepository = new PrismaUserRepository()
@@ -89,7 +97,7 @@ export class CallbackQueryHandler {
           await this.updateBotStatusHandler.pauseResumeBot(message)
           break
         case 'upgrade':
-          this.upgradePlanCommand.upgradePlanCommandHandler(message)
+          this.upgradePlanCommand.upgradePlanButtonHandler(message)
           break
         case 'upgrade_hobby':
           await this.upgradePlanHandler.upgradePlan(message, 'HOBBY')
@@ -102,6 +110,15 @@ export class CallbackQueryHandler {
           break
         case 'donate':
           await this.donateCommand.donateCommandHandler(message)
+          break
+        case 'groups':
+          await this.groupsCommand.groupsButtonHandler(message)
+          break
+        case 'delete_group':
+          await this.groupsCommand.deleteGroupButtonHandler(message)
+          break
+        case 'help':
+          this.helpCommand.helpButtonHandler(message)
           break
         case 'my_wallet':
           this.myWalletCommand.myWalletCommandHandler(message)
@@ -117,8 +134,9 @@ export class CallbackQueryHandler {
           const messageText = GeneralMessages.startMessage(user)
 
           // reset any flags
-          userExpectingWalletAddress[Number(chatId)] = false
-          userExpectingDonation[Number(chatId)] = false
+          userExpectingWalletAddress[chatId] = false
+          userExpectingDonation[chatId] = false
+          userExpectingGroupId[chatId] = false
 
           this.bot.editMessageText(messageText, {
             chat_id: chatId,

@@ -28,6 +28,12 @@ export interface CreateUserInterface {
   lastName: string
 }
 
+export interface CreateUserGroupInterface {
+  id: string
+  name: string
+  userId: string
+}
+
 export interface ParsedTxInfo {
   info: {
     amount: string
@@ -36,6 +42,11 @@ export interface ParsedTxInfo {
     source: string
   }
   type: string
+}
+
+export interface UserGroup {
+  id: string
+  name: string
 }
 
 export interface TxPerSecondCapInterface {

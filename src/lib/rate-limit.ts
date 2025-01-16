@@ -74,11 +74,12 @@ export class RateLimit {
           bot.sendMessage(user.userId, RateLimitMessages.walletWasPaused(wallet.address), { parse_mode: 'HTML' })
         }
 
-        setTimeout(() => {
+        setTimeout(async () => {
           excludedWallets.delete(wallet.address)
 
           for (const user of wallet.userWallets) {
-            this.prismaWalletRepository.resumeUserWallet(user.userId, wallet.id) // update database
+            const walletUpdated = await this.prismaWalletRepository.resumeUserWallet(user.userId, wallet.id) // update database
+            if (!walletUpdated) return
             bot.sendMessage(user.userId, RateLimitMessages.walletWasResumed(wallet.address), {
               parse_mode: 'HTML',
             })

@@ -1,7 +1,14 @@
 import { SubscriptionPlan } from '@prisma/client'
-import { MAX_FREE_WALLETS, MAX_HOBBY_WALLETS, MAX_PRO_WALLETS, MAX_WHALE_WALLETS } from '../../constants/pricing'
+import {
+  MAX_FREE_WALLETS,
+  MAX_HOBBY_WALLETS,
+  MAX_PRO_WALLETS,
+  MAX_USER_GROUPS,
+  MAX_WHALE_WALLETS,
+} from '../../constants/pricing'
 import { UserPlan } from '../../lib/user-plan'
 import { UserPrisma } from '../../types/prisma-types'
+import { UserGroup } from '../../types/general-interfaces'
 
 export class GeneralMessages {
   constructor() {}
@@ -37,6 +44,19 @@ To ensure smooth performance for everyone, free wallets may be cleaned up period
 
     return messageText
   }
+
+  static startMessageGroup = `
+🐱 Handi Cat | Wallet Tracker
+
+Get real time activity notifications for any wallet you add!
+
+You must have a Handi Cat <b>PRO</b> or <b>WHALE</b> subscription to use this bot in a group
+
+<b>These are the commands available:</b>
+- /add Add a new wallet
+- /delete Delete a wallet
+- /manage View all wallets
+`
 
   static planUpgradedMessage(plan: SubscriptionPlan, subscriptionEnd: string): string {
     const planWallets: { [key: string]: number } = {
@@ -92,5 +112,60 @@ Maybe try adding some <b>SOL</b> to your Handi Cat personal wallet 😺
 
   static botWalletError: string = `
 😿 Oops! it seems that this wallet has been banned due to too many tps
+`
+
+  static groupsMessage(userGroups: UserGroup[]) {
+    const groupsContent =
+      userGroups.length === 0
+        ? `     
+<i>You do not have any groups yet.</i>
+`
+        : userGroups
+            .map(
+              (group, i) => `
+✅ Group Name: <b>${group.name}</b>
+🔗 Group ID: <code>${group.id}</code>
+
+`,
+            )
+            .join('\n\n')
+
+    const messageText = `
+You can now use <b>Handi Cat</b> in any group chat!
+
+Your groups: (${userGroups.length} / ${MAX_USER_GROUPS})
+${groupsContent}
+Learn how to add <b>Handi Cat</b> to a group chat in the <b>Help</b> menu
+`
+    return messageText
+  }
+
+  static groupChatNotStarted = `
+🚫 You cannot change Handi Cat settings in this group
+
+Bot is not initiated. Send /start
+`
+
+  static groupChatNotActivated = `
+🚫 You cannot change Handi Cat settings in this group
+
+Bot is not activated. Send /activate
+`
+
+  static userNotAuthorizedInGroup = `
+🚫 You cannot change Handi Cat settings in this group
+
+you are not authorized to perform this action.
+`
+
+  static deleteGroupMessage = `
+To <b>remove</b> a group from your list, simply send me the <b><u>Group ID</u></b> of the group you'd like to delete.
+`
+
+  static groupDeletedMessage = `
+This group has been deleted from your list!
+`
+  static failedToDeleteGroupMessage = `
+Failed to delete group, make sure you provided a valid <b>Group ID</b>
 `
 }

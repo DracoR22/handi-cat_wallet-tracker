@@ -379,6 +379,21 @@ export class PrismaWalletRepository {
 
   public async resumeUserWallet(userId: string, walletId: string) {
     try {
+      const walletToResume = await prisma.userWallet.findUnique({
+        where: {
+          userId_walletId: {
+            userId,
+            walletId,
+          },
+        },
+        select: {
+          status: true,
+        },
+      })
+
+      if (walletToResume?.status === 'BANNED') {
+        return false
+      }
       const resumedWallet = await prisma.userWallet.update({
         where: {
           userId_walletId: {
@@ -391,7 +406,7 @@ export class PrismaWalletRepository {
         },
       })
 
-      return resumedWallet
+      return true
     } catch (error) {
       console.log('Error resuming wallet')
       return

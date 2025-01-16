@@ -9,6 +9,7 @@ import { PrismaSubscriptionRepository } from '../repositories/prisma/subscriptio
 import { PaymentsMessageEnum } from '../types/messages-types'
 import { format } from 'date-fns'
 import { GeneralMessages } from '../bot/messages/general-messages'
+import { PrismaGroupRepository } from '../repositories/prisma/group'
 
 export class Payments {
   private userBalances: UserBalances
@@ -16,12 +17,14 @@ export class Payments {
 
   private prismaUserRepository: PrismaUserRepository
   private prismaSubscriptionRepository: PrismaSubscriptionRepository
+  private prismaGroupRepository: PrismaGroupRepository
   constructor() {
     this.userBalances = new UserBalances()
     this.handiCatWallet = new PublicKey(HANDI_CAT_WALLET_ADDRESS ?? '')
 
     this.prismaUserRepository = new PrismaUserRepository()
     this.prismaSubscriptionRepository = new PrismaSubscriptionRepository()
+    this.prismaGroupRepository = new PrismaGroupRepository()
   }
 
   public async chargeSubscription(
@@ -72,7 +75,8 @@ export class Payments {
 
         const parsedDate = format(subscription.subscriptionCurrentPeriodEnd!, 'MM/dd/yyyy')
 
-        // TODO: resume paused wallets
+        // resume paused group wallets
+        await this.prismaGroupRepository.updateUserGroupStatus(userId)
 
         return { success: true, message: PaymentsMessageEnum.PLAN_UPGRADED, subscriptionEnd: parsedDate }
       } catch (error) {
@@ -88,7 +92,10 @@ export class Payments {
 
     // create a free subscription if they dont have balance and subscription or if it expired
     if (!currentSubscription || (subscriptionExpired && new Date(subscriptionExpired) <= today)) {
-      await this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE')
+      await Promise.all([
+        this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE'),
+        this.prismaGroupRepository.updateUserGroupStatus(userId),
+      ])
     }
     return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
   }
