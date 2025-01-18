@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { connection, logConnection } from './providers/solana'
+import { RpcConnectionManager } from './providers/solana'
 import { UserPlan } from './lib/user-plan'
 import { ValidTransactions } from './lib/valid-transactions'
 import { TokenUtils } from './lib/token-utils'
@@ -54,7 +54,7 @@ export const test2 = async () => {
     const publicKey = new PublicKey(walletAddress)
     console.log('watching transactions for: ', publicKey.toBase58())
 
-    const subscriptionId = logConnection.onLogs(
+    const subscriptionId = RpcConnectionManager.logConnection.onLogs(
       publicKey,
       async (logs, ctx) => {
         const { isRelevant, program } = isRelevantTransaction(logs)
@@ -74,7 +74,7 @@ export const test2 = async () => {
 
 export const parseTransactions = async () => {
   try {
-    const transactionDetails = await connection.getParsedTransactions(
+    const transactionDetails = await RpcConnectionManager.getRandomConnection().getParsedTransactions(
       ['BvD2soJSDVa38xmZbt5ghHJ6KoXykiYVDHQKrJctipMnb6kKjZVfKFJzhi1SghMkbeMKcFSSy5S5yoBKzn4cbYu'],
       {
         maxSupportedTransactionVersion: 0,

@@ -8,7 +8,7 @@ import { TxPerSecondCapInterface } from '../types/general-interfaces'
 import { MAX_5_MIN_TXS_ALLOWED, MAX_TPS_ALLOWED, MAX_TPS_FOR_BAN, WALLET_SLEEP_TIME } from '../constants/handi-cat'
 import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { BANNED_WALLETS } from '../constants/banned-wallets'
-import { connection, logConnection } from '../providers/solana'
+import { RpcConnectionManager } from '../providers/solana'
 
 export class RateLimit {
   private prismaWalletRepository: PrismaWalletRepository
@@ -23,7 +23,7 @@ export class RateLimit {
     // Calculate the time 5 minutes ago
     const fiveMinutesAgo = currentTime - 1 * 60 * 1000
 
-    const signatures = await connection.getSignaturesForAddress(new PublicKey(walletAddress), {
+    const signatures = await RpcConnectionManager.connections[0].getSignaturesForAddress(new PublicKey(walletAddress), {
       limit: MAX_5_MIN_TXS_ALLOWED,
     })
 

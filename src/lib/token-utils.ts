@@ -1,14 +1,6 @@
-import {
-  AccountInfo,
-  Connection,
-  LAMPORTS_PER_SOL,
-  ParsedTransactionWithMeta,
-  PublicKey,
-  SystemProgram,
-} from '@solana/web3.js'
+import { Connection, LAMPORTS_PER_SOL, ParsedTransactionWithMeta, PublicKey } from '@solana/web3.js'
 // @ts-expect-error
 import { getAccount } from '@solana/spl-token'
-import { TokenListProvider } from '@solana/spl-token-registry'
 
 import axios from 'axios'
 import { PoolInfoLayout, SqrtPriceMath } from '@raydium-io/raydium-sdk'
@@ -23,16 +15,17 @@ import {
 } from '../config/program-ids'
 import { PumpCurveState } from '../types/pumpfun-types'
 import { BufferUtils } from './buffer-utils'
-import { FormatNumbers } from './format-numbers'
-import { connection } from '../providers/solana'
+import { RpcConnectionManager } from '../providers/solana'
 dotenv.config()
 
 export class TokenUtils {
-  constructor() {}
+  constructor(private connection: Connection) {
+    this.connection = connection
+  }
   public async getTokenMintAddress(tokenAddress: string) {
     try {
       const tokenPublicKey = new PublicKey(tokenAddress)
-      const accountInfo = await getAccount(connection, tokenPublicKey)
+      const accountInfo = await getAccount(this.connection, tokenPublicKey)
       return accountInfo.mint.toBase58()
     } catch (error) {
       console.log(`Error fetching mint address for token ${tokenAddress}:`, error)
@@ -129,7 +122,7 @@ export class TokenUtils {
     try {
       const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
 
-      const accountInfo = await connection.getAccountInfo(id)
+      const accountInfo = await RpcConnectionManager.getRandomConnection().getAccountInfo(id)
 
       if (accountInfo === null) {
         console.log('get pool info error')
@@ -155,7 +148,7 @@ export class TokenUtils {
 
   public async getTokenBalance(tokenAccountAddress: PublicKey) {
     try {
-      const tokenBalance = await connection.getTokenAccountBalance(tokenAccountAddress)
+      const tokenBalance = await this.connection.getTokenAccountBalance(tokenAccountAddress)
       return tokenBalance.value.amount
     } catch (error) {
       console.log('Error fetching token balance:', error)
@@ -255,7 +248,7 @@ export class TokenUtils {
   }
 
   public async getPumpCurveState(curveAddress: PublicKey): Promise<PumpCurveState | undefined> {
-    const response = await connection.getAccountInfo(curveAddress)
+    const response = await this.connection.getAccountInfo(curveAddress)
     if (
       !response ||
       !response.data ||
@@ -315,7 +308,7 @@ export class TokenUtils {
       if (isPump) {
         supplyValue = 1e9
       } else {
-        const tokenSupply = await connection.getTokenSupply(mintPublicKey)
+        const tokenSupply = await this.connection.getTokenSupply(mintPublicKey)
         supplyValue = tokenSupply.value.uiAmount
       }
 

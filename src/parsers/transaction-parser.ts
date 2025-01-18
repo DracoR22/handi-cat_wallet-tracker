@@ -4,16 +4,19 @@ import { Connection, ParsedTransactionWithMeta } from '@solana/web3.js'
 import { SwapType } from '../types/swap-types'
 import { FormatNumbers } from '../lib/format-numbers'
 import { NativeParserInterface } from '../types/general-interfaces'
+import { RpcConnectionManager } from '../providers/solana'
 
 export class TransactionParser {
   private formatNumbers: FormatNumbers
   private tokenUtils: TokenUtils
   private tokenParser: TokenParser
+  private connection: Connection
   constructor(private transactionSignature: string) {
-    this.tokenUtils = new TokenUtils()
+    this.connection = RpcConnectionManager.connections[0]
+    this.tokenUtils = new TokenUtils(this.connection)
     this.transactionSignature = this.transactionSignature
     this.formatNumbers = new FormatNumbers()
-    this.tokenParser = new TokenParser()
+    this.tokenParser = new TokenParser(this.connection)
   }
 
   public async parseRpc(

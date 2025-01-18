@@ -13,10 +13,9 @@ import {
   RAYDIUM_PROGRAM_ID,
 } from '../config/program-ids'
 import chalk from 'chalk'
-import { connection, logConnection } from '../providers/solana'
+import { RpcConnectionManager } from '../providers/solana'
 import { NativeParserInterface } from '../types/general-interfaces'
 import pLimit from 'p-limit'
-import { TokenUtils } from './token-utils'
 import { CronJobs } from './cron-jobs'
 import { PrismaUserRepository } from '../repositories/prisma/user'
 
@@ -63,7 +62,7 @@ export class WatchTransaction extends EventEmitter {
         this.walletTransactions.set(walletAddress, { count: 0, startTime: Date.now() })
 
         // Start real-time log
-        const subscriptionId = logConnection.onLogs(
+        const subscriptionId = RpcConnectionManager.logConnection.onLogs(
           publicKey,
           async (logs, ctx) => {
             // Exclude wallets that have reached the limit
@@ -102,6 +101,9 @@ export class WatchTransaction extends EventEmitter {
             }
 
             const transactionSignature = logs.signature
+
+            const randomConnection = RpcConnectionManager.getRandomConnection()
+
             const transactionDetails = await this.getParsedTransaction(transactionSignature)
 
             if (!transactionDetails || transactionDetails[0] === null) {
@@ -137,25 +139,15 @@ export class WatchTransaction extends EventEmitter {
     }
   }
 
-  // public async getParsedTransaction(transactionSignature: string) {
-  //   try {
-  //     const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
-  //       maxSupportedTransactionVersion: 0,
-  //     })
-
-  //     return transactionDetails
-  //   } catch (error) {
-  //     console.log('GET_PARSED_TRANSACTIONS_ERROR', error)
-  //     return
-  //   }
-  // }
-
   public async getParsedTransaction(transactionSignature: string, retries = 4) {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const transactionDetails = await connection.getParsedTransactions([transactionSignature], {
-          maxSupportedTransactionVersion: 0,
-        })
+        const transactionDetails = await RpcConnectionManager.connections[1].getParsedTransactions(
+          [transactionSignature],
+          {
+            maxSupportedTransactionVersion: 0,
+          },
+        )
 
         if (transactionDetails && transactionDetails[0] !== null) {
           return transactionDetails

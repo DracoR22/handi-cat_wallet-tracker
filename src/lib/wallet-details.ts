@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
-import { connection } from '../providers/solana'
+import { RpcConnectionManager } from '../providers/solana'
 import { formatDistanceToNow } from 'date-fns'
 import { GmgnWalletResponse } from '../types/helius-types'
 
@@ -8,7 +8,7 @@ export class WalletDetails {
 
   public async getLastWalletTx(walletAddress: string) {
     // Get the transaction signatures for the wallet
-    const signatures = await connection.getSignaturesForAddress(new PublicKey(walletAddress), {
+    const signatures = await RpcConnectionManager.connections[0].getSignaturesForAddress(new PublicKey(walletAddress), {
       limit: 1, // We only need the most recent transaction
     })
 
@@ -21,7 +21,7 @@ export class WalletDetails {
     const latestSignature = signatures[0].signature
 
     // Get the transaction details
-    const transaction = await connection.getTransaction(latestSignature, {
+    const transaction = await RpcConnectionManager.connections[0].getTransaction(latestSignature, {
       maxSupportedTransactionVersion: 0,
     })
 

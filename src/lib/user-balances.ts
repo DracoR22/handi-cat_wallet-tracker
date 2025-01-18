@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js'
-import { connection } from '../providers/solana'
+import { RpcConnectionManager } from '../providers/solana'
 
 export class UserBalances {
   constructor() {}
@@ -8,7 +8,7 @@ export class UserBalances {
     try {
       const publicKey = new PublicKey(walletAddress)
 
-      const balance = await connection.getBalance(publicKey)
+      const balance = await RpcConnectionManager.connections[0].getBalance(publicKey)
 
       // Convert lamports to SOL
       const solBalance = balance / 1_000_000_000
