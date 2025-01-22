@@ -43,6 +43,12 @@ export const createTxSubMenu = (tokenSymbol: string, tokenMint: string) => {
           url: `https://t.me/pepeboost_sol_bot?start=ref_03pbvu_ca_${tokenMint}`,
         },
       ],
+      [
+        {
+          text: `🐊 GMGN: ${tokenSymbol}`,
+          url: `https://t.me/GMGN_sol_bot?start=i_kxPdcLKf_c_${tokenMint}`,
+        },
+      ],
     ],
   }
 

@@ -7,9 +7,8 @@ export class WalletDetails {
   constructor() {}
 
   public async getLastWalletTx(walletAddress: string) {
-    // Get the transaction signatures for the wallet
     const signatures = await RpcConnectionManager.connections[0].getSignaturesForAddress(new PublicKey(walletAddress), {
-      limit: 1, // We only need the most recent transaction
+      limit: 1,
     })
 
     if (signatures.length === 0) {

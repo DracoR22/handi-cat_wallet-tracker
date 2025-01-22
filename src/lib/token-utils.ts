@@ -325,4 +325,19 @@ export class TokenUtils {
       return
     }
   }
+
+  public async getLastTwoTransactionCount(tokenAddress: string) {
+    try {
+      const publicKey = new PublicKey(tokenAddress)
+
+      // Fetch the last 2 confirmed signatures for the token address
+      const signatures = await this.connection.getSignaturesForAddress(publicKey, { limit: 2 })
+
+      // Return the count of transactions
+      return signatures.length
+    } catch (error) {
+      console.error('Error fetching transactions:', error)
+      throw error
+    }
+  }
 }

@@ -36,6 +36,9 @@ export class TransactionParser {
       let amountOut = ''
       let tokenOut = ''
 
+      // TODO!
+      let isNew = false
+
       const transactions: any = []
       const parsedInfos: any[] = []
 
@@ -223,6 +226,7 @@ export class TransactionParser {
           swappedTokenMc: tokenMc,
           swappedTokenPrice: raydiumTokenPrice,
           solPrice: solPriceUsd || '',
+          isNew: isNew,
           tokenTransfers: {
             tokenInSymbol: tokenIn,
             tokenInMint: tokenInMint,
@@ -317,6 +321,7 @@ export class TransactionParser {
           swappedTokenMc: tokenMc,
           swappedTokenPrice: tokenPrice,
           solPrice: solPriceUsd || '',
+          isNew: isNew,
           tokenTransfers: {
             tokenInSymbol: tokenIn,
             tokenInMint: tokenInMint,
