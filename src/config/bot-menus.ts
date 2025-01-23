@@ -45,7 +45,7 @@ export const createTxSubMenu = (tokenSymbol: string, tokenMint: string) => {
       ],
       [
         {
-          text: `🐊 GMGN: ${tokenSymbol}`,
+          text: `🦖 GMGN: ${tokenSymbol}`,
           url: `https://t.me/GMGN_sol_bot?start=i_kxPdcLKf_c_${tokenMint}`,
         },
       ],

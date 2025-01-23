@@ -11,6 +11,8 @@ export interface NativeParserInterface {
   swappedTokenMc: number | null | undefined
   swappedTokenPrice: number | null | undefined
   solPrice: string
+  currentHoldingPrice: string
+  currenHoldingPercentage: string
   isNew: boolean
   tokenTransfers: {
     tokenInSymbol: string

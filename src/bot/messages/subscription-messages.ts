@@ -22,18 +22,16 @@ export class SubscriptionMessages {
 Current plan: ${subscriptionPlan === 'FREE' ? `😿 <b>${subscriptionPlan}</b>` : `😺 <b>${subscriptionPlan}</b>`}
 
 <b>By upgrading to any plan, you can:</b>
-
 ✅ Track more wallets to expand your monitoring capabilities.
-✅ Prevent wallet cleanups, ensuring your tracked wallets stay secure and uninterrupted.
+✅ Prevent wallet cleanups.
+✅ Get access to <b>PREMIUM</b> features.
 
-<b>Choose a plan:</b>
-
+<b>Choose your plan:</b>
 <b>HOBBY</b>: ${MAX_HOBBY_WALLETS} wallets - ${HOBBY_PLAN_FEE / 1e9} <b>SOL</b> / month 
 <b>PRO</b>: ${MAX_PRO_WALLETS} wallets - ${PRO_PLAN_FEE / 1e9} <b>SOL</b> / month
 <b>WHALE</b>: ${MAX_WHALE_WALLETS} wallets - ${WHALE_PLAN_FEE / 1e9} <b>SOL</b> / month
 
-How to upgrade your plan?
-
+<b>How to upgrade your plan?</b>
 1. Transfer the required <b>SOL</b> to your <b>Handi Cat</b> wallet: <code>${user?.personalWalletPubKey}</code>
 2. Now you can select one of the plans below!
 `

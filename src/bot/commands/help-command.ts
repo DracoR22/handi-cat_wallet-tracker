@@ -24,4 +24,13 @@ export class HelpCommand {
       })
     })
   }
+
+  public notifyHelpCommandHander() {
+    this.bot.onText(/\/help_notify/, async (msg) => {
+      this.bot.sendMessage(msg.chat.id, HelpMessages.notifyHelp, {
+        parse_mode: 'HTML',
+        reply_markup: SUB_MENU,
+      })
+    })
+  }
 }

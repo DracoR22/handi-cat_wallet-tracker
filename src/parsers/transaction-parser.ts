@@ -7,7 +7,6 @@ import { NativeParserInterface } from '../types/general-interfaces'
 import { RpcConnectionManager } from '../providers/solana'
 
 export class TransactionParser {
-  private formatNumbers: FormatNumbers
   private tokenUtils: TokenUtils
   private tokenParser: TokenParser
   private connection: Connection
@@ -15,7 +14,6 @@ export class TransactionParser {
     this.connection = RpcConnectionManager.connections[0]
     this.tokenUtils = new TokenUtils(this.connection)
     this.transactionSignature = this.transactionSignature
-    this.formatNumbers = new FormatNumbers()
     this.tokenParser = new TokenParser(this.connection)
   }
 
@@ -35,6 +33,9 @@ export class TransactionParser {
       let tokenIn = ''
       let amountOut = ''
       let tokenOut = ''
+
+      let currentHoldingPrice = ''
+      let currenHoldingPercentage = ''
 
       // TODO!
       let isNew = false
@@ -181,8 +182,8 @@ export class TransactionParser {
         // // const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
         // const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '')
 
-        const formattedAmountOut = this.formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
-        const formattedAmountIn = this.formatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
+        const formattedAmountOut = FormatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
+        const formattedAmountIn = FormatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
 
         // owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
         owner = signerAccountAddress ? signerAccountAddress : transactions[0]?.info?.authority
@@ -210,9 +211,14 @@ export class TransactionParser {
           const tokenToMc = tokenInMint === 'So11111111111111111111111111111111111111112' ? tokenOutMint : tokenInMint
 
           if (tokenPrice) {
-            const tokenMarketCap = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc, false)
+            const { tokenMarketCap, supplyAmount } = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc, false)
             tokenMc = tokenMarketCap
             raydiumTokenPrice = tokenPrice
+
+            const tokenHoldings = await this.tokenUtils.getTokenHoldings(owner, tokenToMc, supplyAmount, false)
+
+            currenHoldingPercentage = tokenHoldings.percentage
+            currentHoldingPrice = tokenHoldings.balance
           }
         }
 
@@ -226,6 +232,8 @@ export class TransactionParser {
           swappedTokenMc: tokenMc,
           swappedTokenPrice: raydiumTokenPrice,
           solPrice: solPriceUsd || '',
+          currenHoldingPercentage: currenHoldingPercentage,
+          currentHoldingPrice: currentHoldingPrice,
           isNew: isNew,
           tokenTransfers: {
             tokenInSymbol: tokenIn,
@@ -289,7 +297,7 @@ export class TransactionParser {
         // const tokenInInfo = await this.tokenParser.getTokenInfo(tokenInMint)
         // const cleanedTokenInSymbol = tokenInInfo.data.symbol.replace(/\x00/g, '')
 
-        const formattedAmount = this.formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
+        const formattedAmount = FormatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
 
         owner = signerAccountAddress ? signerAccountAddress : transactions[0]?.info?.authority
         amountOut = nativeBalance?.type === 'sell' ? formattedAmount : totalSolSwapped.toFixed(2).toString()
@@ -307,8 +315,13 @@ export class TransactionParser {
         const tokenPrice = await this.tokenUtils.getTokenPricePumpFun(tokenToMc, solPriceUsd)
         // console.log('TOKEN PRICE:', tokenPrice)
         if (tokenPrice) {
-          const tokenMarketCap = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc, true)
+          const { tokenMarketCap, supplyAmount } = await this.tokenUtils.getTokenMktCap(tokenPrice, tokenToMc, true)
           tokenMc = tokenMarketCap
+
+          const tokenHoldings = await this.tokenUtils.getTokenHoldings(owner, tokenToMc, supplyAmount, true)
+
+          currenHoldingPercentage = tokenHoldings.percentage
+          currentHoldingPrice = tokenHoldings.balance
         }
 
         return {
@@ -322,6 +335,8 @@ export class TransactionParser {
           swappedTokenPrice: tokenPrice,
           solPrice: solPriceUsd || '',
           isNew: isNew,
+          currenHoldingPercentage: currenHoldingPercentage,
+          currentHoldingPrice: currentHoldingPrice,
           tokenTransfers: {
             tokenInSymbol: tokenIn,
             tokenInMint: tokenInMint,

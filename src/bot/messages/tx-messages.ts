@@ -29,23 +29,29 @@ export class TxMessages {
     const amountInUsd = message.type === 'buy' ? Number(amountOut) * solPrice : Number(amountIn) * solPrice
     // const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
     const fixedUsdAmount = FormatNumbers.formatPrice(amountInUsd)
+    // const displayPercentage =
+    //   isFinite(Number(message.currenHoldingPercentage)) && Number(message.currenHoldingPercentage) > 0
+    //     ? `${message.currenHoldingPercentage}%`
+    //     : '0'
 
     const tokenMintToTrack = message.type === 'buy' ? tokenInMint : tokenOutMint
 
-    const gmgnLink = `<a href="https://gmgn.ai/sol/token/${tokenMintToTrack}">GMGN</a>`
+    const gmgnLink = `<a href="https://gmgn.ai/sol/token/kxPdcLKf_${tokenMintToTrack}">GMGN</a>`
     const beLink = `<a href="https://birdeye.so/token/${tokenMintToTrack}?chain=solana">BE</a>`
     const dsLink = `<a href="https://dexscreener.com/solana/${tokenMintToTrack}">DS</a>`
     const phLink = `<a href="https://photon-sol.tinyastro.io/en/lp/${tokenMintToTrack}">PH</a>`
+    const bullxLink = `<a href="https://neo.bullx.io/terminal?chainId=1399811149&address=${tokenMintToTrack}">Bullx</a>`
 
     const marketCapText = tokenMarketCap
-      ? `💣 ${message.type === 'buy' ? `<a href="${solscanTokenInUrl}">#${tokenIn}</a>` : `<a href="${solscanTokenOutUrl}">#${tokenOut}</a>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} • ${beLink} • ${dsLink} • ${phLink}`
+      ? `🔗 ${message.type === 'buy' ? `<b><a href="${solscanTokenInUrl}">#${tokenIn}</a></b>` : `<b><a href="${solscanTokenOutUrl}">#${tokenOut}</a></b>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} • ${beLink} • ${dsLink} • ${phLink} • ${bullxLink}`
       : ''
 
     const messageText = `
-${message.type === 'buy' ? '🟢' : '🔴'} <a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a> on ${message.platform!.toUpperCase()}
+${message.type === 'buy' ? '🟢' : '🔴'} <b><a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a></b> on ${message.platform!.toUpperCase()}
 <b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
-💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <a href="${solscanTokenInUrl}">${tokenIn}</a> @$${message.swappedTokenPrice?.toFixed(7)}
-      
+💎 <b><a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a></b> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <b><a href="${solscanTokenOutUrl}">${tokenOut}</a></b> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <b><a href="${solscanTokenInUrl}">${tokenIn}</a></b> @$${message.swappedTokenPrice?.toFixed(7)}
+
+${Number(message.currenHoldingPercentage) > 0 ? '📈' : '📉'} <b>HOLDS: ${message.currentHoldingPrice} (${message.currenHoldingPercentage}%)</b>
 ${marketCapText}
 <code>${tokenMintToTrack}</code>
 `

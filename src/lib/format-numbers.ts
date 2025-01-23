@@ -1,7 +1,7 @@
 export class FormatNumbers {
   constructor() {}
 
-  public formatTokenAmount(amount: number) {
+  static formatTokenAmount(amount: number) {
     // console.log('AMOUNT', amount)
     let scaledAmount: number
 

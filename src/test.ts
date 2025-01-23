@@ -15,6 +15,9 @@ import chalk from 'chalk'
 import { TokenParser } from './parsers/token-parser'
 import { FormatNumbers } from './lib/format-numbers'
 
+// @ts-expect-error
+import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token'
+
 function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: SwapType } {
   // Guard clause for empty logs
   if (!logs.logs || logs.logs.length === 0) {
@@ -115,8 +118,8 @@ export const parseTransactions = async () => {
 
     const formatNumbers = new FormatNumbers()
 
-    const formattedAmountIn = formatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
-    const formattedAmountOut = formatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
+    const formattedAmountIn = FormatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
+    const formattedAmountOut = FormatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
 
     console.log('amount out', transactions[0]?.info?.amount)
     console.log('amount in', raydiumTransfer?.info?.amount)
@@ -163,5 +166,41 @@ export const parseTransactions = async () => {
   }
 }
 
-parseTransactions()
+async function getTokenHoldings(walletAddress: string, tokenMintAddress: string) {
+  try {
+    const walletPublicKey = new PublicKey(walletAddress)
+    const tokenMintPublicKey = new PublicKey(tokenMintAddress)
+
+    const associatedTokenAddress = await getAssociatedTokenAddress(tokenMintPublicKey, walletPublicKey)
+    const tokenAccountInfo = await getAccount(RpcConnectionManager.connections[0], associatedTokenAddress)
+
+    const tokenSupply = await RpcConnectionManager.connections[0].getTokenSupply(tokenMintPublicKey)
+    const supplyValue = tokenSupply.value.uiAmount
+
+    if (!supplyValue) return
+
+    const percentage = (Number(tokenAccountInfo.amount) / Number(tokenSupply.value.amount)) * 100
+
+    const fixedPercentage = percentage > 0 ? `${percentage.toFixed(2)}%` : '0%'
+
+    console.log('BALANCE: ', FormatNumbers.formatTokenAmount(Number(tokenAccountInfo.amount)))
+    console.log('PERCENTAGE', fixedPercentage)
+    return {
+      balance: tokenAccountInfo.amount.toString(),
+      decimals: tokenAccountInfo.decimals,
+    }
+  } catch (error) {
+    console.log('Error fetching token holdings:', error)
+
+    // Return zero if account doesn't exist or an error occurs
+    if (error) {
+      return { balance: '0', decimals: 0 }
+    }
+
+    return
+  }
+}
+
+getTokenHoldings('', '')
+// parseTransactions()
 // test2()

@@ -92,9 +92,10 @@ class Main {
     this.addCommand.addCommandHandler()
     this.deleteCommand.deleteCommandHandler()
     this.groupsCommand.activateGroupCommandHandler()
-    this.helpCommand.groupHelpCommandHandler()
     this.manageCommand.manageCommandHandler()
     this.upgradePlanCommand.upgradePlanCommandHandler()
+    this.helpCommand.groupHelpCommandHandler()
+    this.helpCommand.notifyHelpCommandHander()
 
     // cron jobs
     await this.cronJobs.monthlySubscriptionFee()

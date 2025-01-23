@@ -1,6 +1,6 @@
 import { Connection, LAMPORTS_PER_SOL, ParsedTransactionWithMeta, PublicKey } from '@solana/web3.js'
 // @ts-expect-error
-import { getAccount } from '@solana/spl-token'
+import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token'
 
 import axios from 'axios'
 import { PoolInfoLayout, SqrtPriceMath } from '@raydium-io/raydium-sdk'
@@ -16,6 +16,8 @@ import {
 import { PumpCurveState } from '../types/pumpfun-types'
 import { BufferUtils } from './buffer-utils'
 import { RpcConnectionManager } from '../providers/solana'
+import { FormatNumbers } from './format-numbers'
+
 dotenv.config()
 
 export class TokenUtils {
@@ -303,41 +305,61 @@ export class TokenUtils {
   public async getTokenMktCap(tokenPrice: number, tokenMint: string, isPump: boolean) {
     try {
       let supplyValue = null
+      let supplyAmount = null
+
       const mintPublicKey = new PublicKey(tokenMint)
 
       if (isPump) {
         supplyValue = 1e9
+        supplyAmount = 1e9
       } else {
         const tokenSupply = await this.connection.getTokenSupply(mintPublicKey)
         supplyValue = tokenSupply.value.uiAmount
+        supplyAmount = Number(tokenSupply.value.amount)
       }
 
       if (!supplyValue) {
-        return
+        return { tokenMarketCap: 0, supplyAmount: 0 }
       }
 
-      const tokenMarketCap = supplyValue * tokenPrice
+      const tokenMarketCap = Number(supplyValue) * tokenPrice
 
       console.log('TOKEN_MARKET_CAP', tokenMarketCap)
-      return tokenMarketCap
+      return { tokenMarketCap, supplyAmount: supplyAmount || 0 }
     } catch (error) {
       console.log('GET_TOKEN_MKC_ERROR')
-      return
+      return { tokenMarketCap: 0, supplyAmount: 0 }
     }
   }
 
-  public async getLastTwoTransactionCount(tokenAddress: string) {
+  public async getTokenHoldings(
+    walletAddress: string,
+    tokenMintAddress: string,
+    tokenSupply: number,
+    isPump: boolean,
+  ): Promise<{ balance: string; percentage: string }> {
     try {
-      const publicKey = new PublicKey(tokenAddress)
+      const walletPublicKey = new PublicKey(walletAddress)
+      const tokenMintPublicKey = new PublicKey(tokenMintAddress)
 
-      // Fetch the last 2 confirmed signatures for the token address
-      const signatures = await this.connection.getSignaturesForAddress(publicKey, { limit: 2 })
+      const associatedTokenAddress = await getAssociatedTokenAddress(tokenMintPublicKey, walletPublicKey)
+      const tokenAccountInfo = await getAccount(this.connection, associatedTokenAddress)
 
-      // Return the count of transactions
-      return signatures.length
+      const percentage = isPump
+        ? Number(tokenAccountInfo.amount) / Number(tokenSupply) / 10000
+        : (Number(tokenAccountInfo.amount) / Number(tokenSupply)) * 100
+      const fixedPercentage = percentage > 0 ? `${percentage.toFixed(2)}` : '0'
+
+      const balance = FormatNumbers.formatTokenAmount(Number(tokenAccountInfo.amount))
+
+      return {
+        balance: balance,
+        percentage: fixedPercentage,
+      }
     } catch (error) {
-      console.error('Error fetching transactions:', error)
-      throw error
+      console.log('Error fetching token holdings:', error)
+
+      return { balance: '0', percentage: '0' }
     }
   }
 }
