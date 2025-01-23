@@ -29,7 +29,7 @@ How to use <b>Handi Cat Wallet Tracker Bot: </b>
 2️⃣ Click on <b>Add</b> Button
 3️⃣ Paste the address you want to track
 
-<b>Understand Handi Cat notificatons:</b>
+<b>Understand Handi Cat notifications:</b>
 <b>@</b> - Token Price
 <b>MC</b> - Token Market Cap
 <b>HOLDS</b> - Amount of tokens and supply percentage this wallet holds
