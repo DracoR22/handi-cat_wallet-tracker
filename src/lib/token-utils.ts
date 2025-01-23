@@ -174,8 +174,8 @@ export class TokenUtils {
       const priceOfSPLTokenInSOL = wrappedSolBalance / 1_000_000_000 / (splTokenBalance / 1_000_000)
       let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd
 
-      console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
-      console.log('SOL PRICE TOKEN', priceOfSPLTokenInSOL)
+      // console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
+      // console.log('SOL PRICE TOKEN', priceOfSPLTokenInSOL)
 
       if (priceOfSPLTokenInUSD.toString().includes('e')) {
         // Convert the scientific notation number to a fixed decimal number string
@@ -324,7 +324,7 @@ export class TokenUtils {
 
       const tokenMarketCap = Number(supplyValue) * tokenPrice
 
-      console.log('TOKEN_MARKET_CAP', tokenMarketCap)
+      // console.log('TOKEN_MARKET_CAP', tokenMarketCap)
       return { tokenMarketCap, supplyAmount: supplyAmount || 0 }
     } catch (error) {
       console.log('GET_TOKEN_MKC_ERROR')

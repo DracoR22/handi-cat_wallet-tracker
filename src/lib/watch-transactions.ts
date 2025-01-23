@@ -185,7 +185,7 @@ export class WatchTransaction extends EventEmitter {
     const tasks = uniqueActiveUsers.map((user) =>
       limit(async () => {
         if (user) {
-          console.log('Users:', user)
+          // console.log('Users:', user)
           try {
             await sendMessageHandler.send(parsed, user.userId)
           } catch (error) {
