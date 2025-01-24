@@ -303,7 +303,7 @@ export class TransactionParser {
         amountOut = nativeBalance?.type === 'sell' ? formattedAmount : totalSolSwapped.toFixed(2).toString()
         amountIn = nativeBalance?.type === 'sell' ? totalSolSwapped.toFixed(2).toString() : formattedAmount
 
-        console.log('OWNER', signerAccountAddress)
+        // console.log('OWNER', signerAccountAddress)
         const swapDescription = `${owner} swapped ${amountOut} ${tokenOut} for ${amountIn} ${tokenIn}`
 
         let tokenMc: number | null | undefined = null
