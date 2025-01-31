@@ -111,7 +111,7 @@ Maybe try adding some <b>SOL</b> to your Handi Cat personal wallet 😺
 `
 
   static botWalletError: string = `
-😿 Oops! it seems that this wallet has been banned due to too many tps
+😿 Oops! it seems that this wallet is spamming to many tps, Please enter another wallet or try again later.
 `
 
   static groupsMessage(userGroups: UserGroup[]) {
