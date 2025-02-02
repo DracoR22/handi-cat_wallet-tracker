@@ -63,6 +63,7 @@ export class PrismaUserRepository {
         userSubscription: {
           select: {
             plan: true,
+            subscriptionCurrentPeriodEnd: true,
           },
         },
       },

@@ -69,6 +69,7 @@ You must have a Handi Cat <b>PRO</b> or <b>WHALE</b> subscription to use this bo
 
     const messageText = `
 😸 Success! Your plan has been upgraded to <b>${plan}</b>.
+Your subscription will renew at ${subscriptionEnd}
 
 You can now track up to <b>${planWallet}</b> wallets at the time!
 `
@@ -105,7 +106,7 @@ You can try by upgrading your <b>plan</b> for more wallets 💎
   static generalMessageError: string = `
 😿 Ooops it seems that something went wrong while processing the transaction.
 
-You probaly don't have sufficient balance in your wallet
+You probaly don't have sufficient balance in your wallet or it can't cover the transaction fees.
 
 Maybe try adding some <b>SOL</b> to your Handi Cat personal wallet 😺
 `

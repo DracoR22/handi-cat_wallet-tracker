@@ -357,7 +357,7 @@ export class TokenUtils {
         percentage: fixedPercentage,
       }
     } catch (error) {
-      console.log('Error fetching token holdings:', error)
+      console.log('Error fetching token holdings, wallet:', walletAddress)
 
       return { balance: '0', percentage: '0' }
     }

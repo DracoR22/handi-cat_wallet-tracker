@@ -15,6 +15,7 @@ export type UserWithSubscriptionPlan = {
   personalWalletPubKey: string
   userSubscription: {
     plan: SubscriptionPlan
+    subscriptionCurrentPeriodEnd: Date | null
   } | null
 }
 

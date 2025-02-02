@@ -1,3 +1,4 @@
+import { format, formatDistanceToNow } from 'date-fns'
 import { BOT_USERNAME } from '../../constants/handi-cat'
 import {
   HOBBY_PLAN_FEE,
@@ -18,9 +19,14 @@ export class SubscriptionMessages {
 
     const subscriptionPlan = subscriptionExists ? user?.userSubscription?.plan : 'FREE'
 
+    const subscriptionEnd = user?.userSubscription?.subscriptionCurrentPeriodEnd
+    const formattedDate = subscriptionEnd
+      ? `${formatDistanceToNow(subscriptionEnd, { addSuffix: true })} (${format(subscriptionEnd, 'MMM d, yyyy')})`
+      : 'N/A'
+
     const messageText = `
 Current plan: ${subscriptionPlan === 'FREE' ? `😿 <b>${subscriptionPlan}</b>` : `😺 <b>${subscriptionPlan}</b>`}
-
+${subscriptionPlan !== 'FREE' ? `<b>Your subscription will renew <u>${formattedDate}</u></b>\n` : ''}
 <b>By upgrading to any plan, you can:</b>
 ✅ Track more wallets to expand your monitoring capabilities.
 ✅ Prevent wallet cleanups.
