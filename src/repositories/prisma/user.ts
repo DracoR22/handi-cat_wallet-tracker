@@ -115,7 +115,7 @@ export class PrismaUserRepository {
           },
           isCanceled: false,
           plan: {
-            not: 'FREE', // only get users which plan is not free
+            not: 'FREE',
           },
         },
       })
@@ -123,6 +123,41 @@ export class PrismaUserRepository {
       return usersToCharge
     } catch (error) {
       console.log('GET_USERS_TO_CHARGE_ERROR', error)
+      return []
+    }
+  }
+
+  public async getUsersWithEndingTomorrow() {
+    try {
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      tomorrow.setHours(0, 0, 0, 0) // Reset time to start of day
+
+      const usersToRenew = await prisma.userSubscription.findMany({
+        where: {
+          subscriptionCurrentPeriodEnd: {
+            equals: tomorrow,
+          },
+          isCanceled: false,
+          plan: {
+            not: 'FREE',
+          },
+        },
+        select: {
+          plan: true,
+          id: true,
+          userId: true,
+          user: {
+            select: {
+              username: true,
+            },
+          },
+        },
+      })
+
+      return usersToRenew
+    } catch (error) {
+      console.log('GET_USERS_WITH_ENDING_TOMORROW_ERROR', error)
       return []
     }
   }

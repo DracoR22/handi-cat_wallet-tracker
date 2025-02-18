@@ -12,13 +12,9 @@ export class TrackWallets {
   private prismaWalletRepository: PrismaWalletRepository
   private walletWatcher: WatchTransaction
 
-  public walletsState: []
-
   constructor() {
     this.prismaWalletRepository = new PrismaWalletRepository()
     this.walletWatcher = new WatchTransaction()
-
-    this.walletsState = []
   }
 
   public async setupWalletWatcher({ event, userId, walletId }: SetupWalletWatcherProps): Promise<void> {

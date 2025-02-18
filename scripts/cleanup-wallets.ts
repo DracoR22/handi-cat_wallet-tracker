@@ -14,6 +14,9 @@ async function cleanUpOrphanedWallets() {
             { userPromotions: { none: {} } },
           ],
         },
+        NOT: {
+          status: 'BANNED',
+        },
       },
     })
 

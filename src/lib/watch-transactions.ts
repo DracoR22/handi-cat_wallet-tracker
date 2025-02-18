@@ -25,7 +25,7 @@ export class WatchTransaction extends EventEmitter {
   public subscriptions: Map<string, number>
 
   private walletTransactions: Map<string, { count: number; startTime: number }>
-  private excludedWallets: Map<string, boolean>
+  public excludedWallets: Map<string, boolean>
 
   private rateLimit: RateLimit
 
@@ -68,6 +68,7 @@ export class WatchTransaction extends EventEmitter {
             // Exclude wallets that have reached the limit
             if (this.excludedWallets.has(walletAddress)) {
               console.log(`Wallet ${walletAddress} is excluded from logging.`)
+
               return
             }
 
@@ -101,8 +102,6 @@ export class WatchTransaction extends EventEmitter {
             }
 
             const transactionSignature = logs.signature
-
-            const randomConnection = RpcConnectionManager.getRandomConnection()
 
             const transactionDetails = await this.getParsedTransaction(transactionSignature)
 

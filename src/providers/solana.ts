@@ -21,4 +21,8 @@ export class RpcConnectionManager {
     const randomIndex = Math.floor(Math.random() * RpcConnectionManager.connections.length)
     return RpcConnectionManager.connections[randomIndex]
   }
+
+  static resetLogConnection() {
+    RpcConnectionManager.logConnection = new Connection(HELIUS_NETWORK, 'processed')
+  }
 }

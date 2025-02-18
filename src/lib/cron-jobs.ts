@@ -2,10 +2,17 @@ import cron from 'node-cron'
 import { PrismaUserRepository } from '../repositories/prisma/user'
 import { Payments } from './payments'
 import { TokenUtils } from './token-utils'
+import { WatchTransaction } from './watch-transactions'
+import { RpcConnectionManager } from '../providers/solana'
+import { TrackWallets } from './track-wallets'
+import { bot } from '../providers/telegram'
+import { SubscriptionMessages } from '../bot/messages/subscription-messages'
 
 export class CronJobs {
   private prismaUserRepository: PrismaUserRepository
   private payments: Payments
+  private walletWatcher: WatchTransaction
+  private trackWallets: TrackWallets
 
   private static cachedPrice: string | undefined = undefined
   private static lastFetched: number = 0
@@ -13,6 +20,8 @@ export class CronJobs {
   constructor() {
     this.prismaUserRepository = new PrismaUserRepository()
     this.payments = new Payments()
+    this.walletWatcher = new WatchTransaction()
+    this.trackWallets = new TrackWallets()
   }
 
   public async monthlySubscriptionFee() {
@@ -37,6 +46,34 @@ export class CronJobs {
           )
         } else {
           console.log(`Failed to charge user ${user.userId}: ${chargeResult.message}`)
+        }
+      }
+    })
+  }
+
+  public async sendRenewalReminder() {
+    cron.schedule('0 0 * * *', async () => {
+      console.log('Sending renewal reminders')
+
+      const usersToRemind = await this.prismaUserRepository.getUsersWithEndingTomorrow()
+
+      if (!usersToRemind || usersToRemind.length === 0) {
+        console.log('No users to remind today')
+        return
+      }
+
+      for (const user of usersToRemind) {
+        try {
+          bot.sendMessage(
+            user.userId,
+            SubscriptionMessages.subscriptionRenewalMessage(user.user?.username || 'there', user.plan),
+            {
+              parse_mode: 'HTML',
+            },
+          )
+          console.log(`Successfully sent renewal reminder to user ${user.userId}`)
+        } catch (error) {
+          console.error(`Failed to send reminder to user ${user.userId}:`, error)
         }
       }
     })
@@ -74,6 +111,16 @@ export class CronJobs {
 
       return
     }
+  }
+
+  public async unsubscribeAllWallets() {
+    cron.schedule('*/1 * * * *', async () => {
+      console.log('Triggering resetLogConnection...')
+      RpcConnectionManager.resetLogConnection()
+      this.walletWatcher.subscriptions.clear()
+      this.walletWatcher.excludedWallets.clear()
+      await this.trackWallets.setupWalletWatcher({ event: 'initial' })
+    })
   }
 
   static getSolPrice() {

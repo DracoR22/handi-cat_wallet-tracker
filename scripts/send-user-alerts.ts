@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { bot } from '../src/providers/telegram'
 import { MAX_WHALE_WALLETS } from '../src/constants/pricing'
 import chalk from 'chalk'
+import { SUGGEST_UPGRADE_SUBMENU, UPGRADE_PLAN_SUB_MENU } from '../src/config/bot-menus'
 
 const prisma = new PrismaClient()
 
@@ -32,18 +33,21 @@ const sendMessage = async () => {
         await bot.sendMessage(
           user.id,
           `
-⚠️ Important Update ⚠️
+⚠️ Important Notice ⚠️
 
-This is your LAST CHANCE to get a <b>LIFETIME</b> plan! 🚨 Starting next week, we’re switching to a subscription-based model.
+To ensure optimal performance for our premium users, all <b>FREE Wallets</b> have been cleaned up.
 
-Upgrade now to track up to <b>${MAX_WHALE_WALLETS}</b> wallets with a one-time payment — no recurring fees! 🐾
+Upgrade your plan today to enjoy:
+✅ Unlimited wallet tracking – Never lose access to your wallets
+✅ Lightning-fast notifications – Stay ahead with real-time alerts
+✅ Exclusive premium features – Unlock powerful tools for a better tracking experience
 
-🔗 Don't miss out on this opportunity to lock in a lifetime plan before it's gone forever.
-
-🕒 Offer ends soon — act fast! ⏳
+Don’t miss out—upgrade now to keep your wallets secure and fully tracked!
+Plans starting from <b>0.1 SOL</b>
 `,
           {
             parse_mode: 'HTML',
+            reply_markup: SUGGEST_UPGRADE_SUBMENU,
           },
         )
         console.info(chalk.bold.green(`Message sent successfully to user with ID: ${user.id}`))

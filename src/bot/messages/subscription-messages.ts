@@ -10,6 +10,7 @@ import {
   WHALE_PLAN_FEE,
 } from '../../constants/pricing'
 import { UserWithSubscriptionPlan } from '../../types/prisma-types'
+import { SubscriptionPlan } from '@prisma/client'
 
 export class SubscriptionMessages {
   constructor() {}
@@ -63,4 +64,18 @@ To add <b>Handi Cat</b> to Groups, you need a <b>PRO</b> or <b>WHALE</b> subscri
 You’ve reached the maximum limit of groups you can add <b>(${MAX_USER_GROUPS}).</b> 
 To add a new group, please remove an existing one.
 `
+
+  static subscriptionRenewalMessage(userName: string, planName: SubscriptionPlan) {
+    return `
+🔔 <b>Subscription Renewal Reminder</b>
+
+Hello ${userName}, 
+
+Your <b>${planName}</b> plan is set to renew <b>Tomorrow</b>. 
+
+To ensure a successful renewal, please make sure your <b>Handi Cat wallet</b> has the necessary funds.
+
+Thank you for staying with us!
+`
+  }
 }
