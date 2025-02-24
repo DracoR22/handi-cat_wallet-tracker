@@ -188,7 +188,7 @@ export class WatchTransaction extends EventEmitter {
           try {
             await sendMessageHandler.send(parsed, user.userId)
           } catch (error) {
-            console.log(`Error sending message to user ${user.userId}`, error)
+            console.log(`Error sending message to user ${user.userId}`)
           }
         }
       }),
