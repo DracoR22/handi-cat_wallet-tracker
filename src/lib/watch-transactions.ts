@@ -179,7 +179,7 @@ export class WatchTransaction extends EventEmitter {
       activeUsers.find((user) => user.userId === userId),
     )
 
-    const limit = pLimit(30)
+    const limit = pLimit(20)
 
     const tasks = uniqueActiveUsers.map((user) =>
       limit(async () => {
@@ -188,7 +188,7 @@ export class WatchTransaction extends EventEmitter {
           try {
             await sendMessageHandler.send(parsed, user.userId)
           } catch (error) {
-            console.log(`Error sending message to user ${user.userId}`)
+            console.log(`Error sending message to user ${user.userId}`, error)
           }
         }
       }),
