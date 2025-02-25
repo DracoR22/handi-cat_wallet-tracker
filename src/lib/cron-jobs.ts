@@ -43,9 +43,34 @@ export class CronJobs {
         if (chargeResult.success) {
           console.log(
             `Successfully charged user ${user.userId} and updated subscription to next period ending on ${chargeResult.subscriptionEnd}.`,
+            bot.sendMessage(
+              user.id,
+              `
+🎉 Your plan has been successfully renewed! 🐱✨  
+✅ Next renewal date: <b>${chargeResult.subscriptionEnd}</b>
+
+Thank you for staying with us! 💖
+`,
+              {
+                parse_mode: 'HTML',
+              },
+            ),
           )
         } else {
           console.log(`Failed to charge user ${user.userId}: ${chargeResult.message}`)
+          bot.sendMessage(
+            user.id,
+            `
+⚠️ Oops! We couldn’t renew your plan.  
+
+💡 <b>Please check your Handi Cat wallet balance</b> and try upgrading your plan again to keep tracking your wallets.  
+
+If you need help, feel free to reach out! 🐾
+            `,
+            {
+              parse_mode: 'HTML',
+            },
+          )
         }
       }
     })

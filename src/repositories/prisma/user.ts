@@ -107,6 +107,7 @@ export class PrismaUserRepository {
   public async getUsersWithDue() {
     try {
       const today = new Date()
+      today.setHours(23, 59, 59, 999)
 
       const usersToCharge = await prisma.userSubscription.findMany({
         where: {
