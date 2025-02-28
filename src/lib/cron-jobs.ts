@@ -38,34 +38,23 @@ export class CronJobs {
       for (const user of usersToCharge) {
         console.log(`Charging user with ID: ${user.userId}`)
 
-        const chargeResult = await this.payments.chargeSubscription(user.id, user.plan)
+        const chargeResult = await this.payments.chargeSubscription(user.id, user.plan, true)
 
         if (chargeResult.success) {
           console.log(
             `Successfully charged user ${user.userId} and updated subscription to next period ending on ${chargeResult.subscriptionEnd}.`,
-            bot.sendMessage(
-              user.id,
-              `
-🎉 Your plan has been successfully renewed! 🐱✨  
-✅ Next renewal date: <b>${chargeResult.subscriptionEnd}</b>
-
-Thank you for staying with us! 💖
-`,
-              {
-                parse_mode: 'HTML',
-              },
-            ),
+            bot.sendMessage(user.id, SubscriptionMessages.planRenewedMessage(chargeResult.subscriptionEnd || ''), {
+              parse_mode: 'HTML',
+            }),
           )
         } else {
           console.log(`Failed to charge user ${user.userId}: ${chargeResult.message}`)
           bot.sendMessage(
             user.id,
             `
-⚠️ Oops! We couldn’t renew your plan.  
+⚠️ Oops! We couldn’t renew your Handi Cat subscription.  
 
-💡 <b>Please check your Handi Cat wallet balance</b> and try upgrading your plan again to keep tracking your wallets.  
-
-If you need help, feel free to reach out! 🐾
+💡 <b>Please check your Handi Cat wallet balance</b> and try upgrading your plan again to keep your tracked wallets.  
             `,
             {
               parse_mode: 'HTML',

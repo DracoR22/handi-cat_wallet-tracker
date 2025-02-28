@@ -39,8 +39,8 @@ export const createTxSubMenu = (tokenSymbol: string, tokenMint: string) => {
       [
         { text: `🐶 BonkBot: ${tokenSymbol}`, url: `https://t.me/bonkbot_bot?start=ref_3au54_ca_${tokenMint}` },
         {
-          text: `🐸 PepeBoost: ${tokenSymbol}`,
-          url: `https://t.me/pepeboost_sol_bot?start=ref_03pbvu_ca_${tokenMint}`,
+          text: `🔼 Axiom: ${tokenSymbol}`,
+          url: `https://axiom.trade/t/${tokenMint}/@handi`,
         },
       ],
       [

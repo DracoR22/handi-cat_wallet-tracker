@@ -30,6 +30,7 @@ export class Payments {
   public async chargeSubscription(
     userId: string,
     plan: SubscriptionPlan,
+    shouldRecharge: boolean = false,
   ): Promise<{ success: boolean; message: PaymentsMessageEnum; subscriptionEnd: string | null }> {
     const user = await this.prismaUserRepository.getById(userId)
 
@@ -37,7 +38,8 @@ export class Payments {
       return { success: false, message: PaymentsMessageEnum.NO_USER_FOUND, subscriptionEnd: null }
     }
 
-    if (user.userSubscription && user.userSubscription.plan === plan) {
+    // manually downgrade subscription if there is 0 balance in the wallet for now
+    if (user.userSubscription && user.userSubscription.plan === plan && shouldRecharge) {
       return { success: false, message: PaymentsMessageEnum.USER_ALREADY_PAID, subscriptionEnd: null }
     }
 
@@ -90,7 +92,7 @@ export class Payments {
 
     const today = new Date()
 
-    // create a free subscription if they dont have balance and subscription or if it expired
+    // create a free subscription if balance is less than amount or if subscription expired
     if (!currentSubscription || (subscriptionExpired && new Date(subscriptionExpired) <= today)) {
       await Promise.all([
         this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE'),

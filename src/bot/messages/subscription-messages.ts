@@ -78,4 +78,13 @@ To ensure a successful renewal, please make sure your <b>Handi Cat wallet</b> ha
 Thank you for staying with us!
 `
   }
+
+  static planRenewedMessage(subscriptionEnd: string) {
+    return `
+🎉 Your plan has been successfully renewed! 🐱✨  
+✅ Next renewal date: <b>${subscriptionEnd}</b>
+
+Thank you for staying with us! 💖
+`
+  }
 }

@@ -41,9 +41,10 @@ export class TxMessages {
     const dsLink = `<a href="https://dexscreener.com/solana/${tokenMintToTrack}">DS</a>`
     const phLink = `<a href="https://photon-sol.tinyastro.io/en/lp/${tokenMintToTrack}">PH</a>`
     const bullxLink = `<a href="https://neo.bullx.io/terminal?chainId=1399811149&address=${tokenMintToTrack}">Bullx</a>`
+    const axiomLink = `<a href='https://axiom.trade/t/${tokenMintToTrack}/@handi'>AXI</a>`
 
     const marketCapText = tokenMarketCap
-      ? `🔗 ${message.type === 'buy' ? `<b><a href="${solscanTokenInUrl}">#${tokenIn}</a></b>` : `<b><a href="${solscanTokenOutUrl}">#${tokenOut}</a></b>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} • ${beLink} • ${dsLink} • ${phLink} • ${bullxLink}`
+      ? `🔗 ${message.type === 'buy' ? `<b><a href="${solscanTokenInUrl}">#${tokenIn}</a></b>` : `<b><a href="${solscanTokenOutUrl}">#${tokenOut}</a></b>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} • ${beLink} • ${dsLink} • ${phLink} • ${bullxLink} • ${axiomLink}`
       : ''
 
     const messageText = `
