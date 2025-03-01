@@ -30,7 +30,6 @@ export class Payments {
   public async chargeSubscription(
     userId: string,
     plan: SubscriptionPlan,
-    shouldRecharge: boolean = false,
   ): Promise<{ success: boolean; message: PaymentsMessageEnum; subscriptionEnd: string | null }> {
     const user = await this.prismaUserRepository.getById(userId)
 
@@ -39,7 +38,7 @@ export class Payments {
     }
 
     // manually downgrade subscription if there is 0 balance in the wallet for now
-    if (user.userSubscription && user.userSubscription.plan === plan && shouldRecharge) {
+    if (user.userSubscription && user.userSubscription.plan === plan) {
       return { success: false, message: PaymentsMessageEnum.USER_ALREADY_PAID, subscriptionEnd: null }
     }
 
@@ -100,6 +99,72 @@ export class Payments {
       ])
     }
     return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
+  }
+
+  public async autoReChargeSubscription(
+    userId: string,
+    plan: SubscriptionPlan,
+  ): Promise<{ success: boolean; message: PaymentsMessageEnum; subscriptionEnd: string | null }> {
+    const user = await this.prismaUserRepository.getById(userId)
+
+    if (!user) {
+      return { success: false, message: PaymentsMessageEnum.NO_USER_FOUND, subscriptionEnd: null }
+    }
+
+    const userPublicKey = new PublicKey(user.personalWalletPubKey)
+    const balance = await this.userBalances.userPersonalSolBalance(user.personalWalletPubKey)
+    console.log('BALANCE:', balance)
+
+    if (balance === null || balance === undefined) {
+      await Promise.all([
+        this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE'),
+        this.prismaGroupRepository.updateUserGroupStatus(userId),
+      ])
+      return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
+    }
+
+    const planFees: { [key: string]: number } = {
+      HOBBY: HOBBY_PLAN_FEE,
+      PRO: PRO_PLAN_FEE,
+      WHALE: WHALE_PLAN_FEE,
+    }
+
+    const planFee = planFees[plan]
+
+    if (!planFee) {
+      return { success: false, message: PaymentsMessageEnum.INVALID_PLAN, subscriptionEnd: null }
+    }
+
+    if (balance >= planFee) {
+      try {
+        const transaction = await this.createTransaction(userPublicKey, planFee)
+        const userKeypair = await this.getKeypairFromPrivateKey(user.personalWalletPrivKey)
+        // console.log('USER_PAIR', userKeypair)
+
+        // Sign and send the transaction
+        let signature = await RpcConnectionManager.connections[0].sendTransaction(transaction, [userKeypair])
+        console.log('Transaction signature:', signature)
+
+        const subscription = await this.prismaSubscriptionRepository.updateUserSubscription(user.id, plan)
+
+        const parsedDate = format(subscription.subscriptionCurrentPeriodEnd!, 'MM/dd/yyyy')
+
+        // resume paused group wallets
+        // await this.prismaGroupRepository.updateUserGroupStatus(userId)
+
+        return { success: true, message: PaymentsMessageEnum.PLAN_UPGRADED, subscriptionEnd: parsedDate }
+      } catch (error) {
+        console.log('ERROR', error)
+        return { success: false, message: PaymentsMessageEnum.INTERNAL_ERROR, subscriptionEnd: null }
+      }
+    } else {
+      await Promise.all([
+        this.prismaSubscriptionRepository.updateUserSubscription(user.id, 'FREE'),
+        this.prismaGroupRepository.updateUserGroupStatus(userId),
+      ])
+
+      return { success: false, message: PaymentsMessageEnum.INSUFFICIENT_BALANCE, subscriptionEnd: null }
+    }
   }
 
   public async chargeDonation(

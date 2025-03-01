@@ -7,6 +7,9 @@ import { RpcConnectionManager } from '../providers/solana'
 import { TrackWallets } from './track-wallets'
 import { bot } from '../providers/telegram'
 import { SubscriptionMessages } from '../bot/messages/subscription-messages'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export class CronJobs {
   private prismaUserRepository: PrismaUserRepository
@@ -38,7 +41,7 @@ export class CronJobs {
       for (const user of usersToCharge) {
         console.log(`Charging user with ID: ${user.userId}`)
 
-        const chargeResult = await this.payments.chargeSubscription(user.id, user.plan, true)
+        const chargeResult = await this.payments.autoReChargeSubscription(user.id, user.plan)
 
         if (chargeResult.success) {
           console.log(
@@ -62,6 +65,11 @@ export class CronJobs {
           )
         }
       }
+
+      bot.sendMessage(
+        process.env.ADMIN_CHAT_ID ?? '',
+        `Sent a message to ${usersToCharge.length}, Users: ${usersToCharge.map((u) => u.userId).join(', ')}`,
+      )
     })
   }
 
