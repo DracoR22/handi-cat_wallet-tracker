@@ -22,6 +22,7 @@
   },
   "keywords": [],
   "author": "draco",
+  "packageManager": "pnpm@9.15.2",
   "license": "ISC",
   "dependencies": {
     "@metaplex-foundation/mpl-token-metadata": "^2.0.0",
