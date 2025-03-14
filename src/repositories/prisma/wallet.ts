@@ -38,16 +38,19 @@ export class PrismaWalletRepository {
             },
           })
 
-          return linkUserToWallet
+          return existingWallet
         }
 
-        return userWalletLink
+        return existingWallet
       }
 
       // Create the wallet first
       const newWallet = await prisma.wallet.create({
         data: {
           address: walletAddress,
+        },
+        select: {
+          id: true,
         },
       })
 
@@ -175,6 +178,7 @@ export class PrismaWalletRepository {
       },
       select: {
         address: true,
+        id: true,
       },
     })
 
@@ -352,14 +356,15 @@ export class PrismaWalletRepository {
     }
   }
 
-  public async pauseUserWalletSpam(userId: string, walletId: string, status: WalletStatus) {
+  public async pauseUserWalletSpam(walletId: string, status: WalletStatus) {
     try {
-      const pausedWallet = await prisma.userWallet.update({
+      const pausedWallet = await prisma.userWallet.updateMany({
         where: {
-          userId_walletId: {
-            userId,
-            walletId,
-          },
+          // userId_walletId: {
+          //   userId,
+          //   walletId,
+          // },
+          walletId,
         },
         data: {
           status,
@@ -410,21 +415,6 @@ export class PrismaWalletRepository {
     } catch (error) {
       console.log('Error resuming wallet')
       return
-    }
-  }
-
-  public async pulseWallet() {
-    try {
-      const stream = await prisma.userWallet.stream({ create: {}, delete: {}, update: {} })
-      return stream
-    } catch (error: any) {
-      if (error.code === 'ECONNREFUSED') {
-        console.error('Database connection failed:', error.message)
-        return
-      } else {
-        console.error('An unexpected error occurred:', error.message)
-        return
-      }
     }
   }
 }

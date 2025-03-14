@@ -54,7 +54,7 @@ export class RateLimit {
         console.log(`Wallet ${wallet.address} has been banned.`)
         BANNED_WALLETS.add(wallet.address)
         for (const user of wallet.userWallets) {
-          this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id, 'BANNED') // update database
+          this.prismaWalletRepository.pauseUserWalletSpam(wallet.id, 'BANNED') // update database
           bot.sendMessage(user.userId, RateLimitMessages.walletWasBanned(wallet.address), { parse_mode: 'HTML' })
         }
 
@@ -70,7 +70,7 @@ export class RateLimit {
         console.log(`Wallet ${wallet.address} excluded for 2 hours due to high TPS.`)
 
         for (const user of wallet.userWallets) {
-          this.prismaWalletRepository.pauseUserWalletSpam(user.userId, wallet.id, 'SPAM_PAUSED') // update database
+          this.prismaWalletRepository.pauseUserWalletSpam(wallet.id, 'SPAM_PAUSED') // update database
           bot.sendMessage(user.userId, RateLimitMessages.walletWasPaused(wallet.address), { parse_mode: 'HTML' })
         }
 

@@ -8,6 +8,7 @@ import { TrackWallets } from './track-wallets'
 import { bot } from '../providers/telegram'
 import { SubscriptionMessages } from '../bot/messages/subscription-messages'
 import dotenv from 'dotenv'
+import { WalletPool } from '../config/wallet-pool'
 
 dotenv.config()
 
@@ -139,8 +140,8 @@ export class CronJobs {
     cron.schedule('*/1 * * * *', async () => {
       console.log('Triggering resetLogConnection...')
       RpcConnectionManager.resetLogConnection()
-      this.walletWatcher.subscriptions.clear()
-      this.walletWatcher.excludedWallets.clear()
+      WalletPool.subscriptions.clear()
+      WalletPool.bannedWallets.clear()
       await this.trackWallets.setupWalletWatcher({ event: 'initial' })
     })
   }

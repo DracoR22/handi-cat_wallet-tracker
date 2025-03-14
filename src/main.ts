@@ -14,6 +14,7 @@ import { GroupsCommand } from './bot/commands/groups-command'
 import { HelpCommand } from './bot/commands/help-command'
 import { ManageCommand } from './bot/commands/manage-command'
 import { UpgradePlanCommand } from './bot/commands/upgrade-plan-command'
+import { AdminCommand } from './bot/commands/admin-command'
 
 dotenv.config()
 
@@ -31,6 +32,7 @@ class Main {
   private helpCommand: HelpCommand
   private manageCommand: ManageCommand
   private upgradePlanCommand: UpgradePlanCommand
+  private adminCommand: AdminCommand
   constructor(private app: Express = express()) {
     this.setupMiddleware()
     this.setupRoutes()
@@ -46,6 +48,7 @@ class Main {
     this.helpCommand = new HelpCommand(bot)
     this.manageCommand = new ManageCommand(bot)
     this.upgradePlanCommand = new UpgradePlanCommand(bot)
+    this.adminCommand = new AdminCommand(bot)
 
     this.startServer()
   }
@@ -96,6 +99,7 @@ class Main {
     this.upgradePlanCommand.upgradePlanCommandHandler()
     this.helpCommand.groupHelpCommandHandler()
     this.helpCommand.notifyHelpCommandHander()
+    this.adminCommand.banWalletCommandHandler()
 
     // cron jobs
     await this.cronJobs.monthlySubscriptionFee()
@@ -104,7 +108,6 @@ class Main {
 
     // setup
     await this.trackWallets.setupWalletWatcher({ event: 'initial' })
-    await this.trackWallets.listenForDatabaseChanges()
   }
 }
 

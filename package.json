@@ -27,7 +27,6 @@
   "dependencies": {
     "@metaplex-foundation/mpl-token-metadata": "^2.0.0",
     "@prisma/client": "^5.16.2",
-    "@prisma/extension-pulse": "^1.2.0",
     "@raydium-io/raydium-sdk": "1.3.1-beta.58",
     "@solana/spl-token": "^0.3.0",
     "@solana/spl-token-registry": "^0.2.4574",

@@ -41,6 +41,8 @@ export class DeleteCommand {
   }
 
   private delete({ message, isButton }: { message: TelegramBot.Message; isButton: boolean }) {
+    this.bot.removeAllListeners('message')
+
     const deleteMessage = WalletMessages.deleteWalletMessage
     if (isButton) {
       this.bot.editMessageText(deleteMessage, {
@@ -60,7 +62,11 @@ export class DeleteCommand {
 
     userExpectingWalletAddress[Number(userId)] = true
     const listener = async (responseMsg: TelegramBot.Message) => {
-      // Check if the user is expected to enter a wallet address
+      if (responseMsg.text?.startsWith('/')) {
+        userExpectingWalletAddress[Number(userId)] = false
+        return
+      }
+
       if (!userExpectingWalletAddress[Number(userId)]) return
 
       const walletAddresses = responseMsg.text
@@ -89,13 +95,15 @@ export class DeleteCommand {
           continue
         }
 
+        await this.trackWallets.setupWalletWatcher({ event: 'delete', walletId: deletedAddress.walletId })
+
         deletedCount++
       }
 
       if (deletedCount > 0) {
         this.bot.sendMessage(
           message.chat.id,
-          `🐱 ${deletedCount} ${deletedCount < 2 ? `wallet has been succesfully deleted!` : `wallets have succesfully been deleted!`} you will no longer get notifications for these ${deletedCount < 2 ? `wallet` : `wallets`}`,
+          `🐱 ${deletedCount} ${deletedCount < 2 ? `wallet has been succesfully deleted!` : `wallets have succesfully been deleted!`} you will no longer get notifications for ${deletedCount < 2 ? `this wallet` : `these wallets`}`,
           { reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU },
         )
       }

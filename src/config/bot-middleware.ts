@@ -4,6 +4,9 @@ import { bot } from '../providers/telegram'
 import { SubscriptionMessages } from '../bot/messages/subscription-messages'
 import { PrismaGroupRepository } from '../repositories/prisma/group'
 import { GeneralMessages } from '../bot/messages/general-messages'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 export class BotMiddleware {
   static isGroup(chatId: number): boolean {
@@ -20,7 +23,21 @@ export class BotMiddleware {
     return isAuthorized || false
   }
 
-  static async isUserAdmin(chatId: number, userId: string): Promise<boolean> {
+  static isUserBotAdmin(userId: string): boolean {
+    try {
+      // Get the list of administrators for the group chat
+      const adminId = process.env.ADMIN_CHAT_ID ?? ''
+
+      const isAdmin = userId === adminId
+
+      return isAdmin
+    } catch (error) {
+      console.error('Error checking if user is admin:', error)
+      return false
+    }
+  }
+
+  static async isUserGroupAdmin(chatId: number, userId: string): Promise<boolean> {
     try {
       // Get the list of administrators for the group chat
       const admins = await bot.getChatAdministrators(chatId)

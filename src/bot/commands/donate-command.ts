@@ -18,6 +18,8 @@ export class DonateCommand {
   }
 
   public async donateCommandHandler(msg: TelegramBot.Message) {
+    this.bot.removeAllListeners('message')
+
     const user = await this.prismaUserRepository.getUserPlan(String(msg.chat.id))
 
     const userWallet = user?.personalWalletPubKey

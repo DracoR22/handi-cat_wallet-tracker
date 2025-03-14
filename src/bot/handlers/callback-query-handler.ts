@@ -3,7 +3,12 @@ import { AddCommand } from '../commands/add-command'
 import { START_MENU, SUB_MENU } from '../../config/bot-menus'
 import { ManageCommand } from '../commands/manage-command'
 import { DeleteCommand } from '../commands/delete-command'
-import { userExpectingDonation, userExpectingGroupId, userExpectingWalletAddress } from '../../constants/flags'
+import {
+  adminExpectingBannedWallet,
+  userExpectingDonation,
+  userExpectingGroupId,
+  userExpectingWalletAddress,
+} from '../../constants/flags'
 import { MyWalletCommand } from '../commands/mywallet-command'
 import { GeneralMessages } from '../messages/general-messages'
 import { UpgradePlanCommand } from '../commands/upgrade-plan-command'
@@ -137,6 +142,8 @@ export class CallbackQueryHandler {
           userExpectingWalletAddress[chatId] = false
           userExpectingDonation[chatId] = false
           userExpectingGroupId[chatId] = false
+
+          adminExpectingBannedWallet[chatId] = false
 
           this.bot.editMessageText(messageText, {
             chat_id: chatId,

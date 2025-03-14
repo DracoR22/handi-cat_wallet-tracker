@@ -18,14 +18,10 @@ import { NativeParserInterface } from '../types/general-interfaces'
 import pLimit from 'p-limit'
 import { CronJobs } from './cron-jobs'
 import { PrismaUserRepository } from '../repositories/prisma/user'
-
-export const trackedWallets: Set<string> = new Set()
+import { WalletPool } from '../config/wallet-pool'
 
 export class WatchTransaction extends EventEmitter {
-  public subscriptions: Map<string, number>
-
   private walletTransactions: Map<string, { count: number; startTime: number }>
-  public excludedWallets: Map<string, boolean>
 
   private rateLimit: RateLimit
 
@@ -33,13 +29,11 @@ export class WatchTransaction extends EventEmitter {
   constructor() {
     super()
 
-    this.subscriptions = new Map()
     this.walletTransactions = new Map()
-    this.excludedWallets = new Map()
 
     // this.trackedWallets = new Set()
 
-    this.rateLimit = new RateLimit(this.subscriptions)
+    this.rateLimit = new RateLimit(WalletPool.subscriptions)
 
     this.prismaUserRepository = new PrismaUserRepository()
   }
@@ -51,7 +45,7 @@ export class WatchTransaction extends EventEmitter {
         const walletAddress = publicKey.toBase58()
 
         // Check if a subscription already exists for this wallet address
-        if (this.subscriptions.has(walletAddress)) {
+        if (WalletPool.subscriptions.has(walletAddress)) {
           // console.log(`Already watching for: ${walletAddress}`)
           continue // Skip re-subscribing
         }
@@ -66,7 +60,7 @@ export class WatchTransaction extends EventEmitter {
           publicKey,
           async (logs, ctx) => {
             // Exclude wallets that have reached the limit
-            if (this.excludedWallets.has(walletAddress)) {
+            if (WalletPool.bannedWallets.has(walletAddress)) {
               console.log(`Wallet ${walletAddress} is excluded from logging.`)
 
               return
@@ -93,7 +87,7 @@ export class WatchTransaction extends EventEmitter {
             const isWalletRateLimited = await this.rateLimit.txPerSecondCap({
               wallet,
               bot,
-              excludedWallets: this.excludedWallets,
+              excludedWallets: WalletPool.bannedWallets,
               walletData,
             })
 
@@ -128,7 +122,7 @@ export class WatchTransaction extends EventEmitter {
         )
 
         // Store subscription ID
-        this.subscriptions.set(wallet.address, subscriptionId)
+        WalletPool.subscriptions.set(wallet.address, subscriptionId)
         console.log(
           chalk.greenBright(`Subscribed to logs with subscription ID: `) + chalk.yellowBright.bold(subscriptionId),
         )

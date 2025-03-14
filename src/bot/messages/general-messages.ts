@@ -136,7 +136,7 @@ You can now use <b>Handi Cat</b> in any group chat!
 
 Your groups: (${userGroups.length} / ${MAX_USER_GROUPS})
 ${groupsContent}
-Learn how to add <b>Handi Cat</b> to a group chat in the <b>Help</b> menu
+Learn how to add <b>Handi Cat</b> to a group chat: /help_group
 `
     return messageText
   }

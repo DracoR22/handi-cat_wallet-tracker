@@ -53,6 +53,8 @@ export class AddCommand {
     try {
       const userId = message.chat.id.toString()
 
+      this.bot.removeAllListeners('message')
+
       const addMessage = WalletMessages.addWalletMessage
       if (isButton) {
         this.bot.editMessageText(addMessage, {
@@ -76,6 +78,7 @@ export class AddCommand {
         const text = responseMsg.text
 
         if (text?.startsWith('/')) {
+          userExpectingWalletAddress[Number(userId)] = false
           return
         }
 
@@ -102,7 +105,7 @@ export class AddCommand {
             })
           }
 
-          if (walletAddress.includes('orc') || walletAddress.includes('pump')) {
+          if (walletAddress.includes('orc') || walletAddress.includes('pump') || walletAddress.includes('Token')) {
             return this.bot.sendMessage(message.chat.id, GeneralMessages.botWalletError, {
               parse_mode: 'HTML',
               reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
@@ -163,9 +166,12 @@ export class AddCommand {
           }
 
           // Add wallet to the database
-          await this.prismaWalletRepository.create(userId!, walletAddress!, walletName)
+          const createdWallet = await this.prismaWalletRepository.create(userId!, walletAddress!, walletName)
+          const createdWalletId = createdWallet?.id
 
           this.bot.sendMessage(message.chat.id, `🎉 Wallet ${walletAddress} has been added.`)
+
+          await this.trackWallets.setupWalletWatcher({ event: 'create', walletId: createdWalletId })
         }
 
         // Remove the listener to avoid duplicate handling

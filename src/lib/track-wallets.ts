@@ -1,3 +1,4 @@
+import { WalletPool } from '../config/wallet-pool'
 import { BANNED_WALLETS } from '../constants/banned-wallets'
 import { walletsToTrack } from '../constants/flags'
 import { RpcConnectionManager } from '../providers/solana'
@@ -5,8 +6,6 @@ import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { SetupWalletWatcherProps } from '../types/general-interfaces'
 import { WalletWithUsers } from '../types/swap-types'
 import { WatchTransaction } from './watch-transactions'
-
-export const walletsArray: WalletWithUsers[] = []
 
 export class TrackWallets {
   private prismaWalletRepository: PrismaWalletRepository
@@ -24,26 +23,26 @@ export class TrackWallets {
       const refetchedWallet = await this.prismaWalletRepository.getWalletByIdForArray(walletId)
 
       if (refetchedWallet) {
-        const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === refetchedWallet.address)
+        const existingWalletIndex = WalletPool.wallets.findIndex((wallet) => wallet.address === refetchedWallet.address)
 
         if (existingWalletIndex !== -1) {
-          const subscriptionId = this.walletWatcher.subscriptions.get(refetchedWallet.address)
+          const subscriptionId = WalletPool.subscriptions.get(refetchedWallet.address)
           if (subscriptionId) {
             // Remove the onLogs listener for the current subscription ID
             await RpcConnectionManager.logConnection.removeOnLogsListener(subscriptionId)
             // Delete the subscription from the map after listener removal
-            this.walletWatcher.subscriptions.delete(refetchedWallet.address)
+            WalletPool.subscriptions.delete(refetchedWallet.address)
           }
 
           if (refetchedWallet.userWallets.length === 0) {
             // Remove the wallet completely if no userWallets remain
-            walletsArray.splice(existingWalletIndex, 1)
+            WalletPool.wallets.splice(existingWalletIndex, 1)
           } else {
             // Update the wallet with the new userWallets if users remain
-            walletsArray[existingWalletIndex] = refetchedWallet
+            WalletPool.wallets[existingWalletIndex] = refetchedWallet
           }
 
-          return await this.updateWallets(walletsArray!)
+          return await this.updateWallets(WalletPool.wallets!)
         }
       }
     } else if (event === 'create' && walletId) {
@@ -51,21 +50,21 @@ export class TrackWallets {
       const refetchedWallet = await this.prismaWalletRepository.getWalletByIdForArray(walletId)
 
       if (refetchedWallet) {
-        const existingWalletIndex = walletsArray.findIndex((wallet) => wallet.address === refetchedWallet.address)
+        const existingWalletIndex = WalletPool.wallets.findIndex((wallet) => wallet.address === refetchedWallet.address)
 
         // if wallet is already in database
         if (existingWalletIndex !== -1) {
-          walletsArray[existingWalletIndex] = refetchedWallet
-          const subscriptionId = this.walletWatcher.subscriptions.get(refetchedWallet.address)
+          WalletPool.wallets[existingWalletIndex] = refetchedWallet
+          const subscriptionId = WalletPool.subscriptions.get(refetchedWallet.address)
 
           await RpcConnectionManager.logConnection.removeOnLogsListener(subscriptionId as number)
-          this.walletWatcher.subscriptions.delete(refetchedWallet.address)
+          WalletPool.subscriptions.delete(refetchedWallet.address)
         } else {
-          walletsArray.push(refetchedWallet)
+          WalletPool.wallets.push(refetchedWallet)
         }
       }
 
-      return await this.updateWallets(walletsArray!)
+      return await this.updateWallets(WalletPool.wallets!)
     } else if (event === 'update' && userId) {
       // Fetch all wallets related to the updated user ID
       walletsToFetch = await this.prismaWalletRepository.getBannedUserWalletsWithUserIds(userId)
@@ -80,14 +79,14 @@ export class TrackWallets {
 
       if (bannedWallets && bannedWallets.length > 0) {
         for (const bannedWallet of bannedWallets) {
-          const subscriptionId = this.walletWatcher.subscriptions.get(bannedWallet.address)
+          const subscriptionId = WalletPool.subscriptions.get(bannedWallet.address)
 
           if (subscriptionId) {
             try {
               console.log(`Removing listener for BANNED wallet: ${bannedWallet.address}`)
               await RpcConnectionManager.logConnection.removeOnLogsListener(subscriptionId)
 
-              this.walletWatcher.subscriptions.delete(bannedWallet.address)
+              WalletPool.subscriptions.delete(bannedWallet.address)
               BANNED_WALLETS.add(bannedWallet.address)
               console.log(`Listener and subscription removed for wallet: ${bannedWallet.address}`)
 
@@ -150,52 +149,50 @@ export class TrackWallets {
         }
       }
 
-      walletsArray?.push(...allWallets!)
+      WalletPool.wallets?.push(...allWallets!)
       // console.log('WALLETS ARRAY:', walletsArray)
-      return await this.walletWatcher.watchSocket(walletsArray!)
+      return await this.walletWatcher.watchSocket(WalletPool.wallets!)
     }
 
     return
   }
 
   public async listenForDatabaseChanges(): Promise<void> {
-    while (true) {
-      try {
-        const stream = await this.prismaWalletRepository.pulseWallet()
-
-        for await (const event of stream!) {
-          try {
-            console.log('New event:', event)
-
-            if (event.action === 'create') {
-              const createdWalletId = event.created.walletId
-              await this.setupWalletWatcher({ event: 'create', walletId: createdWalletId })
-            } else if (event.action === 'delete') {
-              const deletedWalletId = event.deleted.walletId
-              // await this.stopWatchingWallet(event.deleted.walletId)
-              await this.setupWalletWatcher({ event: 'delete', walletId: deletedWalletId })
-            } else if (event.action === 'update') {
-              const updatedUserId = event.after.userId
-              await this.setupWalletWatcher({ event: 'update', userId: updatedUserId })
-            }
-          } catch (eventError: any) {
-            console.error('Error processing event:', eventError.message)
-            throw eventError // This will exit the loop and trigger a reconnect
-          }
-        }
-      } catch (error: any) {
-        console.error('Connection lost. Attempting to reconnect...', error.message)
-        await new Promise((resolve) => setTimeout(resolve, 5000))
-      }
-    }
+    // while (true) {
+    //   try {
+    //     const stream = await this.prismaWalletRepository.pulseWallet()
+    //     for await (const event of stream!) {
+    //       try {
+    //         console.log('New event:', event)
+    //         if (event.action === 'create') {
+    //           // const createdWalletId = event.created.walletId
+    //           // await this.setupWalletWatcher({ event: 'create', walletId: createdWalletId })
+    //         } else if (event.action === 'delete') {
+    //           const deletedWalletId = event.deleted.walletId
+    //           // await this.stopWatchingWallet(event.deleted.walletId)
+    //           await this.setupWalletWatcher({ event: 'delete', walletId: deletedWalletId })
+    //         } else if (event.action === 'update') {
+    //           const updatedUserId = event.after.userId
+    //           await this.setupWalletWatcher({ event: 'update', userId: updatedUserId })
+    //         }
+    //       } catch (eventError: any) {
+    //         console.error('Error processing event:', eventError.message)
+    //         throw eventError // This will exit the loop and trigger a reconnect
+    //       }
+    //     }
+    //   } catch (error: any) {
+    //     console.error('Connection lost. Attempting to reconnect...', error.message)
+    //     await new Promise((resolve) => setTimeout(resolve, 5000))
+    //   }
+    // }
   }
 
   public async stopWatching(): Promise<void> {
-    for (const [wallet, subscriptionId] of this.walletWatcher.subscriptions) {
+    for (const [wallet, subscriptionId] of WalletPool.subscriptions) {
       RpcConnectionManager.logConnection.removeOnLogsListener(subscriptionId)
       console.log(`Stopped watching transactions for wallet: ${wallet}`)
     }
-    this.walletWatcher.subscriptions.clear()
+    WalletPool.subscriptions.clear()
   }
 
   public async updateWallets(newWallets: WalletWithUsers[]): Promise<void> {
@@ -207,12 +204,12 @@ export class TrackWallets {
   public async stopWatchingWallet(walletId: string): Promise<void> {
     const walletAddress = await this.prismaWalletRepository.getWalletById(walletId)
     if (!walletAddress) return
-    const subscriptionId = this.walletWatcher.subscriptions.get(walletAddress!.address)
+    const subscriptionId = WalletPool.subscriptions.get(walletAddress!.address)
     console.log('LENGTH', walletAddress.userWallets.length)
     if (subscriptionId && walletAddress.userWallets.length < 1) {
       RpcConnectionManager.logConnection.removeOnLogsListener(subscriptionId)
       console.log(`Stopped watching transactions for wallet: ${walletAddress!.address}`)
-      this.walletWatcher.subscriptions.delete(walletAddress!.address)
+      WalletPool.subscriptions.delete(walletAddress!.address)
     } else {
       console.log(`No active subscription found for wallet: ${walletAddress}`)
     }
