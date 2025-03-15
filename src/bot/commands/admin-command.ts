@@ -68,7 +68,7 @@ export class AdminCommand {
         const bannedWallet = await this.walletRespository.pauseUserWalletSpam(walletToban?.id, 'BANNED')
 
         if (bannedWallet) {
-          this.trackWallets.setupWalletWatcher({ event: 'update', userId })
+          this.trackWallets.setupWalletWatcher({ event: 'update', walletId: walletToban.id })
           this.bot.sendMessage(chatId, `wallet with address <code>${walletAddress}</code> has been banned!`, {
             parse_mode: 'HTML',
           })

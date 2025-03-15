@@ -1,4 +1,3 @@
-- fix bullshit re-fething wallets code I wrote in track-wallets.ts
 - fix SOL price for some pump.fun sells, tried to fix it before but it stills buggy
-- fix update events not working at all specially when changing bot status in settings command (done)
-- exclude banned wallets from logs at runtime, there is a problem caused by the mess in update events (done)
+- add Meteora transactions support
+- add Customizable settings, for example: only send pump.fun notifications or send only 1+ SOL transfer notifications

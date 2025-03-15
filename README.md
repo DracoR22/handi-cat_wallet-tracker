@@ -6,7 +6,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/DracoR22/handi-cat_wallet-tracker">
-    <img src="showcase/handi-cat.jpg" alt="Logo" width="80" height="80">
+    <img src="showcase/logo.jpg" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">🐱 Handi Cat | Wallet Tracker</h3>
@@ -25,12 +25,12 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://t.me/handi_cat_bot)
 
-Handi Cat is a Telegram bot that can track any Solana wallet in real time, providing relevant information
+Handi Cat is a Telegram bot that can track any Solana wallet in real time, it provides relevant information
 of each transaction made in Pump.fun, Raydium and Jupiter including transaction hash, tokens and amount swapped, price of the token in SOL, token market cap and much more.
 
 ## Features
 
-- 📈 Real-time tracking of any transaction
+- 📈 Real-time tracking of any SOL transfer
 - 🔍 Detects Pump.fun, Raydium and Jupiter transactions
 - 💰 Gets SOL price of the token swapped
 - 📊 Get tokens market cap at the time swapped
@@ -55,7 +55,7 @@ of each transaction made in Pump.fun, Raydium and Jupiter including transaction 
 - `/add` – Add a new wallet address
 - `/delete` – Delete a wallet addresss
 - `/upgrade` – Access the subscription menu
-- `/ban_wallet` – Flag a wallet as BANNED and remove it from the wallet pool (admin only)
+- `/ban_wallet` – Flag a wallet as BANNED and remove it from the wallet pool **(admin only)**
 - `/help_notify` – Learn how bot notifications work
 - `/help_group` – Instructions for adding the bot to group chats
 

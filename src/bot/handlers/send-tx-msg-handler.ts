@@ -4,7 +4,7 @@ import { FormatNumbers } from '../../lib/format-numbers'
 import { createTxSubMenu } from '../../config/bot-menus'
 import { TxMessages } from '../messages/tx-messages'
 import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
-import { NativeParserInterface } from '../../types/general-interfaces'
+import { NativeParserInterface, TransferParserInterface } from '../../types/general-interfaces'
 
 export class SendTransactionMsgHandler {
   private tokenPrices: TokenPrices
@@ -16,7 +16,7 @@ export class SendTransactionMsgHandler {
     this.prismaWalletRepository = new PrismaWalletRepository()
   }
 
-  public async send(message: NativeParserInterface, chatId: string) {
+  public async sendTransactionMessage(message: NativeParserInterface, chatId: string) {
     const tokenToMc = message.type === 'buy' ? message.tokenTransfers.tokenInMint : message.tokenTransfers.tokenOutMint
     const tokenToMcSymbol =
       message.type === 'buy' ? message.tokenTransfers.tokenInSymbol : message.tokenTransfers.tokenOutSymbol
@@ -43,30 +43,24 @@ export class SendTransactionMsgHandler {
         const formattedMarketCap = tokenMarketCap ? FormatNumbers.formatPrice(tokenMarketCap) : undefined
         const tokenPrice = message.swappedTokenPrice
 
-        const messageText = TxMessages.txMadeMessage(message, formattedMarketCap, walletName?.name)
+        const messageText = TxMessages.defiTxMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',
           disable_web_page_preview: true,
           reply_markup: TX_SUB_MENU,
         })
       } else if (message.platform === 'pumpfun') {
-        // const tokenInfo = await this.tokenPrices.gmgnTokenInfo(tokenToMc)
-        // let tokenMarketCap = tokenInfo?.market_cap
-        // const tokenInfo = await this.tokenPrices.pumpFunTokenInfo(tokenToMc)
-        // let tokenMarketCap = tokenInfo?.usd_market_cap
-
         let tokenMarketCap = message.swappedTokenMc
 
         const formattedMarketCap = tokenMarketCap ? FormatNumbers.formatPrice(tokenMarketCap) : undefined
 
-        const messageText = TxMessages.txMadeMessage(message, formattedMarketCap, walletName?.name)
+        const messageText = TxMessages.defiTxMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',
           disable_web_page_preview: true,
           reply_markup: TX_SUB_MENU,
         })
       } else if (message.platform === 'mint_pumpfun') {
-        // new!
         const messageText = TxMessages.tokenMintedMessage(message, walletName?.name)
 
         return this.bot.sendMessage(chatId, messageText, {
@@ -84,5 +78,25 @@ export class SendTransactionMsgHandler {
     }
 
     return
+  }
+
+  public async sendTransferMessage(message: TransferParserInterface, chatId: string) {
+    try {
+      const walletName = await this.prismaWalletRepository.getUserWalletNameById(chatId, message.owner)
+
+      if (!walletName?.address || !message.owner) {
+        console.log('Address not found in user wallets')
+        return
+      }
+
+      const messageText = TxMessages.solTxMessage(message, walletName.name)
+      return this.bot.sendMessage(chatId, messageText, {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+      })
+    } catch (error) {
+      console.log(`Failed to send message to ${chatId}`)
+      return
+    }
   }
 }

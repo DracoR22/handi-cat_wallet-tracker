@@ -13,4 +13,5 @@ export const BANNED_WALLETS = new Set([
   'MfDuWeqSHEqTFVYZ7LoexgAK9dxk7cy4DFJWjWMGVWa',
   '2xbKb3gJmSRZRoUPvPMdBSVXyxsxsQrFKB1xEvQ1HnfX',
   'So11111111111111111111111111111111111111112',
+  'Habp5bncMSsBC3vkChyebepym5dcTNRYeg2LVG464E96', // solcasino
 ])

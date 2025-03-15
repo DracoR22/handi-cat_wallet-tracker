@@ -65,38 +65,51 @@ export class TrackWallets {
       }
 
       return await this.updateWallets(WalletPool.wallets!)
-    } else if (event === 'update' && userId) {
+    } else if (event === 'update' && walletId) {
+      const bannedWallet = await this.prismaWalletRepository.getWalletById(walletId)
+      if (!bannedWallet?.address) return
+      const subscriptionId = WalletPool.subscriptions.get(bannedWallet.address)
+
+      if (subscriptionId) {
+        console.log(`Removing listener for BANNED wallet: ${bannedWallet.address}`)
+        await RpcConnectionManager.logConnection.removeOnLogsListener(subscriptionId)
+
+        WalletPool.subscriptions.delete(bannedWallet.address)
+        BANNED_WALLETS.add(bannedWallet.address)
+        console.log(`Listener and subscription removed for wallet: ${bannedWallet.address}`)
+      }
+
       // Fetch all wallets related to the updated user ID
-      walletsToFetch = await this.prismaWalletRepository.getBannedUserWalletsWithUserIds(userId)
+      // walletsToFetch = await this.prismaWalletRepository.getBannedUserWalletsWithUserIds(userId)
 
-      if (!walletsToFetch) {
-        return
-      }
+      // if (!walletsToFetch) {
+      //   return
+      // }
 
-      // handle banned wallets
-      const userWallets = walletsToFetch.map((w) => w.userWallets).flat()
-      const bannedWallets = userWallets.filter((w) => w.status === 'BANNED')
+      // // handle banned wallets
+      // const userWallets = walletsToFetch.map((w) => w.userWallets).flat()
+      // const bannedWallets = userWallets.filter((w) => w.status === 'BANNED')
 
-      if (bannedWallets && bannedWallets.length > 0) {
-        for (const bannedWallet of bannedWallets) {
-          const subscriptionId = WalletPool.subscriptions.get(bannedWallet.address)
+      // if (bannedWallets && bannedWallets.length > 0) {
+      //   for (const bannedWallet of bannedWallets) {
+      //     const subscriptionId = WalletPool.subscriptions.get(bannedWallet.address)
 
-          if (subscriptionId) {
-            try {
-              console.log(`Removing listener for BANNED wallet: ${bannedWallet.address}`)
-              await RpcConnectionManager.logConnection.removeOnLogsListener(subscriptionId)
+      //     if (subscriptionId) {
+      //       try {
+      //         console.log(`Removing listener for BANNED wallet: ${bannedWallet.address}`)
+      //         await RpcConnectionManager.logConnection.removeOnLogsListener(subscriptionId)
 
-              WalletPool.subscriptions.delete(bannedWallet.address)
-              BANNED_WALLETS.add(bannedWallet.address)
-              console.log(`Listener and subscription removed for wallet: ${bannedWallet.address}`)
+      //         WalletPool.subscriptions.delete(bannedWallet.address)
+      //         BANNED_WALLETS.add(bannedWallet.address)
+      //         console.log(`Listener and subscription removed for wallet: ${bannedWallet.address}`)
 
-              return
-            } catch (error) {
-              console.log(`Failed to remove listener for wallet: ${bannedWallet.address}`, error)
-            }
-          }
-        }
-      }
+      //         return
+      //       } catch (error) {
+      //         console.log(`Failed to remove listener for wallet: ${bannedWallet.address}`, error)
+      //       }
+      //     }
+      //   }
+      // }
 
       // handle spam paused wallets
       // const spamPausedWallets = userWallets.filter((w) => w.status === 'SPAM_PAUSED' && w.handiCatStatus !== 'PAUSED')

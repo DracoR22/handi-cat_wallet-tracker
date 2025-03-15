@@ -3,7 +3,7 @@ import { TokenUtils } from '../lib/token-utils'
 import { Connection, ParsedTransactionWithMeta } from '@solana/web3.js'
 import { SwapType } from '../types/swap-types'
 import { FormatNumbers } from '../lib/format-numbers'
-import { NativeParserInterface } from '../types/general-interfaces'
+import { NativeParserInterface, TransferParserInterface } from '../types/general-interfaces'
 import { RpcConnectionManager } from '../providers/solana'
 
 export class TransactionParser {
@@ -17,10 +17,11 @@ export class TransactionParser {
     this.tokenParser = new TokenParser(this.connection)
   }
 
-  public async parseRpc(
+  public async parseDefiTransaction(
     transactionDetails: (ParsedTransactionWithMeta | null)[],
     swap: SwapType,
     solPriceUsd: string | undefined,
+    walletAddress: string,
   ): Promise<NativeParserInterface | undefined> {
     try {
       if (transactionDetails === undefined) {
@@ -186,7 +187,8 @@ export class TransactionParser {
         const formattedAmountIn = FormatNumbers.formatTokenAmount(Number(raydiumTransfer?.info?.amount))
 
         // owner = parsedInfos[0]?.info?.source ? parsedInfos[0]?.info?.source : transactions[0]?.info?.authority
-        owner = signerAccountAddress ? signerAccountAddress : transactions[0]?.info?.authority
+        // owner = signerAccountAddress ? signerAccountAddress : transactions[0]?.info?.authority
+        owner = walletAddress
         amountOut =
           tokenOut === 'SOL' ? (Number(transactions[0]?.info?.amount) / 1e9).toFixed(2).toString() : formattedAmountOut
         amountIn =
@@ -299,7 +301,8 @@ export class TransactionParser {
 
         const formattedAmount = FormatNumbers.formatTokenAmount(Number(transactions[0]?.info?.amount))
 
-        owner = signerAccountAddress ? signerAccountAddress : transactions[0]?.info?.authority
+        // owner = signerAccountAddress ? signerAccountAddress : transactions[0]?.info?.authority
+        owner = walletAddress
         amountOut = nativeBalance?.type === 'sell' ? formattedAmount : totalSolSwapped.toFixed(2).toString()
         amountIn = nativeBalance?.type === 'sell' ? totalSolSwapped.toFixed(2).toString() : formattedAmount
 
@@ -326,7 +329,7 @@ export class TransactionParser {
 
         return {
           platform: swap,
-          owner: owner,
+          owner: walletAddress,
           description: swapDescription,
           type: nativeBalance?.type,
           balanceChange: nativeBalance?.balanceChange,
@@ -349,6 +352,55 @@ export class TransactionParser {
       }
     } catch (error) {
       console.log('TRANSACTION_PARSER_ERROR', error)
+      return
+    }
+  }
+
+  public async parseSolTransfer(
+    transactionDetails: (ParsedTransactionWithMeta | null)[],
+    solPriceUsd: string | undefined,
+    walletAddress: string,
+  ): Promise<TransferParserInterface | undefined> {
+    try {
+      const transactions: any = []
+
+      if (!transactionDetails) return
+
+      // Transaction Metadata
+      transactionDetails[0]?.meta?.innerInstructions?.forEach((i: any) => {
+        i.instructions.forEach((r: any) => {
+          if (r.parsed?.type === 'transfer' && r.parsed.info.amount !== undefined) {
+            transactions.push(r.parsed)
+          }
+        })
+      })
+
+      transactionDetails[0]?.transaction.message.instructions.map((instruction: any) => {
+        if (transactions.length <= 1 && instruction && instruction.parsed !== undefined) {
+          transactions.push(instruction.parsed)
+        }
+      })
+
+      // if length is more than 1 it was probably a token transfer or some stuff idk
+      if (transactions.length < 1 || transactions.length > 1) return
+
+      const amount = Number.isNaN(transactions[0].info.lamports / 1e9) ? 0 : transactions[0].info.lamports / 1e9
+
+      const description = `${transactions[0].info.source} transferred ${transactions[0].info.lamports / 1e9} SOL to ${transactions[0].info.destination}`
+      const solAmount = transactions[0].info.lamports / 1e9
+
+      return {
+        owner: walletAddress,
+        description,
+        fromAddress: transactions[0].info.source ?? 'Unknown',
+        toAddress: transactions[0].info.destination ?? 'Unknown',
+        lamportsAmount: transactions[0].info.lamports ?? 0,
+        solAmount: solAmount ?? 0,
+        solPrice: solPriceUsd ?? '0',
+        signature: this.transactionSignature,
+      }
+    } catch {
+      console.log('PARSE_TRANSFERS_ERROR')
       return
     }
   }

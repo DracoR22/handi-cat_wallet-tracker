@@ -24,6 +24,17 @@ export interface NativeParserInterface {
   }
 }
 
+export interface TransferParserInterface {
+  owner: string
+  description: string
+  fromAddress: string
+  toAddress: string
+  solAmount: number
+  lamportsAmount: number
+  solPrice: string
+  signature: string
+}
+
 export interface CreateUserInterface {
   id: string
   username: string

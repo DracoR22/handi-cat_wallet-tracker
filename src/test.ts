@@ -18,7 +18,9 @@ import { FormatNumbers } from './lib/format-numbers'
 // @ts-expect-error
 import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token'
 
-function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: SwapType } {
+type TestSwapType = 'pumpfun' | 'raydium' | 'jupiter' | 'mint_pumpfun' | 'sol_transfer' | null
+
+function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: TestSwapType } {
   // Guard clause for empty logs
   if (!logs.logs || logs.logs.length === 0) {
     return { isRelevant: false, program: null }
@@ -27,7 +29,11 @@ function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: Swap
   // Join logs into a single string for searching
   const logString = logs.logs.join(' ')
 
-  // Check programs one by one and return the first match
+  console.log('LOGS', logs.logs)
+
+  if (logString.includes(PUMP_FUN_TOKEN_MINT_AUTH)) {
+    return { isRelevant: true, program: 'mint_pumpfun' }
+  }
   if (logString.includes(PUMP_FUN_PROGRAM_ID)) {
     return { isRelevant: true, program: 'pumpfun' }
   }
@@ -37,8 +43,26 @@ function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: Swap
   if (logString.includes(JUPITER_PROGRAM_ID)) {
     return { isRelevant: true, program: 'jupiter' }
   }
-  if (logString.includes(PUMP_FUN_TOKEN_MINT_AUTH)) {
-    return { isRelevant: true, program: 'mint_pumpfun' }
+
+  // O(n) Solution. This way we save rpc calls by excluding bulk transfers e.g: ads like solcasino micro transfers
+  // const systemProgramCount = logs.logs.filter((log) => log.includes('11111111111111111111111111111111')).length
+
+  // if (systemProgramCount > 0 && systemProgramCount <= 2) {
+  //   return { isRelevant: true, program: 'sol_transfer' }
+  // }
+
+  // O(1) Solution
+  let systemProgramCount = 0
+
+  for (const log of logs.logs) {
+    if (log.includes('11111111111111111111111111111111')) {
+      systemProgramCount++
+      if (systemProgramCount > 2) break
+    }
+  }
+
+  if (systemProgramCount > 0 && systemProgramCount <= 2) {
+    return { isRelevant: true, program: 'sol_transfer' }
   }
 
   return { isRelevant: false, program: null }
@@ -47,11 +71,7 @@ function isRelevantTransaction(logs: Logs): { isRelevant: boolean; program: Swap
 const programIds = [PUMP_FUN_PROGRAM_ID, RAYDIUM_PROGRAM_ID, JUPITER_PROGRAM_ID]
 
 export const test2 = async () => {
-  const walletAddresses = [
-    'DfMxre4cKmvogbLrPigxmibVTTQDuzjdXojWzjCXXhzj',
-    'AsX67niuMc9F91tQFeHvHiUEAnXwam4VoHTbRZ84935W',
-    'JDWmTTSZv2wkRkRKkeXa44j8Q7M4SW3XFMwYYBf7hwdi',
-  ]
+  const walletAddresses = ['5vbVfRkfTv37CJW8mbgx3boM5rWbEirCZddP2z2wZ5jp']
 
   for (const walletAddress of walletAddresses) {
     const publicKey = new PublicKey(walletAddress)
@@ -75,10 +95,10 @@ export const test2 = async () => {
   }
 }
 
-export const parseTransactions = async () => {
+export const parseTransactions = async (swap: TestSwapType) => {
   try {
     const transactionDetails = await RpcConnectionManager.getRandomConnection().getParsedTransactions(
-      ['BvD2soJSDVa38xmZbt5ghHJ6KoXykiYVDHQKrJctipMnb6kKjZVfKFJzhi1SghMkbeMKcFSSy5S5yoBKzn4cbYu'],
+      ['1EhsniqDepkoUb7bZ8ew2J7gQfLM5kLTaUi6BCe4bHNGGrR7q9NedE2j51Hg57ki1MwKAayJ9UhpFaQEpCzpyAN'],
       {
         maxSupportedTransactionVersion: 0,
       },
@@ -106,13 +126,33 @@ export const parseTransactions = async () => {
       }
     })
 
+    if (swap === 'sol_transfer') {
+      transactionDetails[0]?.transaction.message.instructions.map((instruction: any) => {
+        if (transactions.length <= 1 && instruction && instruction.parsed !== undefined) {
+          transactions.push(instruction.parsed)
+        }
+      })
+    } else {
+      transactionDetails[0]?.meta?.innerInstructions?.forEach((i: any) => {
+        // raydium
+        i.instructions.forEach((r: any) => {
+          if (r.parsed?.type === 'transfer' && r.parsed.info.amount !== undefined) {
+            transactions.push(r.parsed)
+          }
+        })
+      })
+    }
+
+    // transfers
+    console.log('transaction', transactions)
+
     const raydiumTransfer =
       transactions.length > 2
         ? transactions.find((t: any) => t?.info?.destination === transactions[0]?.info?.source)
         : transactions[transactions.length - 1]
 
     if (!raydiumTransfer) {
-      console.log('NO RAYDIUM TRANSFER')
+      console.log('NO RAYDIUM TRANSFER', transactionDetails[0]?.transaction.message.instructions)
       return
     }
 
@@ -166,41 +206,51 @@ export const parseTransactions = async () => {
   }
 }
 
-async function getTokenHoldings(walletAddress: string, tokenMintAddress: string) {
+export const parseTransfers = async () => {
   try {
-    const walletPublicKey = new PublicKey(walletAddress)
-    const tokenMintPublicKey = new PublicKey(tokenMintAddress)
+    const transactionDetails = await RpcConnectionManager.getRandomConnection().getParsedTransactions(
+      ['4Qn6UFtVLetxEGTFrWFjv3L5vaN48fpZE7MK7JJq2KjbeEMMXQ41crSzxVbUpt7sJq2ZLoEHfMqwYUz7GR4AUxhD'],
+      {
+        maxSupportedTransactionVersion: 0,
+      },
+    )
 
-    const associatedTokenAddress = await getAssociatedTokenAddress(tokenMintPublicKey, walletPublicKey)
-    const tokenAccountInfo = await getAccount(RpcConnectionManager.connections[0], associatedTokenAddress)
+    const transactions: any = []
 
-    const tokenSupply = await RpcConnectionManager.connections[0].getTokenSupply(tokenMintPublicKey)
-    const supplyValue = tokenSupply.value.uiAmount
+    if (!transactionDetails) return
 
-    if (!supplyValue) return
+    // Transaction Metadata
+    transactionDetails[0]?.meta?.innerInstructions?.forEach((i: any) => {
+      i.instructions.forEach((r: any) => {
+        if (r.parsed?.type === 'transfer' && r.parsed.info.amount !== undefined) {
+          transactions.push(r.parsed)
+        }
+      })
+    })
 
-    const percentage = (Number(tokenAccountInfo.amount) / Number(tokenSupply.value.amount)) * 100
+    // transactionDetails[0]?.transaction.message.instructions.forEach((instruction: any) => {
+    //   if (instruction?.parsed?.type === 'transfer' && transactions.length <= 1) {
+    //     transactions.push(instruction.parsed) // Only push transfers
+    //   }
+    // })
+    transactionDetails[0]?.transaction.message.instructions.map((instruction: any) => {
+      if (transactions.length <= 1 && instruction && instruction.parsed !== undefined) {
+        transactions.push(instruction.parsed)
+      }
+    })
 
-    const fixedPercentage = percentage > 0 ? `${percentage.toFixed(2)}%` : '0%'
+    // transfers
+    console.log('transaction', transactions)
 
-    console.log('BALANCE: ', FormatNumbers.formatTokenAmount(Number(tokenAccountInfo.amount)))
-    console.log('PERCENTAGE', fixedPercentage)
-    return {
-      balance: tokenAccountInfo.amount.toString(),
-      decimals: tokenAccountInfo.decimals,
-    }
-  } catch (error) {
-    console.log('Error fetching token holdings:', error)
+    const amount = (transactions[0].info.lamports ?? transactions[0].info.amount) / 1e9
 
-    // Return zero if account doesn't exist or an error occurs
-    if (error) {
-      return { balance: '0', decimals: 0 }
-    }
-
+    console.log(`${transactions[0].info.source} transfered ${amount} SOL to ${transactions[0].info.destination}`)
+  } catch {
+    console.log('PARSE_TRANSFERS_ERROR')
     return
   }
 }
 
-getTokenHoldings('', '')
-// parseTransactions()
-// test2()
+// parseTransfers()
+// parseTransactions('sol_transfer')
+test2()

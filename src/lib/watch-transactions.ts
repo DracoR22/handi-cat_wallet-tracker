@@ -14,11 +14,12 @@ import {
 } from '../config/program-ids'
 import chalk from 'chalk'
 import { RpcConnectionManager } from '../providers/solana'
-import { NativeParserInterface } from '../types/general-interfaces'
+import { NativeParserInterface, TransferParserInterface } from '../types/general-interfaces'
 import pLimit from 'p-limit'
 import { CronJobs } from './cron-jobs'
 import { PrismaUserRepository } from '../repositories/prisma/user'
 import { WalletPool } from '../config/wallet-pool'
+import TelegramBot from 'node-telegram-bot-api'
 
 export class WatchTransaction extends EventEmitter {
   private walletTransactions: Map<string, { count: number; startTime: number }>
@@ -71,7 +72,7 @@ export class WatchTransaction extends EventEmitter {
             //   return
             // }
 
-            const { isRelevant, swap } = this.isRelevantTransaction(logs)
+            const { isRelevant, swap } = ValidTransactions.isRelevantTransaction(logs)
 
             if (!isRelevant) {
               // console.log('TRANSACTION IS NOT DEFI', logs.signature)
@@ -106,17 +107,35 @@ export class WatchTransaction extends EventEmitter {
             // Parse transaction
             const solPriceUsd = CronJobs.getSolPrice()
             const transactionParser = new TransactionParser(transactionSignature)
-            const parsed = await transactionParser.parseRpc(transactionDetails, swap, solPriceUsd)
 
-            if (!parsed) {
-              // console.log('NO PARSED')
-              return
+            if (swap === 'raydium' || swap === 'jupiter' || swap === 'pumpfun' || swap === 'mint_pumpfun') {
+              const parsed = await transactionParser.parseDefiTransaction(
+                transactionDetails,
+                swap,
+                solPriceUsd,
+                walletAddress,
+              )
+              if (!parsed) {
+                return
+              }
+              console.log(parsed.description)
+
+              // await this.sendTransactionMessageToUsers(wallet, parsed)S
+              await this.sendMessageToUsers(wallet, parsed, (handler, parsedData, userId) =>
+                handler.sendTransactionMessage(parsedData, userId),
+              )
+            } else if (swap === 'sol_transfer') {
+              const parsed = await transactionParser.parseSolTransfer(transactionDetails, solPriceUsd, walletAddress)
+              if (!parsed) {
+                return
+              }
+              console.log(parsed.description)
+
+              // await this.sendTransferMessageToUsers(wallet, parsed)
+              await this.sendMessageToUsers(wallet, parsed, (handler, parsedData, userId) =>
+                handler.sendTransferMessage(parsedData, userId),
+              )
             }
-
-            console.log(parsed.description)
-
-            // Use bot to send message of transaction
-            await this.sendMessagesToUsers(wallet, parsed)
           },
           'processed',
         )
@@ -159,16 +178,22 @@ export class WatchTransaction extends EventEmitter {
     return null
   }
 
-  private async sendMessagesToUsers(wallet: WalletWithUsers, parsed: NativeParserInterface) {
+  private async sendMessageToUsers<T>(
+    wallet: WalletWithUsers,
+    parsed: T,
+    sendMessageFn: (
+      handler: SendTransactionMsgHandler,
+      parsed: T,
+      userId: string,
+    ) => Promise<TelegramBot.Message | undefined>,
+  ) {
     const sendMessageHandler = new SendTransactionMsgHandler(bot)
 
     const pausedUsers = (await this.prismaUserRepository.getPausedUsers(wallet.userWallets.map((w) => w.userId))) || []
 
-    const activeUsers = wallet.userWallets.filter(
-      (w) => !pausedUsers || !pausedUsers.includes(w.userId), // Include only non-paused users
-    )
+    const activeUsers = wallet.userWallets.filter((w) => !pausedUsers || !pausedUsers.includes(w.userId))
 
-    // just in case, somehow sometimes I get duplicated users here, I should probably address this in the track wallets function instead
+    // Remove duplicate users
     const uniqueActiveUsers = Array.from(new Set(activeUsers.map((user) => user.userId))).map((userId) =>
       activeUsers.find((user) => user.userId === userId),
     )
@@ -178,9 +203,8 @@ export class WatchTransaction extends EventEmitter {
     const tasks = uniqueActiveUsers.map((user) =>
       limit(async () => {
         if (user) {
-          // console.log('Users:', user)
           try {
-            await sendMessageHandler.send(parsed, user.userId)
+            await sendMessageFn(sendMessageHandler, parsed, user.userId)
           } catch (error) {
             console.log(`Error sending message to user ${user.userId}`)
           }
@@ -189,28 +213,5 @@ export class WatchTransaction extends EventEmitter {
     )
 
     await Promise.all(tasks)
-  }
-
-  private isRelevantTransaction(logs: Logs): { isRelevant: boolean; swap: SwapType } {
-    if (!logs.logs || logs.logs.length === 0) {
-      return { isRelevant: false, swap: null }
-    }
-
-    const logString = logs.logs.join(' ')
-
-    if (logString.includes(PUMP_FUN_TOKEN_MINT_AUTH)) {
-      return { isRelevant: true, swap: 'mint_pumpfun' }
-    }
-    if (logString.includes(PUMP_FUN_PROGRAM_ID)) {
-      return { isRelevant: true, swap: 'pumpfun' }
-    }
-    if (logString.includes(JUPITER_PROGRAM_ID)) {
-      return { isRelevant: true, swap: 'jupiter' }
-    }
-    if (logString.includes(RAYDIUM_PROGRAM_ID)) {
-      return { isRelevant: true, swap: 'raydium' }
-    }
-
-    return { isRelevant: false, swap: null }
   }
 }

@@ -22,7 +22,9 @@ export class TokenParser {
 
   public async getTokenInfo(tokenMint: string): Promise<TokenInfo> {
     const mintPublicKey = new PublicKey(tokenMint)
+    // const [tokenmetaPubkey, bump] = PublicKey.findProgramAddressSync([], mintPublicKey)
     const tokenmetaPubkey = await deprecated.Metadata.getPDA(mintPublicKey)
+
     const tokenContent = await Metadata.fromAccountAddress(this.connection, tokenmetaPubkey)
 
     const token = tokenContent.pretty()
