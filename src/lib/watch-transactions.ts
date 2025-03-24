@@ -6,15 +6,8 @@ import { SendTransactionMsgHandler } from '../bot/handlers/send-tx-msg-handler'
 import { bot } from '../providers/telegram'
 import { SwapType, WalletWithUsers } from '../types/swap-types'
 import { RateLimit } from './rate-limit'
-import {
-  JUPITER_PROGRAM_ID,
-  PUMP_FUN_PROGRAM_ID,
-  PUMP_FUN_TOKEN_MINT_AUTH,
-  RAYDIUM_PROGRAM_ID,
-} from '../config/program-ids'
 import chalk from 'chalk'
 import { RpcConnectionManager } from '../providers/solana'
-import { NativeParserInterface, TransferParserInterface } from '../types/general-interfaces'
 import pLimit from 'p-limit'
 import { CronJobs } from './cron-jobs'
 import { PrismaUserRepository } from '../repositories/prisma/user'
@@ -108,7 +101,13 @@ export class WatchTransaction extends EventEmitter {
             const solPriceUsd = CronJobs.getSolPrice()
             const transactionParser = new TransactionParser(transactionSignature)
 
-            if (swap === 'raydium' || swap === 'jupiter' || swap === 'pumpfun' || swap === 'mint_pumpfun') {
+            if (
+              swap === 'raydium' ||
+              swap === 'jupiter' ||
+              swap === 'pumpfun' ||
+              swap === 'mint_pumpfun' ||
+              swap === 'pumpfun_amm'
+            ) {
               const parsed = await transactionParser.parseDefiTransaction(
                 transactionDetails,
                 swap,

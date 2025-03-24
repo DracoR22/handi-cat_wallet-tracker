@@ -115,7 +115,7 @@ export class CronJobs {
       let solPrice = await TokenUtils.getSolPriceGecko()
 
       if (!solPrice) {
-        solPrice = await TokenUtils.getSolPriceNative()
+        solPrice = await TokenUtils.getSolPriceRpc()
       }
 
       if (solPrice) {

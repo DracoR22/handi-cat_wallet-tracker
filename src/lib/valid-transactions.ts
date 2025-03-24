@@ -6,6 +6,7 @@ import {
   JUPITER_PROGRAM_ID,
   PUMP_FUN_PROGRAM_ID,
   PUMP_FUN_TOKEN_MINT_AUTH,
+  PUMPFUN_AMM_PROGRAM_ID,
   RAYDIUM_PROGRAM_ID,
 } from '../config/program-ids'
 
@@ -21,6 +22,9 @@ export class ValidTransactions {
 
     const logString = logs.logs.join(' ')
 
+    if (logString.includes(PUMPFUN_AMM_PROGRAM_ID)) {
+      return { isRelevant: true, swap: 'pumpfun_amm' }
+    }
     if (logString.includes(PUMP_FUN_TOKEN_MINT_AUTH)) {
       return { isRelevant: true, swap: 'mint_pumpfun' }
     }
@@ -34,8 +38,7 @@ export class ValidTransactions {
       return { isRelevant: true, swap: 'raydium' }
     }
 
-    // This way we save rpc calls by excluding bulk transfers e.g: ads like solcasino micro transfers
-    // O(1) Solution
+    // This way we save some rpc calls by excluding bulk transfers
     let systemProgramCount = 0
 
     for (const log of logs.logs) {

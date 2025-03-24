@@ -1,5 +1,4 @@
 import TelegramBot from 'node-telegram-bot-api'
-import { TokenPrices } from '../../lib/token-prices-api'
 import { FormatNumbers } from '../../lib/format-numbers'
 import { createTxSubMenu } from '../../config/bot-menus'
 import { TxMessages } from '../messages/tx-messages'
@@ -7,12 +6,10 @@ import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
 import { NativeParserInterface, TransferParserInterface } from '../../types/general-interfaces'
 
 export class SendTransactionMsgHandler {
-  private tokenPrices: TokenPrices
   private prismaWalletRepository: PrismaWalletRepository
   constructor(private bot: TelegramBot) {
     this.bot = bot
 
-    this.tokenPrices = new TokenPrices()
     this.prismaWalletRepository = new PrismaWalletRepository()
   }
 
@@ -31,7 +28,7 @@ export class SendTransactionMsgHandler {
     }
 
     try {
-      if (message.platform === 'raydium' || message.platform === 'jupiter') {
+      if (message.platform === 'raydium' || message.platform === 'jupiter' || message.platform === 'pumpfun_amm') {
         let tokenMarketCap = message.swappedTokenMc
 
         // Check if the market cap is below 1000 and adjust if necessary
@@ -41,7 +38,6 @@ export class SendTransactionMsgHandler {
         }
 
         const formattedMarketCap = tokenMarketCap ? FormatNumbers.formatPrice(tokenMarketCap) : undefined
-        const tokenPrice = message.swappedTokenPrice
 
         const messageText = TxMessages.defiTxMessage(message, formattedMarketCap, walletName?.name)
         return this.bot.sendMessage(chatId, messageText, {

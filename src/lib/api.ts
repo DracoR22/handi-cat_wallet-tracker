@@ -1,8 +1,10 @@
 import axios from 'axios'
 import { PumpDetail } from '../types/gmgn-ai-types'
 import { TokenInfoPump } from '../types/pumpfun-types'
+import { HeliusTransaction } from '../types/helius-types'
 
-export class TokenPrices {
+// this class is no longer used in this project but some of these apis can be useful
+export class ApiRequests {
   constructor() {}
 
   public async gmgnTokenInfo(addr: string): Promise<PumpDetail | undefined> {
@@ -48,6 +50,40 @@ export class TokenPrices {
     } catch (error) {
       console.error('Error fetching coin data:', error)
       return
+    }
+  }
+
+  static async parseTransactionWithHelius(
+    transactionSignature: string,
+  ): Promise<{ message: string; type: 'buy' | 'sell' } | undefined> {
+    const apiUrl = `https://api.helius.xyz/v0/transactions/?api-key=${process.env.HELIUS_API_KEY}`
+    console.log('Parsing Transaction:', transactionSignature)
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transactions: [transactionSignature],
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`)
+      }
+
+      const transactions = (await response.json()) as HeliusTransaction[]
+      console.log('Received transactions:', transactions)
+      const type: 'buy' | 'sell' = transactions[0]!.accountData[0]!.nativeBalanceChange > 0 ? 'sell' : 'buy'
+
+      return {
+        message: transactions[0]!.description,
+        type,
+      }
+    } catch (error) {
+      console.error('Error parsing transaction with Helius:', error)
     }
   }
 }

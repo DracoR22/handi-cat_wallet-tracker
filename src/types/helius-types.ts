@@ -54,7 +54,7 @@ type Events = {
   swap: EventSwap
 }
 
-export type Transaction = {
+export type HeliusTransaction = {
   description: string
   type: string
   source: string

@@ -1,22 +1,16 @@
-import { Connection, LAMPORTS_PER_SOL, ParsedTransactionWithMeta, PublicKey } from '@solana/web3.js'
+import { Connection, ParsedTransactionWithMeta, PublicKey } from '@solana/web3.js'
 // @ts-expect-error
 import { getAccount, getAssociatedTokenAddress } from '@solana/spl-token'
+
+import { Metadata, deprecated } from '@metaplex-foundation/mpl-token-metadata'
 
 import axios from 'axios'
 import { PoolInfoLayout, SqrtPriceMath } from '@raydium-io/raydium-sdk'
 import dotenv from 'dotenv'
-import { ParsedTxInfo } from '../types/general-interfaces'
-import {
-  PUMP_CURVE_STATE_OFFSETS,
-  PUMP_CURVE_STATE_SIGNATURE,
-  PUMP_CURVE_STATE_SIZE,
-  PUMP_CURVE_TOKEN_DECIMALS,
-  PUMP_FUN_PROGRAM_ID,
-} from '../config/program-ids'
-import { PumpCurveState } from '../types/pumpfun-types'
-import { BufferUtils } from './buffer-utils'
+
 import { RpcConnectionManager } from '../providers/solana'
 import { FormatNumbers } from './format-numbers'
+import { ParsedTokenInfo } from '../types/general-interfaces'
 
 dotenv.config()
 
@@ -83,7 +77,6 @@ export class TokenUtils {
       }
     }
 
-    // Log the results
     if (balanceChanges.length > 0) {
       const firstChange = balanceChanges[0]
       // console.log(`Account Index ${firstChange.accountIndex} native balance change:`);
@@ -105,6 +98,19 @@ export class TokenUtils {
     }
   }
 
+  public async getParsedTokenInfo(tokenMint: string): Promise<ParsedTokenInfo> {
+    const mintPublicKey = new PublicKey(tokenMint)
+    // const [tokenmetaPubkey, bump] = PublicKey.findProgramAddressSync([], mintPublicKey)
+    const tokenmetaPubkey = await deprecated.Metadata.getPDA(mintPublicKey)
+
+    const tokenContent = await Metadata.fromAccountAddress(this.connection, tokenmetaPubkey)
+
+    const token = tokenContent.pretty()
+    //  console.log('TOKEN', token)
+
+    return token
+  }
+
   static async getSolPriceGecko(): Promise<string | undefined> {
     try {
       const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd')
@@ -120,7 +126,7 @@ export class TokenUtils {
     }
   }
 
-  static async getSolPriceNative(): Promise<string | undefined> {
+  static async getSolPriceRpc(): Promise<string | undefined> {
     try {
       const id = new PublicKey('8sLbNZoA1cfnvMJLPfp98ZLAnFSYCFApfJKMbiXNLwxj')
 
@@ -145,190 +151,6 @@ export class TokenUtils {
     } catch (error) {
       console.log('FETCH_SOL_PRICE_ERROR')
       return
-    }
-  }
-
-  public async getTokenBalance(tokenAccountAddress: PublicKey) {
-    try {
-      const tokenBalance = await this.connection.getTokenAccountBalance(tokenAccountAddress)
-      return tokenBalance.value.amount
-    } catch (error) {
-      console.log('Error fetching token balance:', error)
-      return
-    }
-  }
-
-  public async getTokenPriceRaydium(
-    txInstructions: ParsedTxInfo[],
-    type: 'buy' | 'sell',
-    solPriceInUsd: number,
-  ): Promise<number | undefined> {
-    if (type === 'buy') {
-      const tokenAccountAddress = new PublicKey(txInstructions[1]!.info.source)
-      const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[0]!.info.destination)
-
-      const splTokenBalance: any = await this.getTokenBalance(tokenAccountAddress)
-      const wrappedSolBalance: any = await this.getTokenBalance(tokenAccountAddressWrappedSol)
-      // const solPriceInUsd: any = await this.getSolPriceNative()
-
-      const priceOfSPLTokenInSOL = wrappedSolBalance / 1_000_000_000 / (splTokenBalance / 1_000_000)
-      let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd
-
-      // console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
-      // console.log('SOL PRICE TOKEN', priceOfSPLTokenInSOL)
-
-      if (priceOfSPLTokenInUSD.toString().includes('e')) {
-        // Convert the scientific notation number to a fixed decimal number string
-        const formattedPrice = priceOfSPLTokenInUSD.toFixed(10)
-
-        // Remove the first three leading zeros after the decimal point
-        const [integerPart, decimalPart] = formattedPrice.split('.')
-        const newDecimalPart = decimalPart!.replace(/^0{3}/, '')
-        priceOfSPLTokenInUSD = parseFloat(`${integerPart}.${newDecimalPart}`)
-      }
-
-      return priceOfSPLTokenInUSD
-    } else if (type === 'sell') {
-      const tokenAccountAddress = new PublicKey(txInstructions[0]!.info.destination)
-      const tokenAccountAddressWrappedSol = new PublicKey(txInstructions[1]!.info.source)
-
-      const splTokenBalance: any = await this.getTokenBalance(tokenAccountAddress)
-      const wrappedSolBalance: any = await this.getTokenBalance(tokenAccountAddressWrappedSol)
-      // const solPriceInUsd: any = await this.getSolPriceNative()
-
-      const priceOfSPLTokenInSOL = wrappedSolBalance / 1_000_000_000 / (splTokenBalance / 1_000_000)
-      let priceOfSPLTokenInUSD = priceOfSPLTokenInSOL * solPriceInUsd
-
-      // console.log('PRICE IN USD FIXED', priceOfSPLTokenInUSD.toFixed(10))
-      // console.log('SOL PRICE TOKEN', priceOfSPLTokenInSOL)
-
-      if (priceOfSPLTokenInUSD.toString().includes('e')) {
-        // Convert the scientific notation number to a fixed decimal number string
-        const formattedPrice = priceOfSPLTokenInUSD.toFixed(10)
-
-        // Remove the first three leading zeros after the decimal point
-        const [integerPart, decimalPart] = formattedPrice.split('.')
-        const newDecimalPart = decimalPart!.replace(/^0{3}/, '')
-        priceOfSPLTokenInUSD = parseFloat(`${integerPart}.${newDecimalPart}`)
-      }
-
-      return priceOfSPLTokenInUSD
-    }
-
-    return
-  }
-
-  public async getTokenPricePumpFun(tokenAddress: string, solPrice: string | undefined): Promise<number | null> {
-    const pumpFunProgram = new PublicKey(PUMP_FUN_PROGRAM_ID)
-    const [bondingCurve] = PublicKey.findProgramAddressSync(
-      [Buffer.from('bonding-curve'), new PublicKey(tokenAddress).toBytes()],
-      pumpFunProgram,
-    )
-
-    const curveAddressStr = bondingCurve.toBase58()
-
-    if (!curveAddressStr) return null
-
-    const curveAddress = new PublicKey(curveAddressStr)
-
-    const curveState = await this.getPumpCurveState(curveAddress)
-    if (!curveState) return null
-
-    const tokenPriceSol = this.calculatePumpCurvePrice(curveState)
-
-    // treat this as raydium token
-    if (tokenPriceSol === 0) return null
-
-    const parsedSolPrice = Number(solPrice)
-    const validSolPrice = isNaN(parsedSolPrice) ? 0 : parsedSolPrice
-
-    const tokenPriceUsd = tokenPriceSol * validSolPrice
-
-    // const formattedPrice = FormatNumbers.formatTokenPrice(tokenPriceUsd)
-
-    return tokenPriceUsd
-  }
-
-  public async getPumpCurveState(curveAddress: PublicKey): Promise<PumpCurveState | undefined> {
-    const response = await this.connection.getAccountInfo(curveAddress)
-    if (
-      !response ||
-      !response.data ||
-      response.data.byteLength < PUMP_CURVE_STATE_SIGNATURE.byteLength + PUMP_CURVE_STATE_SIZE
-    ) {
-      console.log('unexpected curve state')
-      return
-    }
-
-    const idlSignature = BufferUtils.readBytes(response.data, 0, PUMP_CURVE_STATE_SIGNATURE.byteLength)
-    if (idlSignature?.compare(PUMP_CURVE_STATE_SIGNATURE) !== 0) {
-      console.log('unexpected curve state IDL signature')
-      return
-    }
-
-    return {
-      virtualTokenReserves: BufferUtils.readBigUintLE(
-        response.data,
-        PUMP_CURVE_STATE_OFFSETS.VIRTUAL_TOKEN_RESERVES,
-        8,
-      ),
-      virtualSolReserves: BufferUtils.readBigUintLE(response.data, PUMP_CURVE_STATE_OFFSETS.VIRTUAL_SOL_RESERVES, 8),
-      realTokenReserves: BufferUtils.readBigUintLE(response.data, PUMP_CURVE_STATE_OFFSETS.REAL_TOKEN_RESERVES, 8),
-      realSolReserves: BufferUtils.readBigUintLE(response.data, PUMP_CURVE_STATE_OFFSETS.REAL_SOL_RESERVES, 8),
-      tokenTotalSupply: BufferUtils.readBigUintLE(response.data, PUMP_CURVE_STATE_OFFSETS.TOKEN_TOTAL_SUPPLY, 8),
-      complete: BufferUtils.readBoolean(response.data, PUMP_CURVE_STATE_OFFSETS.COMPLETE, 1),
-    }
-  }
-
-  public calculatePumpCurvePrice(curveState: PumpCurveState): number {
-    if (
-      curveState === null ||
-      typeof curveState !== 'object' ||
-      !(typeof curveState.virtualTokenReserves === 'bigint' && typeof curveState.virtualSolReserves === 'bigint')
-    ) {
-      console.log('curveState must be a PumpCurveState')
-      return 0
-    }
-
-    if (curveState.virtualTokenReserves <= BigInt(0) || curveState.virtualSolReserves <= BigInt(0)) {
-      console.log('curve state contains invalid reserve data')
-      return 0
-    }
-
-    return (
-      Number(curveState.virtualSolReserves) /
-      LAMPORTS_PER_SOL /
-      (Number(curveState.virtualTokenReserves) / 10 ** PUMP_CURVE_TOKEN_DECIMALS)
-    )
-  }
-
-  public async getTokenMktCap(tokenPrice: number, tokenMint: string, isPump: boolean) {
-    try {
-      let supplyValue = null
-      let supplyAmount = null
-
-      const mintPublicKey = new PublicKey(tokenMint)
-
-      if (isPump) {
-        supplyValue = 1e9
-        supplyAmount = 1e9
-      } else {
-        const tokenSupply = await this.connection.getTokenSupply(mintPublicKey)
-        supplyValue = tokenSupply.value.uiAmount
-        supplyAmount = Number(tokenSupply.value.amount)
-      }
-
-      if (!supplyValue) {
-        return { tokenMarketCap: 0, supplyAmount: 0 }
-      }
-
-      const tokenMarketCap = Number(supplyValue) * tokenPrice
-
-      // console.log('TOKEN_MARKET_CAP', tokenMarketCap)
-      return { tokenMarketCap, supplyAmount: supplyAmount || 0 }
-    } catch (error) {
-      console.log('GET_TOKEN_MKC_ERROR')
-      return { tokenMarketCap: 0, supplyAmount: 0 }
     }
   }
 

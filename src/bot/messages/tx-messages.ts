@@ -27,12 +27,7 @@ export class TxMessages {
     const solPrice = Number(message.solPrice)
 
     const amountInUsd = message.type === 'buy' ? Number(amountOut) * solPrice : Number(amountIn) * solPrice
-    // const fixedUsdAmount = amountInUsd < 0.01 ? amountInUsd.toFixed(6) : amountInUsd.toFixed(2)
     const fixedUsdAmount = FormatNumbers.formatPrice(amountInUsd)
-    // const displayPercentage =
-    //   isFinite(Number(message.currenHoldingPercentage)) && Number(message.currenHoldingPercentage) > 0
-    //     ? `${message.currenHoldingPercentage}%`
-    //     : '0'
 
     const tokenMintToTrack = message.type === 'buy' ? tokenInMint : tokenOutMint
 
@@ -43,12 +38,19 @@ export class TxMessages {
     const bullxLink = `<a href="https://neo.bullx.io/terminal?chainId=1399811149&address=${tokenMintToTrack}">BLX</a>`
     const axiomLink = `<a href='https://axiom.trade/t/${tokenMintToTrack}/@handi'>AXI</a>`
 
+    const platformName =
+      message.platform === 'pumpfun'
+        ? 'PUMP FUN'
+        : message.platform === 'pumpfun_amm'
+          ? 'PUMP FUN AMM'
+          : message.platform!.toUpperCase()
+
     const marketCapText = tokenMarketCap
       ? `🔗 ${message.type === 'buy' ? `<b><a href="${solscanTokenInUrl}">#${tokenIn}</a></b>` : `<b><a href="${solscanTokenOutUrl}">#${tokenOut}</a></b>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} • ${beLink} • ${dsLink} • ${phLink} • ${bullxLink} • ${axiomLink}`
       : ''
 
     const messageText = `
-${message.type === 'buy' ? '🟢' : '🔴'} <b><a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a></b> on ${message.platform!.toUpperCase()}
+${message.type === 'buy' ? '🟢' : '🔴'} <b><a href="${solscanTxUrl}">${message.type?.toUpperCase()} ${message.type === 'buy' ? `${tokenIn}` : `${tokenOut}`}</a></b> on ${platformName}
 <b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
 💎 <b><a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a></b> swapped <b>${amountOut}</b>${message.type === 'sell' ? ` ($${fixedUsdAmount})` : ''} <b><a href="${solscanTokenOutUrl}">${tokenOut}</a></b> for <b>${amountIn}</b>${message.type === 'buy' ? ` ($${fixedUsdAmount})` : ''} <b><a href="${solscanTokenInUrl}">${tokenIn}</a></b> @$${message.swappedTokenPrice?.toFixed(7)}
 
@@ -87,7 +89,7 @@ ${marketCapText}
     const phLink = `<a href="https://photon-sol.tinyastro.io/en/lp/${tokenMintToTrack}">PH</a>`
 
     const messageText = `
-⭐🔁 <a href="${solscanTxUrl}">SWAP</a> on PUMPFUN
+⭐🔁 <a href="${solscanTxUrl}">SWAP</a> on PUMP FUN
 <b>💎 ${walletName !== '' ? walletName : truncatedOwner}</b>\n
 💎 <a href="${solscanAddressUrl}">${walletName !== '' ? walletName : truncatedOwner}</a> minted and swapped <b>${amountOut}</b><a href="${solscanTokenOutUrl}">${tokenOut}</a> for <b>${amountIn}</b>($${fixedUsdAmount}) <a href="${solscanTokenInUrl}">${tokenIn}</a> 
 
