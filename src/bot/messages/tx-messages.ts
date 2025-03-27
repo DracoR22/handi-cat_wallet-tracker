@@ -38,12 +38,7 @@ export class TxMessages {
     const bullxLink = `<a href="https://neo.bullx.io/terminal?chainId=1399811149&address=${tokenMintToTrack}">BLX</a>`
     const axiomLink = `<a href='https://axiom.trade/t/${tokenMintToTrack}/@handi'>AXI</a>`
 
-    const platformName =
-      message.platform === 'pumpfun'
-        ? 'PUMP FUN'
-        : message.platform === 'pumpfun_amm'
-          ? 'PUMP FUN AMM'
-          : message.platform!.toUpperCase()
+    const platformName = message.platform === 'pumpfun_amm' ? 'PUMPSWAP' : message.platform!.toUpperCase()
 
     const marketCapText = tokenMarketCap
       ? `🔗 ${message.type === 'buy' ? `<b><a href="${solscanTokenInUrl}">#${tokenIn}</a></b>` : `<b><a href="${solscanTokenOutUrl}">#${tokenOut}</a></b>`} | <b>MC: $${tokenMarketCap}</b> | ${gmgnLink} • ${beLink} • ${dsLink} • ${phLink} • ${bullxLink} • ${axiomLink}`
