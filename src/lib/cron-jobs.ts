@@ -51,6 +51,11 @@ export class CronJobs {
               parse_mode: 'HTML',
             }),
           )
+
+          bot.sendMessage(
+            process.env.ADMIN_CHAT_ID ?? '',
+            `Sent success renewal message to ${usersToCharge.length}, Users: ${usersToCharge.map((u) => u.userId).join(', ')}`,
+          )
         } else {
           console.log(`Failed to charge user ${user.userId}: ${chargeResult.message}`)
           bot.sendMessage(
@@ -64,13 +69,13 @@ export class CronJobs {
               parse_mode: 'HTML',
             },
           )
+
+          bot.sendMessage(
+            process.env.ADMIN_CHAT_ID ?? '',
+            `Sent failed plan renewal message to ${usersToCharge.length}, Users: ${usersToCharge.map((u) => u.userId).join(', ')}`,
+          )
         }
       }
-
-      bot.sendMessage(
-        process.env.ADMIN_CHAT_ID ?? '',
-        `Sent a message to ${usersToCharge.length}, Users: ${usersToCharge.map((u) => u.userId).join(', ')}`,
-      )
     })
   }
 
