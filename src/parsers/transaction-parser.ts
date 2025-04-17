@@ -11,7 +11,7 @@ export class TransactionParser {
   private tokenMarketPrice: TokenMarketPrice
   private connection: Connection
   constructor(private transactionSignature: string) {
-    this.connection = RpcConnectionManager.connections[0]
+    this.connection = RpcConnectionManager.getRandomConnection()
     this.tokenUtils = new TokenUtils(this.connection)
     this.tokenMarketPrice = new TokenMarketPrice(this.connection)
     this.transactionSignature = this.transactionSignature
