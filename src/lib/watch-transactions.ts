@@ -153,7 +153,7 @@ export class WatchTransaction extends EventEmitter {
   public async getParsedTransaction(transactionSignature: string, retries = 4) {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const transactionDetails = await RpcConnectionManager.connections[1].getParsedTransactions(
+        const transactionDetails = await RpcConnectionManager.getRandomConnection().getParsedTransactions(
           [transactionSignature],
           {
             maxSupportedTransactionVersion: 0,
