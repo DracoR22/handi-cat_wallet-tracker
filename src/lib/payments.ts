@@ -69,7 +69,7 @@ export class Payments {
         // console.log('USER_PAIR', userKeypair)
 
         // Sign and send the transaction
-        let signature = await RpcConnectionManager.connections[0].sendTransaction(transaction, [userKeypair])
+        let signature = await RpcConnectionManager.getRandomConnection().sendTransaction(transaction, [userKeypair])
         console.log('Transaction signature:', signature)
 
         const subscription = await this.prismaSubscriptionRepository.updateUserSubscription(user.id, plan)
@@ -142,7 +142,7 @@ export class Payments {
         // console.log('USER_PAIR', userKeypair)
 
         // Sign and send the transaction
-        let signature = await RpcConnectionManager.connections[0].sendTransaction(transaction, [userKeypair])
+        let signature = await RpcConnectionManager.getRandomConnection().sendTransaction(transaction, [userKeypair])
         console.log('Transaction signature:', signature)
 
         const subscription = await this.prismaSubscriptionRepository.updateUserSubscription(user.id, plan)
@@ -193,7 +193,7 @@ export class Payments {
         // console.log('USER_PAIR', userKeypair)
 
         // Sign and send the transaction
-        let signature = await RpcConnectionManager.connections[0].sendTransaction(transaction, [userKeypair])
+        let signature = await RpcConnectionManager.getRandomConnection().sendTransaction(transaction, [userKeypair])
         console.log('Transaction signature:', signature)
 
         await this.prismaUserRepository.hasDonated(userId)
@@ -236,7 +236,7 @@ export class Payments {
         // console.log('USER_PAIR', userKeypair)
 
         // Sign and send the transaction
-        let signature = await RpcConnectionManager.connections[0].sendTransaction(transaction, [userKeypair])
+        let signature = await RpcConnectionManager.getRandomConnection().sendTransaction(transaction, [userKeypair])
         console.log('Transaction signature:', signature)
 
         const { message: promMessage, success } = await this.prismaSubscriptionRepository.buyPromotion(

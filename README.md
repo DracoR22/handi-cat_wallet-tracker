@@ -99,7 +99,7 @@ Follow these simple steps to setup Handi Cat locally on your machine
 
 7. Go to `src/providers/telegram.ts` and uncomment line 13, you will also need to comment everything after this line. We use this polling connection for local environments, if you decide to deploy the bot, then change it back to webhook connection
 
-8. Now you have to setup an rpc provider in `src/providers/solana.ts`, you can change all NETWORKS to `SOLANA_NETWORK` if you dont have one
+8. (Optional) setup a custom RPC provider inside of `RPC_ENDPOINTS` environment variable, you can place as many endpoints as you want if you folow them up with a comma. `e.g: https://rpc1.com,https://rpc2.com`
 
 9. Start the bot
 
@@ -107,7 +107,7 @@ Follow these simple steps to setup Handi Cat locally on your machine
   pnpm start
 ```
 
-10. That's it! now your local version of Handi Cat is ready, you can also fill the other environment variables to setup an RPC of your choice
+10. That's it! now your local version of Handi Cat is ready to use.
 
 <p align="center"><img src="./showcase/cli-pic.png" width="95%" alt="Screenshot of bot succesfully running"/></>
 

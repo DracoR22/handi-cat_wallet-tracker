@@ -8,7 +8,7 @@ export class UserBalances {
     try {
       const publicKey = new PublicKey(walletAddress)
 
-      const balance = await RpcConnectionManager.connections[0].getBalance(publicKey)
+      const balance = await RpcConnectionManager.getRandomConnection().getBalance(publicKey)
 
       // Convert lamports to SOL
       const solBalance = balance / 1_000_000_000

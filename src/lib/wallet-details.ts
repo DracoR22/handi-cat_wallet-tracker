@@ -7,9 +7,12 @@ export class WalletDetails {
   constructor() {}
 
   public async getLastWalletTx(walletAddress: string) {
-    const signatures = await RpcConnectionManager.connections[0].getSignaturesForAddress(new PublicKey(walletAddress), {
-      limit: 1,
-    })
+    const signatures = await RpcConnectionManager.getRandomConnection().getSignaturesForAddress(
+      new PublicKey(walletAddress),
+      {
+        limit: 1,
+      },
+    )
 
     if (signatures.length === 0) {
       console.log('No transactions found for this wallet.')

@@ -23,9 +23,12 @@ export class RateLimit {
     // Calculate the time 5 minutes ago
     const fiveMinutesAgo = currentTime - 1 * 60 * 1000
 
-    const signatures = await RpcConnectionManager.connections[0].getSignaturesForAddress(new PublicKey(walletAddress), {
-      limit: MAX_5_MIN_TXS_ALLOWED,
-    })
+    const signatures = await RpcConnectionManager.getRandomConnection().getSignaturesForAddress(
+      new PublicKey(walletAddress),
+      {
+        limit: MAX_5_MIN_TXS_ALLOWED,
+      },
+    )
 
     // Filter the transactions that occurred in the last 5 minutes
     const recentTransactions = signatures.filter((signatureInfo) => {
