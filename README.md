@@ -13,9 +13,9 @@
 
   <p align="center">
     Track any Solana transaction in Real-Time
+    <!-- <br />
     <br />
-    <br />
-    <a href="https://t.me/handi_cat_bot"><strong>Use the Telegram bot -></strong></a>
+    <a href="https://t.me/handi_cat_bot"><strong>Use the Telegram bot -></strong></a> -->
   </p>
 </div>
 
@@ -87,19 +87,31 @@ Follow these simple steps to setup Handi Cat locally on your machine
 
 3. Rename `.env.example` file to `.env`
 
-4. Create a Postgres database and paste the connection string into `DATABASE_URL`
+4. Create a Postgres database and paste the connection string into `DATABASE_URL` in .env
 
-5. Create a new `Telegram Bot` using `Bot Father` and get your `BOT_TOKEN`, then paste it in the environment variable
+5. Create a new `Telegram Bot` using `Bot Father` and get your `BOT_TOKEN`. Paste it into the corresponding variable in `.env`
 
-6. Run migrate command to push the database schemas and generate all types
+6. Run the migration command to push the database schemas and generate all types
 
 ```sh
   pnpm db:migrate
 ```
 
-7. Go to `src/providers/telegram.ts` and uncomment line 13, you will also need to comment everything after this line. We use this polling connection for local environments, if you decide to deploy the bot, then change it back to webhook connection
+7. `(Optional)` To use a webhook connection instead of polling, set your .env like this:
 
-8. (Optional) setup a custom RPC provider inside of `RPC_ENDPOINTS` environment variable, you can place as many endpoints as you want if you folow them up with a comma. `e.g: https://rpc1.com,https://rpc2.com`
+```env
+ENVIRONMENT=production
+APP_URL=https://your-domain.com
+
+# APP_URL must be the public HTTPS URL where your bot is deployed. The bot will automatically register its webhook at `APP_URL/webhook/telegram.
+```
+
+8. `(Optional)` Set up custom RPC providers by adding them to the RPC_ENDPOINTS environment variable.
+   You can list multiple endpoints separated by commas, e.g.:
+
+```env
+RPC_ENDPOINTS=https://rpc1.com,https://rpc2.com
+```
 
 9. Start the bot
 
