@@ -13,9 +13,9 @@
 
   <p align="center">
     Track any Solana transaction in Real-Time
-    <!-- <br />
     <br />
-    <a href="https://t.me/handi_cat_bot"><strong>Use the Telegram bot -></strong></a> -->
+    <br />
+    <a href="https://t.me/handi_cat_bot"><strong>Use the Telegram bot -></strong></a>
   </p>
 </div>
 
@@ -103,7 +103,8 @@ Follow these simple steps to setup Handi Cat locally on your machine
 ENVIRONMENT=production
 APP_URL=https://your-domain.com
 
-# APP_URL must be the public HTTPS URL where your bot is deployed. The bot will automatically register its webhook at `APP_URL/webhook/telegram.
+# APP_URL must be the public HTTPS URL where your bot is deployed.
+# The bot will automatically register its webhook at `APP_URL/webhook/telegram.
 ```
 
 8. `(Optional)` Set up custom RPC providers by adding them to the RPC_ENDPOINTS environment variable.
