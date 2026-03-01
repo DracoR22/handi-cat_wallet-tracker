@@ -1,6 +1,5 @@
 import { Connection, PublicKey } from '@solana/web3.js'
 
-import { SubscriptionPlan } from '@prisma/client'
 import { MAX_FREE_DAILY_MESSAGES } from '../constants/pricing'
 
 import { RateLimitMessages } from '../bot/messages/rate-limit-messages'
@@ -103,7 +102,7 @@ export class RateLimit {
     return false
   }
 
-  public async dailyMessageLimit(messagesToday: number, userPlan: SubscriptionPlan) {
+  public async dailyMessageLimit(messagesToday: number, userPlan: string) {
     if (userPlan === 'FREE' && messagesToday >= MAX_FREE_DAILY_MESSAGES) {
       return { dailyLimitReached: true }
     }

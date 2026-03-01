@@ -1,4 +1,3 @@
-import { PromotionType, SubscriptionPlan } from '@prisma/client'
 import prisma from '../../providers/prisma'
 
 export class PrismaSubscriptionRepository {
@@ -46,7 +45,7 @@ export class PrismaSubscriptionRepository {
     return userSubscription
   }
 
-  public async updateUserSubscription(userId: string, plan: SubscriptionPlan) {
+  public async updateUserSubscription(userId: string, plan: string) {
     const userSubscription = await this.getUserSubscription(userId)
 
     const now = new Date()
@@ -112,7 +111,7 @@ export class PrismaSubscriptionRepository {
 
   public async buyPromotion(
     userId: string,
-    promotionType: PromotionType,
+    promotionType: string,
   ): Promise<{ success: boolean; message: string }> {
     try {
       const promotion = await prisma.promotion.findFirst({

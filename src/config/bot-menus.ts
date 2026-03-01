@@ -1,6 +1,5 @@
 import { InlineKeyboardMarkup } from 'node-telegram-bot-api'
 import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, WHALE_PLAN_FEE } from '../constants/pricing'
-import { HandiCatStatus } from '@prisma/client'
 import { text } from 'stream/consumers'
 
 export const START_MENU: InlineKeyboardMarkup = {
@@ -116,7 +115,7 @@ export const INSUFFICIENT_BALANCE_SUB_MENU: InlineKeyboardMarkup = {
   ],
 }
 
-export const USER_SETTINGS_MENU = (botStatus: HandiCatStatus): InlineKeyboardMarkup => {
+export const USER_SETTINGS_MENU = (botStatus: string): InlineKeyboardMarkup => {
   return {
     inline_keyboard: [
       [

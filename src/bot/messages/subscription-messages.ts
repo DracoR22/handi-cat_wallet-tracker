@@ -10,7 +10,6 @@ import {
   WHALE_PLAN_FEE,
 } from '../../constants/pricing'
 import { UserWithSubscriptionPlan } from '../../types/prisma-types'
-import { SubscriptionPlan } from '@prisma/client'
 
 export class SubscriptionMessages {
   constructor() {}
@@ -65,7 +64,7 @@ You’ve reached the maximum limit of groups you can add <b>(${MAX_USER_GROUPS})
 To add a new group, please remove an existing one.
 `
 
-  static subscriptionRenewalMessage(userName: string, planName: SubscriptionPlan) {
+  static subscriptionRenewalMessage(userName: string, planName: string) {
     return `
 🔔 <b>Subscription Renewal Reminder</b>
 

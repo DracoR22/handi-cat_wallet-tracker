@@ -1,7 +1,6 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { GeneralMessages } from '../messages/general-messages'
 import { Payments } from '../../lib/payments'
-import { SubscriptionPlan } from '@prisma/client'
 import { PaymentsMessageEnum } from '../../types/messages-types'
 import { INSUFFICIENT_BALANCE_SUB_MENU, SUB_MENU } from '../../config/bot-menus'
 
@@ -15,7 +14,7 @@ export class UpgradePlanHandler {
     this.payments = new Payments()
   }
 
-  public async upgradePlan(message: TelegramBot.Message, plan: SubscriptionPlan): Promise<void> {
+  public async upgradePlan(message: TelegramBot.Message, plan: string): Promise<void> {
     const userId = message?.chat.id.toString()
     const chatId = message.chat.id
     const {

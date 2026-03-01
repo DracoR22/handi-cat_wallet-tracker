@@ -1,4 +1,3 @@
-import { SubscriptionPlan } from '@prisma/client'
 import { CreateWallet } from '../../lib/create-wallet'
 import { CreateUserGroupInterface, CreateUserInterface } from '../../types/general-interfaces'
 import prisma from '../../providers/prisma'

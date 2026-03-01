@@ -4,7 +4,7 @@ import { HOBBY_PLAN_FEE, PRO_PLAN_FEE, SOURCE_CODE_PRICE, WHALE_PLAN_FEE } from 
 import { HANDI_CAT_WALLET_ADDRESS } from '../constants/handi-cat'
 import { RpcConnectionManager } from '../providers/solana'
 import { PrismaUserRepository } from '../repositories/prisma/user'
-import { PromotionType, SubscriptionPlan, User, UserSubscription } from '@prisma/client'
+import { User, UserSubscription } from '@prisma/client'
 import { PrismaSubscriptionRepository } from '../repositories/prisma/subscription'
 import { PaymentsMessageEnum } from '../types/messages-types'
 import { format } from 'date-fns'
@@ -29,7 +29,7 @@ export class Payments {
 
   public async chargeSubscription(
     userId: string,
-    plan: SubscriptionPlan,
+    plan: string,
   ): Promise<{ success: boolean; message: PaymentsMessageEnum; subscriptionEnd: string | null }> {
     const user = await this.prismaUserRepository.getById(userId)
 
@@ -103,7 +103,7 @@ export class Payments {
 
   public async autoReChargeSubscription(
     userId: string,
-    plan: SubscriptionPlan,
+    plan: string,
   ): Promise<{ success: boolean; message: PaymentsMessageEnum; subscriptionEnd: string | null }> {
     const user = await this.prismaUserRepository.getById(userId)
 
@@ -212,7 +212,7 @@ export class Payments {
   public async chargePromotion(
     userId: string,
     promotionAmt: number,
-    promotionType: PromotionType,
+    promotionType: string,
   ): Promise<{ success: boolean; message: PaymentsMessageEnum }> {
     const user = await this.prismaUserRepository.getById(userId)
 

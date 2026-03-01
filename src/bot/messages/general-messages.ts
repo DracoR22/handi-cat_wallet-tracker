@@ -1,4 +1,3 @@
-import { SubscriptionPlan } from '@prisma/client'
 import {
   MAX_FREE_WALLETS,
   MAX_HOBBY_WALLETS,
@@ -58,7 +57,7 @@ You must have a Handi Cat <b>PRO</b> or <b>WHALE</b> subscription to use this bo
 - /manage View all wallets
 `
 
-  static planUpgradedMessage(plan: SubscriptionPlan, subscriptionEnd: string): string {
+  static planUpgradedMessage(plan: string, subscriptionEnd: string): string {
     const planWallets: { [key: string]: number } = {
       HOBBY: MAX_HOBBY_WALLETS,
       PRO: MAX_PRO_WALLETS,

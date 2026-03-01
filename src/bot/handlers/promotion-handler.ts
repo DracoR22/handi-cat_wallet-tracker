@@ -1,6 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { Payments } from '../../lib/payments'
-import { PromotionType } from '@prisma/client'
 import { GeneralMessages } from '../messages/general-messages'
 import { PaymentsMessageEnum } from '../../types/messages-types'
 import { INSUFFICIENT_BALANCE_SUB_MENU, SUB_MENU } from '../../config/bot-menus'
@@ -12,7 +11,7 @@ export class PromotionHandler {
     this.payments = new Payments()
   }
 
-  public async buyPromotion(message: TelegramBot.Message, promotionPrice: number, promotionType: PromotionType) {
+  public async buyPromotion(message: TelegramBot.Message, promotionPrice: number, promotionType: string) {
     const userId = String(message.chat.id)
     const chatId = message.chat.id
 

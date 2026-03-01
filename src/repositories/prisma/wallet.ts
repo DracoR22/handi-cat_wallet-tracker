@@ -1,4 +1,3 @@
-import { WalletStatus } from '@prisma/client'
 import prisma from '../../providers/prisma'
 import { WalletWithUsers } from '../../types/swap-types'
 
@@ -356,7 +355,7 @@ export class PrismaWalletRepository {
     }
   }
 
-  public async pauseUserWalletSpam(walletId: string, status: WalletStatus) {
+  public async pauseUserWalletSpam(walletId: string, status: string) {
     try {
       const pausedWallet = await prisma.userWallet.updateMany({
         where: {

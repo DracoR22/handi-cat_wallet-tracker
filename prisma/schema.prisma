@@ -3,31 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-enum SubscriptionPlan {
-  FREE
-  HOBBY
-  PRO
-  WHALE
-}
-
-enum WalletStatus {
-  ACTIVE
-  USER_PAUSED
-  SPAM_PAUSED
-  BANNED
-}
-
-enum HandiCatStatus {
-  ACTIVE
-  PAUSED
-}
-
-enum PromotionType {
-  UPGRADE_TO_50_WALLETS
 }
 
 model User {
@@ -38,7 +15,7 @@ model User {
 
   hasDonated              Boolean          @default(false)
 
-  botStatus               HandiCatStatus   @default(ACTIVE)
+  botStatus               String   @default("ACTIVE")
 
   personalWalletPubKey    String
   personalWalletPrivKey   String
@@ -65,8 +42,8 @@ model UserWallet {
   name            String
   address         String
 
-  handiCatStatus  HandiCatStatus   @default(ACTIVE)
-  status          WalletStatus     @default(ACTIVE)
+  handiCatStatus  String   @default("ACTIVE")
+  status          String     @default("ACTIVE")
 
   user            User             @relation(fields: [userId], references: [id])
   wallet          Wallet           @relation(fields: [walletId], references: [id])
@@ -76,7 +53,7 @@ model UserWallet {
 
 model UserSubscription {
   id                             String            @id @default(cuid())
-  plan                           SubscriptionPlan  @default(FREE)
+  plan                           String  @default("FREE")
 
   isCanceled                     Boolean           @default(false)
   subscriptionCurrentPeriodEnd   DateTime?
@@ -93,7 +70,7 @@ model UserSubscription {
 model Promotion {
   id String @id @default(cuid())
   name String
-  type PromotionType
+  type String
   price Decimal
   isActive Boolean @default(true)
   isStackable Boolean 
