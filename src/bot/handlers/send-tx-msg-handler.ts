@@ -2,6 +2,7 @@ import TelegramBot from 'node-telegram-bot-api'
 import { FormatNumbers } from '../../lib/format-numbers'
 import { createTxSubMenu } from '../../config/bot-menus'
 import { TxMessages } from '../messages/tx-messages'
+import { TokenSafety } from '../../lib/token-safety'
 import { PrismaWalletRepository } from '../../repositories/prisma/wallet'
 import { NativeParserInterface, TransferParserInterface } from '../../types/general-interfaces'
 
@@ -39,7 +40,8 @@ export class SendTransactionMsgHandler {
 
         const formattedMarketCap = tokenMarketCap ? FormatNumbers.formatPrice(tokenMarketCap) : undefined
 
-        const messageText = TxMessages.defiTxMessage(message, formattedMarketCap, walletName?.name)
+        const safetyLine = await TokenSafety.getLine(tokenToMc)
+        const messageText = TxMessages.defiTxMessage(message, formattedMarketCap, walletName?.name, safetyLine)
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',
           disable_web_page_preview: true,
@@ -50,7 +52,8 @@ export class SendTransactionMsgHandler {
 
         const formattedMarketCap = tokenMarketCap ? FormatNumbers.formatPrice(tokenMarketCap) : undefined
 
-        const messageText = TxMessages.defiTxMessage(message, formattedMarketCap, walletName?.name)
+        const safetyLine = await TokenSafety.getLine(tokenToMc)
+        const messageText = TxMessages.defiTxMessage(message, formattedMarketCap, walletName?.name, safetyLine)
         return this.bot.sendMessage(chatId, messageText, {
           parse_mode: 'HTML',
           disable_web_page_preview: true,
